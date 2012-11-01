@@ -12,6 +12,9 @@ namespace TestApp
 		{
 			GlobalLogger.Setup(new ConsoleLogger(1));
 			GlobalLogger.Instance.Log("Hello world!");
+
+			GlobalLogger.Instance.Log(System.IO.Path.GetFullPath("C:\\\\Games"));
+			GlobalLogger.Instance.Log(System.IO.Path.GetDirectoryName("C:\\\\Games"));
 		}
 	}
 }

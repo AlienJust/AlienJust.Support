@@ -9,18 +9,26 @@ namespace AlienJust.Support.Loggers
 {
 	public class SimpleLogger : ILogger
 	{
+		private readonly object _sync = new object();
+
 		private readonly string _logFileName = string.Empty;
 		private bool _append = false;
 		private readonly int _frameIndex = 1;
+
+
 		public SimpleLogger(string path)
 		{
 			_logFileName = path;
 		}
+
+
 		public SimpleLogger(string path, bool append)
 		{
 			_logFileName = path;
 			_append = append;
 		}
+
+
 		public SimpleLogger(string path, bool append, int frameIndex)
 		{
 			_logFileName = path;
@@ -28,30 +36,35 @@ namespace AlienJust.Support.Loggers
 			_frameIndex = frameIndex;
 		}
 
+
 		public void Log(string messageText)
 		{
-			try
+			lock (_sync)
 			{
-				using (var sw = new StreamWriter(_logFileName, _append))
+				try
 				{
-					var stackTrace = new System.Diagnostics.StackTrace();
-					var frame = stackTrace.GetFrame(_frameIndex);
-					string preffix = Thread.CurrentThread.ManagedThreadId + " > " + frame.GetMethod().DeclaringType.Name + "." + frame.GetMethod().Name;
+					using (var sw = new StreamWriter(_logFileName, _append))
+					{
+						var stackTrace = new System.Diagnostics.StackTrace();
+						var frame = stackTrace.GetFrame(_frameIndex);
+						string preffix = Thread.CurrentThread.ManagedThreadId + " > " + frame.GetMethod().DeclaringType.Name + "." + frame.GetMethod().Name;
 
-					if (!string.IsNullOrEmpty(messageText))
-						sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " > " + preffix + " > " + messageText);
-					else
-						sw.WriteLine();
+						if (!string.IsNullOrEmpty(messageText))
+							sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " > " + preffix + " > " + messageText);
+						else
+							sw.WriteLine();
 
-					sw.Close();
+						sw.Close();
+					}
+					if (!_append)
+					{
+						_append = true;
+					}
 				}
-				if (!_append)
+				catch
 				{
-					_append = true;
+					// What to do with erros during log? :o
 				}
-			}
-			catch
-			{
 			}
 		}
 	}

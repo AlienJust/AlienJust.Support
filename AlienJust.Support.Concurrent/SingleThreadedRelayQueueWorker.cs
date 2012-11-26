@@ -14,13 +14,11 @@ namespace AlienJust.Support.Concurrent
 		private readonly Action<TItem> _action;
 		private readonly AutoResetEvent _threadNotify;
 		private readonly Thread _workThread;
-		private readonly ILogger _logger;
 
 		public SingleThreadedRelayQueueWorker(Action<TItem> action, ILogger logger)
 		{
 			_items = new ConcurrentQueue<TItem>();
 			_action = action;
-			_logger = logger;
 
 			_threadNotify = new AutoResetEvent(false);
 			_workThread = new Thread(WorkingThreadStart) { IsBackground = true };
@@ -33,12 +31,11 @@ namespace AlienJust.Support.Concurrent
 			try
 			{
 				_items.Enqueue(item);
-				_logger.Log("item added");
 				_threadNotify.Set();
 			}
 			catch (Exception ex)
 			{
-				_logger.Log(ex.ToString());
+
 			}
 		}
 
@@ -56,22 +53,18 @@ namespace AlienJust.Support.Concurrent
 						try
 						{
 							_action(dequeuedItem);
-							_logger.Log("Item dequeued and action executed");
 						}
 						catch (Exception ex)
 						{
-							_logger.Log(ex.ToString());
 						}
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				_logger.Log(ex.ToString());
 			}
 			finally
 			{
-				_logger.Log("Exiting background thread (abnormal)");
 			}
 		}
 	}

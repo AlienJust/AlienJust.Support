@@ -93,11 +93,17 @@ namespace AlienJust.Support.Loggers
 
 		private static string GetShortenFileName(string fileName, string limiter)
 		{
-			/*var lastFoundLimiterPos = fileName.LastIndexOf(limiter, StringComparison.Ordinal);
-			if (lastFoundLimiterPos < 0) return fileName;
+			try
+			{
+				var lastFoundLimiterPos = fileName.LastIndexOf(limiter);
+				if (lastFoundLimiterPos < 0) return fileName;
 
-			return fileName.Substring(lastFoundLimiterPos + limiter.Length);
-			 */
+				return fileName.Substring(lastFoundLimiterPos + limiter.Length);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.ToString());
+			}
 			return fileName;
 		}
 	}

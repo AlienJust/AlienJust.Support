@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -7,33 +8,42 @@ using AlienJust.Support.Loggers.Contracts;
 
 namespace AlienJust.Support.Loggers
 {
-	public class SimpleLogger : ILogger
+	public sealed class SimpleLogger : ILogger
 	{
+		public const string Seporator = " > ";
+		public int FrameIndex { get; private set; }
+
 		private readonly object _sync = new object();
 
 		private readonly string _logFileName = string.Empty;
-		private bool _append = false;
-		private readonly int _frameIndex = 1;
+		private bool _append;
+		private readonly string _fileNameLimiter;
 
-
-		public SimpleLogger(string path)
+		public SimpleLogger(string path, string fileNameLimiter)
 		{
 			_logFileName = path;
+			_append = false;
+			_fileNameLimiter = fileNameLimiter;
+			FrameIndex = 1;
 		}
 
 
-		public SimpleLogger(string path, bool append)
+		public SimpleLogger(string path, bool append, string fileNameLimiter)
 		{
 			_logFileName = path;
 			_append = append;
+			_fileNameLimiter = fileNameLimiter;
+			FrameIndex = 1;
 		}
 
 
-		public SimpleLogger(string path, bool append, int frameIndex)
+		public SimpleLogger(string path, bool append, string fileNameLimiter, int frameIndex)
 		{
 			_logFileName = path;
 			_append = append;
-			_frameIndex = frameIndex;
+			_fileNameLimiter = fileNameLimiter;
+			FrameIndex = frameIndex;
+			
 		}
 
 
@@ -41,31 +51,54 @@ namespace AlienJust.Support.Loggers
 		{
 			lock (_sync)
 			{
-				try
+				using (var sw = new StreamWriter(_logFileName, _append))
 				{
-					using (var sw = new StreamWriter(_logFileName, _append))
+					var outStr = Thread.CurrentThread.ManagedThreadId + " > ";
+					var stackTrace = new StackTrace(true);
+					var stackDeep = stackTrace.FrameCount;
+					for (int i = stackDeep - 1; i > FrameIndex; --i)
 					{
-						var stackTrace = new System.Diagnostics.StackTrace();
-						var frame = stackTrace.GetFrame(_frameIndex);
-						string preffix = Thread.CurrentThread.ManagedThreadId + " > " + frame.GetMethod().DeclaringType.Name + "." + frame.GetMethod().Name;
-
-						if (!string.IsNullOrEmpty(messageText))
-							sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " > " + preffix + " > " + messageText);
-						else
-							sw.WriteLine();
-
-						sw.Close();
+						outStr += FrameToString(stackTrace.GetFrame(i));
 					}
-					if (!_append)
-					{
-						_append = true;
-					}
+
+					var lastFrame = stackTrace.GetFrame(FrameIndex);
+					outStr += FrameToString(lastFrame) + messageText + " (" + GetShortenFileName(lastFrame.GetFileName(), _fileNameLimiter) + ":" + lastFrame.GetFileLineNumber() + ")";
+
+					if (!string.IsNullOrEmpty(messageText))
+						sw.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " > " + outStr);
+					else
+						sw.WriteLine();
+
+					sw.Close();
 				}
-				catch
+				if (!_append)
 				{
-					// What to do with erros during log? :o
+					_append = true;
 				}
 			}
+		}
+
+
+		private static string FrameToString(StackFrame frame)
+		{
+			var result = string.Empty;
+			var m = frame.GetMethod();
+			var t = m.DeclaringType;
+			if (t != null)
+				result += t.Name + ".";
+			result += m.Name + Seporator;
+			return result;
+		}
+
+
+		private static string GetShortenFileName(string fileName, string limiter)
+		{
+			/*var lastFoundLimiterPos = fileName.LastIndexOf(limiter, StringComparison.Ordinal);
+			if (lastFoundLimiterPos < 0) return fileName;
+
+			return fileName.Substring(lastFoundLimiterPos + limiter.Length);
+			 */
+			return fileName;
 		}
 	}
 }

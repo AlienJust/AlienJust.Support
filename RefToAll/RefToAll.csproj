@@ -68,6 +68,10 @@
       <Project>{B6E41687-40C6-42A9-A523-3B92E9E952CA}</Project>
       <Name>AlienJust.Support.Reflection</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Concurrent\AlienJust.Support.Concurrent.csproj">
+      <Project>{69FFC499-27AF-4065-8CE0-C31C430B4C61}</Project>
+      <Name>AlienJust.Support.Concurrent</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AlienJust.Support.Functional\AlienJust.Support.Functional.csproj">
       <Project>{4E2872E4-78D5-45BF-9BEF-DC42A9FF3280}</Project>
       <Name>AlienJust.Support.Functional</Name>

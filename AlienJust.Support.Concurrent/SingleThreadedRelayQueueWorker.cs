@@ -15,7 +15,7 @@ namespace AlienJust.Support.Concurrent
 		private readonly AutoResetEvent _threadNotify;
 		private readonly Thread _workThread;
 
-		public SingleThreadedRelayQueueWorker(Action<TItem> action, ILogger logger)
+		public SingleThreadedRelayQueueWorker(Action<TItem> action)
 		{
 			_items = new ConcurrentQueue<TItem>();
 			_action = action;
@@ -25,6 +25,19 @@ namespace AlienJust.Support.Concurrent
 			_workThread.Start();
 		}
 
+
+		public void InsertAsFirstToExecutionQueue(TItem item)
+		{
+			try
+			{
+				//_items.(item);
+				_threadNotify.Set();
+			}
+			catch (Exception ex)
+			{
+
+			}
+		}
 
 		public void AddToExecutionQueue(TItem item)
 		{

@@ -67,6 +67,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AlienJust.Support.Concurrent\AlienJust.Support.Concurrent.csproj">
+      <Project>{69FFC499-27AF-4065-8CE0-C31C430B4C61}</Project>
+      <Name>AlienJust.Support.Concurrent</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AlienJust.Support.Loggers.Contracts\AlienJust.Support.Loggers.Contracts.csproj">
       <Project>{A5497170-CBC1-49DF-B8EC-27AF40E733C5}</Project>
       <Name>AlienJust.Support.Loggers.Contracts</Name>

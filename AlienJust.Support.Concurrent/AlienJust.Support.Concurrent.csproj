@@ -60,6 +60,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SingleThreadPriorityAsyncStarter.cs" />
+    <Compile Include="SingleThreadedRelayMultiQueueWorker.cs" />
     <Compile Include="SingleThreadAsyncStarter.cs" />
     <Compile Include="SingleThreadedRelayQueueWorker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -18,7 +18,7 @@ namespace AlienJust.Support.Concurrent
 		{
 			_maxFlow = maxFlow;
 			_flowCounter = new WaitableCounter();
-			_asyncActionQueueWorker = new SingleThreadedRelayQueueWorker<Action>(a=>a(), null);
+			_asyncActionQueueWorker = new SingleThreadedRelayQueueWorker<Action>(a=>a());
 		}
 		
 		public void AddToQueueForExecution(Action asyncAction)

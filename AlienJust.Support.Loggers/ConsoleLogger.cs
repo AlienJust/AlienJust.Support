@@ -23,8 +23,14 @@ namespace AlienJust.Support.Loggers
 			var stackTrace = new System.Diagnostics.StackTrace();
 			var frame = stackTrace.GetFrame(stackFrameNumber);
 			string preffix = frame.GetMethod().DeclaringType.Name + "." + frame.GetMethod().Name;
+
+			var tid = Thread.CurrentThread.ManagedThreadId;
+
+			string spaces = string.Empty;
+			for (int i = 0; i < tid; ++i)
+				spaces += "  ";
 			if (!string.IsNullOrEmpty(text))
-				Console.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " > " + Thread.CurrentThread.ManagedThreadId + " > " + preffix + " > " + text);
+				Console.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " > " + spaces + tid + " > " + preffix + " > " + text);
 			else
 				Console.WriteLine();
 		}

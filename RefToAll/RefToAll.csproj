@@ -96,6 +96,14 @@
       <Project>{6184F030-6D29-4BAE-9B48-A85BF00BCA08}</Project>
       <Name>AlienJust.Support.Numeric</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Text.Contracts\AlienJust.Support.Text.Contracts.csproj">
+      <Project>{6E952CB6-C573-4AE7-B43E-F35E98825E48}</Project>
+      <Name>AlienJust.Support.Text.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Text\AlienJust.Support.Text.csproj">
+      <Project>{EC611654-9830-4AA3-B45A-E8D8CDFDD5B5}</Project>
+      <Name>AlienJust.Support.Text</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

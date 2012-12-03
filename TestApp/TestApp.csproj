@@ -67,9 +67,21 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AlienJust.Support.Assemblies\AlienJust.Support.Reflection.csproj">
+      <Project>{B6E41687-40C6-42A9-A523-3B92E9E952CA}</Project>
+      <Name>AlienJust.Support.Reflection</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AlienJust.Support.Concurrent\AlienJust.Support.Concurrent.csproj">
       <Project>{69FFC499-27AF-4065-8CE0-C31C430B4C61}</Project>
       <Name>AlienJust.Support.Concurrent</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Functional\AlienJust.Support.Functional.csproj">
+      <Project>{4E2872E4-78D5-45BF-9BEF-DC42A9FF3280}</Project>
+      <Name>AlienJust.Support.Functional</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.IO\AlienJust.Support.IO.csproj">
+      <Project>{FE8471A4-3C28-493D-A4BF-94B5F6F439F2}</Project>
+      <Name>AlienJust.Support.IO</Name>
     </ProjectReference>
     <ProjectReference Include="..\AlienJust.Support.Loggers.Contracts\AlienJust.Support.Loggers.Contracts.csproj">
       <Project>{A5497170-CBC1-49DF-B8EC-27AF40E733C5}</Project>
@@ -78,6 +90,22 @@
     <ProjectReference Include="..\AlienJust.Support.Loggers\AlienJust.Support.Loggers.csproj">
       <Project>{5A4FC6A0-917B-4942-BFAC-1640D66337F0}</Project>
       <Name>AlienJust.Support.Loggers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.ModelViewViewModel\AlienJust.Support.ModelViewViewModel.csproj">
+      <Project>{8243EFFF-56E0-4B4D-A8A1-277986B3C5FA}</Project>
+      <Name>AlienJust.Support.ModelViewViewModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Numeric\AlienJust.Support.Numeric.csproj">
+      <Project>{6184F030-6D29-4BAE-9B48-A85BF00BCA08}</Project>
+      <Name>AlienJust.Support.Numeric</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Text.Contracts\AlienJust.Support.Text.Contracts.csproj">
+      <Project>{6E952CB6-C573-4AE7-B43E-F35E98825E48}</Project>
+      <Name>AlienJust.Support.Text.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Text\AlienJust.Support.Text.csproj">
+      <Project>{EC611654-9830-4AA3-B45A-E8D8CDFDD5B5}</Project>
+      <Name>AlienJust.Support.Text</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

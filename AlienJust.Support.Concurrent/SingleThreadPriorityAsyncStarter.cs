@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AlienJust.Support.Loggers;
 
 namespace AlienJust.Support.Concurrent
 {
@@ -27,13 +28,18 @@ namespace AlienJust.Support.Concurrent
 		/// Добавляет действие в одну из очередей на выполнение
 		/// </summary>
 		/// <param name="asyncAction">Действие, которое будет выполнено асинхронно</param>
-		/// <param name="queueNumber">Номер очереди (определяет приоритет), в которую будет добавлено действие</param>
+		/// <param name="queueNumber">Номер очереди (номер обратен приоритету), в которую будет добавлено действие</param>
 		public void AddToQueueForExecution(Action asyncAction, int queueNumber)
 		{
-			_flowCounter.IncrementCount();
+			//GlobalLogger.Instance.Log("Adding action to queue=" + queueNumber);
+
 			_asyncActionQueueWorker.AddToExecutionQueue(()=>
 			                                            	{
+																											//GlobalLogger.Instance.Log("Waiting for decrement, waitCount=" + _flowCounter.GetCount());
 																											_flowCounter.WaitForDecrementWhileNotPredecate(curCount => curCount < _maxFlow);
+			                                            		//GlobalLogger.Instance.Log("waiting complete, executing...");
+																											
+																											_flowCounter.IncrementCount();
 			                                            		asyncAction();
 			                                            	}, queueNumber);
 		}

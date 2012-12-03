@@ -72,6 +72,10 @@
       <Project>{A5497170-CBC1-49DF-B8EC-27AF40E733C5}</Project>
       <Name>AlienJust.Support.Loggers.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Loggers\AlienJust.Support.Loggers.csproj">
+      <Project>{5A4FC6A0-917B-4942-BFAC-1640D66337F0}</Project>
+      <Name>AlienJust.Support.Loggers</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

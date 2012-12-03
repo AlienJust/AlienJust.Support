@@ -27,18 +27,30 @@ namespace AlienJust.Support.Text
 		{
 			if (text == string.Empty) return text;
 
-			var outStr = Thread.CurrentThread.ManagedThreadId + " > ";
+			var threadStr = Thread.CurrentThread.ManagedThreadId;
+			var timeStr = DateTime.Now.ToString("HH:mm:ss.fff");
+
+	
 			var stackTrace = new StackTrace(true);
 			var stackDeep = stackTrace.FrameCount;
-			for (int i = stackDeep - 1; i > _frameIndex; --i)
+
+			var stackStr = string.Empty;
+			for (int i = stackDeep - 1; i >= _frameIndex; --i)
 			{
-				outStr += FrameToString(stackTrace.GetFrame(i), _seporator);
+				stackStr += FrameToString(stackTrace.GetFrame(i), _seporator);
 			}
-
+			
 			var lastFrame = stackTrace.GetFrame(_frameIndex);
-			outStr += FrameToString(lastFrame, _seporator) + text + " (" + GetShortenFileName(lastFrame.GetFileName(), _fileNameLimiter) + ":" + lastFrame.GetFileLineNumber() + ")";
 
-			return DateTime.Now.ToString("HH:mm:ss.fff") + _seporator + outStr;
+			var fileStr = GetShortenFileName(lastFrame.GetFileName(), _fileNameLimiter) + ":" + lastFrame.GetFileLineNumber();
+			string outStr = timeStr + _seporator +
+			                fileStr + _seporator +
+			                stackStr + // _seporator + // allready ended with _seporator
+			                threadStr + _seporator +
+			                text;
+
+
+			return outStr;
 		}
 
 

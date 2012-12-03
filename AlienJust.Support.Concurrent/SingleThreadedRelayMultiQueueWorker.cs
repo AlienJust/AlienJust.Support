@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using AlienJust.Support.Loggers;
 using AlienJust.Support.Loggers.Contracts;
 
 namespace AlienJust.Support.Concurrent
@@ -35,6 +36,7 @@ namespace AlienJust.Support.Concurrent
 		{
 			try
 			{
+				//GlobalLogger.Instance.Log("Adding item to execution queue_number=" + queueNumber);
 				_itemsQueues[queueNumber].Enqueue(item);
 				_threadNotify.Set();
 			}
@@ -56,30 +58,34 @@ namespace AlienJust.Support.Concurrent
 						var item = DequeueItemsReqursively(0);
 						try
 						{
+							//GlobalLogger.Instance.Log("item received, producing action on it...");
 							_action(item);
 						}
 						catch
 						{
-
+							// cannot execute action...
 						}
 					}
 					catch (Exception ex)
 					{
-						Console.WriteLine(ex.Message + ", waiting...");
+						//GlobalLogger.Instance.Log("No more items, waiting for new one...");
 						_threadNotify.WaitOne(); // Итемы кончились, начинаем ждать
 					}
 				}
 			}
 			catch (Exception ex)
 			{
+				//throw ex;
 			}
 			finally
 			{
+				//Console.WriteLine("Background thread ending...");
 			}
 		}
 
 		private TItem DequeueItemsReqursively(int currentQueueNumber)
 		{
+			//GlobalLogger.Instance.Log("currentQueueNumber=" + currentQueueNumber);
 			int nextQueueNumber = currentQueueNumber + 1;
 			if (currentQueueNumber >= _itemsQueues.Count) throw new Exception("No more queues");
 
@@ -87,10 +93,11 @@ namespace AlienJust.Support.Concurrent
 			TItem dequeuedItem;
 			if (items.TryDequeue(out dequeuedItem))
 			{
+				//GlobalLogger.Instance.Log("Item found, returning...");
 				return dequeuedItem;
 			}
 			
-			Console.WriteLine("No more items in queue No " + currentQueueNumber + " move to next queue");
+			//GlobalLogger.Instance.Log("No items in queue=" + currentQueueNumber + " moving to newx queue...");
 			return DequeueItemsReqursively(nextQueueNumber);
 		}
 	}

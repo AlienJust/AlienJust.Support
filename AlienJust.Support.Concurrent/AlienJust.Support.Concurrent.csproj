@@ -60,12 +60,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddressedConcurrentQueueWithPriority.cs" />
+    <Compile Include="ConcurrentQueueWithPriority.cs" />
+    <Compile Include="WaitableCounter.cs" />
+    <Compile Include="SingleThreadPriorityAddressedAsyncStarter.cs" />
+    <Compile Include="IMultiQueueWorker.cs" />
     <Compile Include="SingleThreadPriorityAsyncStarter.cs" />
     <Compile Include="SingleThreadedRelayMultiQueueWorker.cs" />
     <Compile Include="SingleThreadAsyncStarter.cs" />
     <Compile Include="SingleThreadedRelayQueueWorker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WaitableCounter.cs" />
+    <Compile Include="WaitableMultiCounter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AlienJust.Support.Loggers.Contracts\AlienJust.Support.Loggers.Contracts.csproj">

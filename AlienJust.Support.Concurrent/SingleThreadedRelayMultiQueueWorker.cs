@@ -101,9 +101,4 @@ namespace AlienJust.Support.Concurrent
 			return DequeueItemsReqursively(nextQueueNumber);
 		}
 	}
-
-	public interface IMultiQueueWorker<in TItem>
-	{
-		void AddToExecutionQueue(TItem item, int queueNumber);
-	}
 }

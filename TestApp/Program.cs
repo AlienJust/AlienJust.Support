@@ -19,14 +19,15 @@ namespace TestApp
 		static void Main(string[] args)
 		{
 			GlobalLogger.Setup(new ConsoleLogger(2));
-			GlobalLogger.Instance.Log("Hello world!");
+			//GlobalLogger.Instance.Log("Hello world!");
 			//GlobalLogger.Instance.Log(Path.PathSeparator.ToString(CultureInfo.InvariantCulture));
-			TestTextFormatter();
+			//TestTextFormatter();
 			//GlobalLogger.Instance.Log(System.IO.Path.GetFullPath("C:\\\\Games"));
 			//GlobalLogger.Instance.Log(System.IO.Path.GetDirectoryName("C:\\\\Games"));
-			new HelloWorld().TestLogger();
+			//new HelloWorld().TestLogger();
 			//TestMultiQueueWorker();
-			TestMultiQueueStarter();
+			//TestMultiQueueStarter();
+			TestMultiQueueAddrStarter();
 			Console.ReadKey(true);
 		}
 
@@ -64,7 +65,7 @@ namespace TestApp
 			                                 	});
 			
 			producerThread1.Start();
-			Thread.Sleep(3000);
+			Thread.Sleep(1000);
 			producerThread2.Start();
 		}
 
@@ -75,7 +76,7 @@ namespace TestApp
 			{
 				GlobalLogger.Instance.Log("Starting async action... i = " + i);
 				int i1 = i;
-				starter.AddToQueueForExecution(() => AsyncAction(() =>
+				starter.AddToQueueForExecution(() => AsyncAction(i1, () =>
 				                                                 	{
 				                                                 		GlobalLogger.Instance.Log("Callback ok for i = " + i1);
 				                                                 		starter.NotifyStarterAboutQueuedOperationComplete();
@@ -83,11 +84,29 @@ namespace TestApp
 			}
 		}
 
-		static void AsyncAction(Action completeCallback)
+		public static void TestMultiQueueAddrStarter()
+		{
+			var starter = new SingleThreadPriorityAddressedAsyncStarter<int>(5, 2);
+			for (int i = 0; i < 10; ++i)
+			{
+				for (int j = 0; j < 2; ++j)
+				{
+					GlobalLogger.Instance.Log("Starting async action... i = " + i);
+					int i1 = i;
+					starter.AddToQueueForExecution(() => AsyncAction(i1, () =>
+					                                                 	{
+					                                                 		GlobalLogger.Instance.Log("Callback ok for i = " + i1);
+					                                                 		starter.NotifyStarterAboutQueuedOperationComplete(i1);
+					                                                 	}), 1, i1);
+				}
+			}
+		}
+
+		static void AsyncAction(int actNumber, Action completeCallback)
 		{
 			var t = new Thread(() =>
 			                   	{
-														GlobalLogger.Instance.Log("Async action in progress");
+														GlobalLogger.Instance.Log("Async action i=" + actNumber +" in progress");
 			                   		Thread.Sleep(1000);
 			                   		completeCallback.Invoke();
 			                   	}) {IsBackground = true};

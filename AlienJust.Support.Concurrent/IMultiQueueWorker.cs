@@ -5,8 +5,9 @@ namespace AlienJust.Support.Concurrent
 		void AddToExecutionQueue(TItem item, int queueNumber);
 	}
 
-	public interface IAddressedMultiQueueWorker<in TItem>
+	public interface IAddressedMultiQueueWorker<in TKey, in TItem>
 	{
-		void AddToExecutionQueue(int address, TItem item, int queueNumber);
+		void AddToExecutionQueue(TKey address, TItem item, int queueNumber);
+		void ReportItemIsFree(TKey address);
 	}
 }

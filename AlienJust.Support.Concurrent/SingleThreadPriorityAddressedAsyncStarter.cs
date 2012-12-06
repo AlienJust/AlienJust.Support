@@ -8,77 +8,60 @@ using AlienJust.Support.Loggers;
 namespace AlienJust.Support.Concurrent
 {
 	/// <summary>
-	/// Запускает асинхронные задачи с разним приоритетом в отдельном потоке, позволяя контролировать максимальное число одновременно выполняемых асинхронных задач
+	/// Запускает асинхронные задачи с разним приоритетом в отдельном потоке, 
+	/// позволяя контролировать максимальное число одновременно выполняемых асинхронных задач
+	/// и максимальное число одновременно выполняемых асинхронных задач для одного адреса
 	/// </summary>
 	public sealed class SingleThreadPriorityAddressedAsyncStarter<TAddressKey>
 	{
-		private readonly int _maxFlow;
-		private readonly int _maxAddressFlow = 1;
-		private readonly SingleThreadedRelayMultyQueueWorker<Action> _asyncActionQueueWorker;
-		private readonly WaitableMultiCounter<TAddressKey> _flowCounters;
-		private AddressedConcurrentQueueWithPriority<TAddressKey, Action> _queueForAddresses;
-		public SingleThreadPriorityAddressedAsyncStarter(int maxFlow, int queuesCount)
+		private readonly int _maxTotalFlow;
+		
+		private readonly SingleThreadedRelayAddressedMultiQueueWorker<TAddressKey, Action<Action<TAddressKey>>> _asyncActionQueueWorker;
+		private readonly WaitableCounter _flowCounter;
+
+
+		public SingleThreadPriorityAddressedAsyncStarter(int maxTotalFlow, int maxFlowPerAddress, int priorityGradation)
 		{
-			_maxFlow = maxFlow;
-			
-			_flowCounters = new WaitableMultiCounter<TAddressKey>();
-			_asyncActionQueueWorker = new SingleThreadedRelayMultyQueueWorker<Action>(a => a(), queuesCount);
-			
+			_maxTotalFlow = maxTotalFlow;
+			_flowCounter = new WaitableCounter();
+			_asyncActionQueueWorker = new SingleThreadedRelayAddressedMultiQueueWorker<TAddressKey, Action<Action<TAddressKey>>>(RunActionWthAsyncTailBack, priorityGradation, maxFlowPerAddress);
 		}
+
+		/// <summary>
+		/// Запускает действие, завершающееся другим действием, передаваемым в качестве параметра запускаемому действию
+		/// </summary>
+		/// <param name="action">Действие, которое нужно запустить</param>
+		/// <param name="callbackTail">Завершающее дейсвтие</param>
+		private void RunActionWthAsyncTailBack(Action<Action<TAddressKey>> action, Action<TAddressKey> callbackTail)
+		{
+			action(callbackTail);
+		}
+
 
 		/// <summary>
 		/// Добавляет действие в одну из очередей на выполнение
 		/// </summary>
 		/// <param name="asyncAction">Действие, которое будет выполнено асинхронно</param>
-		/// <param name="queueNumber">Номер очереди (номер обратен приоритету), в которую будет добавлено действие</param>
+		/// <param name="priority">Приоритет</param>
 		/// <param name="key"> </param>
-		public void AddToQueueForExecution(Action asyncAction, int queueNumber, TAddressKey key)
+		public void AddToQueueForExecution(Action<Action> asyncAction, int priority, TAddressKey key)
 		{
-			//GlobalLogger.Instance.Log("Adding action to queue=" + queueNumber);
-			
-			_asyncActionQueueWorker.AddToExecutionQueue(() =>
-			                                            	{
-			                                            		//GlobalLogger.Instance.Log("Waiting for shared flow...");
-			                                            		while (_flowCounters.GetNotNullCountersCount() >= _maxFlow) _flowCounters.WaitForAnyDecrement(); // Ждем пока число занятых адресов не снизится меньше общего потока
-			                                            		
-																											if (_flowCounters.GetCount(key) < _maxAddressFlow)
-			                                            		{
-			                                            			_flowCounters.IncrementCount(key);
-			                                            			asyncAction();
-			                                            		}
-			                                            		else
-			                                            		{
-			                                            			_queueForAddresses.Enqueue(key, () => AddToQueueForExecution(asyncAction, queueNumber, key), 0);
-			                                            		}
-			                                            	},
-			                                            queueNumber);
-		}
+			//GlobalLogger.Instance.Log("Adding action to queue=" + priority);
 
-		/*private void AddToexecutionOrWaitingQueue(Action asyncAction, int queueNumber, TAddressKey key)
-		{
-			
-		}*/
+			_asyncActionQueueWorker.AddToExecutionQueue(key, notifyBackAction =>
+			                                                 	{
+			                                                 		//GlobalLogger.Instance.Log("Waiting for decrement, waitCount=" + _flowCounter.GetCount());
+			                                                 		_flowCounter.WaitForDecrementWhileNotPredecate(curCount => curCount < _maxTotalFlow);
+			                                                 		//GlobalLogger.Instance.Log("waiting complete, executing...");
 
-		/// <summary>
-		/// Вызывается клиентом при выполнении асинхронной задачи,
-		/// таким образом сообщяя, что асинхронная задача выполнена
-		/// </summary>
-		public void NotifyStarterAboutQueuedOperationComplete(TAddressKey key)
-		{
-			_flowCounters.DecrementCount(key);
-			try
-			{
-				if (_flowCounters.GetCount(key) < _maxAddressFlow) // Если адрес свободен для получения команд
-				{
-					_queueForAddresses.Dequeue(key).Invoke();
-				}
-			}
-			catch (Exception)
-			{
-				
-			}
+			                                                 		_flowCounter.IncrementCount();
+			                                                 		asyncAction(() =>
+			                                                 		            	{
+			                                                 		            		_asyncActionQueueWorker.ReportItemIsFree(key);
+			                                                 		            		_flowCounter.DecrementCount();
+			                                                 		            	});
+			                                                 	},
+			                                            priority);
 		}
 	}
-
-	
 }

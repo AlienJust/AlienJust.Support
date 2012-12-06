@@ -61,7 +61,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddressedConcurrentQueueWithPriority.cs" />
+    <Compile Include="AddressedItem.cs" />
     <Compile Include="ConcurrentQueueWithPriority.cs" />
+    <Compile Include="ConcurrentQueueWithPriorityAndAddressUsageControl.cs" />
+    <Compile Include="SingleThreadedRelayAddressedMultiQueueWorker.cs" />
     <Compile Include="WaitableCounter.cs" />
     <Compile Include="SingleThreadPriorityAddressedAsyncStarter.cs" />
     <Compile Include="IMultiQueueWorker.cs" />

@@ -17,5 +17,9 @@ namespace AlienJust.Support.ModelViewViewModel
 		{
 			CompaRiser.CompaRise(comparer, assignAction, RaisePropertyChanged, property);
 		}
+
+		public string GetPropName<T>(Expression<Func<T>> property) {
+			return CompaRiser.GetPropName(property);
+		}
 	}
 }

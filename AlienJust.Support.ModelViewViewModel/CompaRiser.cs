@@ -20,9 +20,13 @@ namespace AlienJust.Support.ModelViewViewModel
 			if (result)
 			{
 				assignAction.Invoke();
-				notifyPropertyChanged.Invoke(ReflectedProperty.GetName(property));
+				notifyPropertyChanged.Invoke(GetPropName(property));
 			}
 			return result;
+		}
+
+		public static string GetPropName<T>(Expression<Func<T>> property) {
+			return ReflectedProperty.GetName(property);
 		}
 	}
 }

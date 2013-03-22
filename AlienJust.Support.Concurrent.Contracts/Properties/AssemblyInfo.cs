@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AlienJust.Support.UserInterface.Contracts")]
+[assembly: AssemblyTitle("AlienJust.Support.Concurrent.Contracts")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("AlienJust.Support.UserInterface.Contracts")]
+[assembly: AssemblyProduct("AlienJust.Support.Concurrent.Contracts")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("ed73eda6-0bd6-4fa3-8fc9-8c82cd202260")]
+[assembly: Guid("79046d7b-6386-4418-af78-33b0e16bdd34")]
 
 // Version information for an assembly consists of the following four values:
 //

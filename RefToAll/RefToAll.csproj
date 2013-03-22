@@ -68,6 +68,10 @@
       <Project>{B6E41687-40C6-42A9-A523-3B92E9E952CA}</Project>
       <Name>AlienJust.Support.Reflection</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Concurrent.Contracts\AlienJust.Support.Concurrent.Contracts.csproj">
+      <Project>{0CA1E7AF-6F4E-4465-9689-B9461E924F12}</Project>
+      <Name>AlienJust.Support.Concurrent.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AlienJust.Support.Concurrent\AlienJust.Support.Concurrent.csproj">
       <Project>{69FFC499-27AF-4065-8CE0-C31C430B4C61}</Project>
       <Name>AlienJust.Support.Concurrent</Name>
@@ -105,7 +109,7 @@
       <Name>AlienJust.Support.Text</Name>
     </ProjectReference>
     <ProjectReference Include="..\AlienJust.Support.UserInterface.Contracts\AlienJust.Support.UserInterface.Contracts.csproj">
-      <Project>{15A23834-77F6-473C-9DFB-04306D7B2918}</Project>
+      <Project>{8C0A91DA-619F-486A-8AAB-294F447A0D71}</Project>
       <Name>AlienJust.Support.UserInterface.Contracts</Name>
     </ProjectReference>
   </ItemGroup>

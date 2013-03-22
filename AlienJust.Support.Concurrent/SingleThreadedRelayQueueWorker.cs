@@ -15,28 +15,21 @@ namespace AlienJust.Support.Concurrent
 		private readonly AutoResetEvent _threadNotify;
 		private readonly Thread _workThread;
 
-		public SingleThreadedRelayQueueWorker(Action<TItem> action)
+		public SingleThreadedRelayQueueWorker(Action<TItem> action, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState)
 		{
 			_items = new ConcurrentQueue<TItem>();
 			_action = action;
 
 			_threadNotify = new AutoResetEvent(false);
-			_workThread = new Thread(WorkingThreadStart) { IsBackground = true };
+			_workThread = new Thread(WorkingThreadStart) { IsBackground = markThreadAsBackground, Priority = threadPriority };
+			if (apartmentState.HasValue) _workThread.SetApartmentState(apartmentState.Value);
 			_workThread.Start();
 		}
 
 
 		public void InsertAsFirstToExecutionQueue(TItem item)
 		{
-			try
-			{
-				//_items.(item);
-				_threadNotify.Set();
-			}
-			catch (Exception ex)
-			{
-
-			}
+			throw new NotImplementedException("Not implemented!");
 		}
 
 		public void AddToExecutionQueue(TItem item)

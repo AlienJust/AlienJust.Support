@@ -25,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\AnyCPU\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -75,6 +75,10 @@
     <ProjectReference Include="..\AlienJust.Support.Concurrent\AlienJust.Support.Concurrent.csproj">
       <Project>{69FFC499-27AF-4065-8CE0-C31C430B4C61}</Project>
       <Name>AlienJust.Support.Concurrent</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.DotNetExtensions\AlienJust.Support.DotNetExtensions.csproj">
+      <Project>{A21E22F8-E45E-4014-8E74-0F2FB6981A36}</Project>
+      <Name>AlienJust.Support.DotNetExtensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\AlienJust.Support.Functional\AlienJust.Support.Functional.csproj">
       <Project>{4E2872E4-78D5-45BF-9BEF-DC42A9FF3280}</Project>

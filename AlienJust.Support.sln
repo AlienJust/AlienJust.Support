@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Concurren
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.UserInterface.Contracts", "AlienJust.Support.UserInterface.Contracts\AlienJust.Support.UserInterface.Contracts.csproj", "{8C0A91DA-619F-486A-8AAB-294F447A0D71}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.DotNetExtensions", "AlienJust.Support.DotNetExtensions\AlienJust.Support.DotNetExtensions.csproj", "{A21E22F8-E45E-4014-8E74-0F2FB6981A36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -138,6 +140,13 @@ Global
 		{8C0A91DA-619F-486A-8AAB-294F447A0D71}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8C0A91DA-619F-486A-8AAB-294F447A0D71}.Release|x86.ActiveCfg = Release|x86
 		{8C0A91DA-619F-486A-8AAB-294F447A0D71}.Release|x86.Build.0 = Release|x86
+		{A21E22F8-E45E-4014-8E74-0F2FB6981A36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A21E22F8-E45E-4014-8E74-0F2FB6981A36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A21E22F8-E45E-4014-8E74-0F2FB6981A36}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A21E22F8-E45E-4014-8E74-0F2FB6981A36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A21E22F8-E45E-4014-8E74-0F2FB6981A36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A21E22F8-E45E-4014-8E74-0F2FB6981A36}.Release|x86.ActiveCfg = Release|x86
+		{A21E22F8-E45E-4014-8E74-0F2FB6981A36}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

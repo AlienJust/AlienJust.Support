@@ -9,7 +9,7 @@ using AlienJust.Support.Loggers.Contracts;
 
 namespace AlienJust.Support.Concurrent
 {
-	public sealed class SingleThreadedRelayMultyQueueWorker<TItem> : IMultiQueueWorker<TItem>
+	public sealed class SingleThreadedRelayMultiQueueWorker<TItem> : IMultiQueueWorker<TItem>
 	{
 		private readonly List<ConcurrentQueue<TItem>> _itemsQueues;
 		//private readonly ConcurrentQueue<TItem> _itemsFirst;
@@ -18,7 +18,7 @@ namespace AlienJust.Support.Concurrent
 		private readonly Thread _workThread;
 
 
-		public SingleThreadedRelayMultyQueueWorker(Action<TItem> action, int queuesCount)
+		public SingleThreadedRelayMultiQueueWorker(Action<TItem> action, int queuesCount)
 		{
 			_itemsQueues = new List<ConcurrentQueue<TItem>>();
 			for (int i = 0; i < queuesCount; ++i)

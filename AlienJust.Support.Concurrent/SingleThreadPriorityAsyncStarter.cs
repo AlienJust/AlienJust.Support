@@ -13,7 +13,7 @@ namespace AlienJust.Support.Concurrent
 	{
 		private readonly int _maxFlow;
 		//private readonly int _queuesCount;
-		private readonly SingleThreadedRelayMultyQueueWorker<Action> _asyncActionQueueWorker;
+		private readonly SingleThreadedRelayMultiQueueWorker<Action> _asyncActionQueueWorker;
 		private readonly WaitableCounter _flowCounter;
 
 		public SingleThreadPriorityAsyncStarter(int maxFlow, int queuesCount)
@@ -21,7 +21,7 @@ namespace AlienJust.Support.Concurrent
 			_maxFlow = maxFlow;
 			//_queuesCount = queuesCount;
 			_flowCounter = new WaitableCounter();
-			_asyncActionQueueWorker = new SingleThreadedRelayMultyQueueWorker<Action>(a => a(), queuesCount);
+			_asyncActionQueueWorker = new SingleThreadedRelayMultiQueueWorker<Action>(a => a(), queuesCount);
 		}
 		
 		/// <summary>

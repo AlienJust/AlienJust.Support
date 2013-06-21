@@ -12,15 +12,18 @@ namespace AlienJust.Support.Concurrent
 	{
 		private readonly ConcurrentQueue<TItem> _items;
 		private readonly Action<TItem> _action;
-		private readonly AutoResetEvent _threadNotify;
 		private readonly Thread _workThread;
-
+		private readonly object _sync = new object();
+		private readonly WaitableCounter _counter;
+		private readonly ManualResetEvent _proceedNotify;
 		public SingleThreadedRelayQueueWorker(Action<TItem> action, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState)
 		{
 			_items = new ConcurrentQueue<TItem>();
 			_action = action;
 
-			_threadNotify = new AutoResetEvent(false);
+			_proceedNotify = new ManualResetEvent(false);
+			_counter = new WaitableCounter();
+
 			_workThread = new Thread(WorkingThreadStart) { IsBackground = markThreadAsBackground, Priority = threadPriority };
 			if (apartmentState.HasValue) _workThread.SetApartmentState(apartmentState.Value);
 			_workThread.Start();
@@ -37,7 +40,12 @@ namespace AlienJust.Support.Concurrent
 			try
 			{
 				_items.Enqueue(item);
-				_threadNotify.Set();
+				_counter.IncrementCount();
+				//_proceedNotify.Set();
+				//lock (_sync)
+				//{
+					//Monitor.Pulse(_sync);
+				//}
 			}
 			catch (Exception ex)
 			{
@@ -52,18 +60,35 @@ namespace AlienJust.Support.Concurrent
 			{
 				while (true)
 				{
-					_threadNotify.WaitOne();
-					TItem dequeuedItem;
-					while (_items.TryDequeue(out dequeuedItem))
-					{
+					Console.WriteLine("waiting for inrement...");
+					//lock (_sync) Monitor.Wait(_sync);
+					//_proceedNotify.WaitOne();
+					_counter.WaitForIncrement();
+					Console.WriteLine("increment received");
+					while (true) {
+						bool shouldProceed;
+						TItem dequeuedItem;
+						//lock (_sync) {
+							shouldProceed = _items.TryDequeue(out dequeuedItem);
+						//}
+						if (!shouldProceed) {
+							Console.WriteLine("no more items");
+							break;
+						}
+
 						try
 						{
+							Console.WriteLine("executing action:");
 							_action(dequeuedItem);
 						}
-						catch (Exception ex)
+						catch { continue;}
+						finally 
 						{
+							_counter.DecrementCount();
+							
 						}
 					}
+					//_proceedNotify.Reset();
 				}
 			}
 			catch (Exception ex)

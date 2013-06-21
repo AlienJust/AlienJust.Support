@@ -28,8 +28,10 @@ namespace TestApp
 			//TestMultiQueueWorker();
 			//TestMultiQueueStarter();
 			//TestAddressedMultiQueueWorker();
-			TestMultiQueueAddrStarter();
-			Console.ReadKey(true);
+			//TestMultiQueueAddrStarter();
+			SingleThreadRelayWorkerStressTest();
+			Thread.Sleep(9000000); // 9000 seconds, it is about 150 minutes
+			//Console.ReadKey(true);
 		}
 
 		private static void TestTextFormatter()
@@ -38,10 +40,32 @@ namespace TestApp
 			Console.WriteLine(f.Format("Formatted text"));
 		}
 
+		private static SingleThreadedRelayQueueWorker<Action> _worker;
+		public static void SingleThreadRelayWorkerStressTest() {
+			_worker = new SingleThreadedRelayQueueWorker<Action>(a => a(), ThreadPriority.Normal, true, null);
+			
+			var t1 = new Thread(ThreadStart) {IsBackground = true, Priority = ThreadPriority.BelowNormal};
+			var t2 = new Thread(ThreadStart) { IsBackground = true };
+			var t3 = new Thread(ThreadStart) { IsBackground = true };
+
+			t1.Start();
+			t2.Start();
+			t3.Start();
+		}
+
+		private static void ThreadStart() {
+			var threadId = Thread.CurrentThread.ManagedThreadId;
+			Console.WriteLine("Thread " + threadId + " started");
+			
+			while (true) {
+				_worker.AddToExecutionQueue(() => Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " > Hello from thread " + threadId));
+				//Thread.Sleep(1);
+			}
+		}
 
 		public static void TestMultiQueueWorker()
 		{
-			var starter = new SingleThreadedRelayMultyQueueWorker<int>(i =>
+			var starter = new SingleThreadedRelayMultiQueueWorker<int>(i =>
 			                                                           	{
 			                                                           		Thread.Sleep(300);
 																																		GlobalLogger.Instance.Log("Consumed item " + i); }

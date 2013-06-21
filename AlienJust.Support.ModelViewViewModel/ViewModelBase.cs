@@ -13,6 +13,10 @@ namespace AlienJust.Support.ModelViewViewModel
 			if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 		}
 
+		public void RaisePropertyChanged<T>(Expression<Func<T>> property) {
+			RaisePropertyChanged(CompaRiser.GetPropName(property));
+		}
+
 		public void SetProp<T>(Func<bool> comparer, Action assignAction, Expression<Func<T>> property)
 		{
 			CompaRiser.CompaRise(comparer, assignAction, RaisePropertyChanged, property);

@@ -1,3 +1,5 @@
+using System;
+
 namespace AlienJust.Support.Concurrent
 {
 	public interface IMultiQueueWorker<in TItem>
@@ -7,7 +9,8 @@ namespace AlienJust.Support.Concurrent
 
 	public interface IAddressedMultiQueueWorker<in TKey, in TItem>
 	{
-		void AddToExecutionQueue(TKey address, TItem item, int queueNumber);
+		Guid AddToExecutionQueue(TKey address, TItem item, int queueNumber);
 		void ReportItemIsFree(TKey address);
+		bool RemoveItem(Guid id);
 	}
 }

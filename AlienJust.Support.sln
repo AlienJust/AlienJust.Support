@@ -31,6 +31,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.UserInter
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.DotNetExtensions", "AlienJust.Support.DotNetExtensions\AlienJust.Support.DotNetExtensions.csproj", "{A21E22F8-E45E-4014-8E74-0F2FB6981A36}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Collections", "AlienJust.Support.Collections\AlienJust.Support.Collections.csproj", "{0C848FFB-21E7-4F99-ADC4-B95C2BE8C84F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Collections.Contracts", "AlienJust.Support.Collections.Contracts\AlienJust.Support.Collections.Contracts.csproj", "{2606BCEF-F695-4F55-A04B-D42F827621AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,6 +151,20 @@ Global
 		{A21E22F8-E45E-4014-8E74-0F2FB6981A36}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A21E22F8-E45E-4014-8E74-0F2FB6981A36}.Release|x86.ActiveCfg = Release|x86
 		{A21E22F8-E45E-4014-8E74-0F2FB6981A36}.Release|x86.Build.0 = Release|x86
+		{0C848FFB-21E7-4F99-ADC4-B95C2BE8C84F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C848FFB-21E7-4F99-ADC4-B95C2BE8C84F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C848FFB-21E7-4F99-ADC4-B95C2BE8C84F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0C848FFB-21E7-4F99-ADC4-B95C2BE8C84F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C848FFB-21E7-4F99-ADC4-B95C2BE8C84F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C848FFB-21E7-4F99-ADC4-B95C2BE8C84F}.Release|x86.ActiveCfg = Release|x86
+		{0C848FFB-21E7-4F99-ADC4-B95C2BE8C84F}.Release|x86.Build.0 = Release|x86
+		{2606BCEF-F695-4F55-A04B-D42F827621AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2606BCEF-F695-4F55-A04B-D42F827621AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2606BCEF-F695-4F55-A04B-D42F827621AA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2606BCEF-F695-4F55-A04B-D42F827621AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2606BCEF-F695-4F55-A04B-D42F827621AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2606BCEF-F695-4F55-A04B-D42F827621AA}.Release|x86.ActiveCfg = Release|x86
+		{2606BCEF-F695-4F55-A04B-D42F827621AA}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{69FFC499-27AF-4065-8CE0-C31C430B4C61}</ProjectGuid>
+    <ProjectGuid>{0C848FFB-21E7-4F99-ADC4-B95C2BE8C84F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AlienJust.Support.Concurrent</RootNamespace>
-    <AssemblyName>AlienJust.Support.Concurrent</AssemblyName>
+    <RootNamespace>AlienJust.Support.Collections</RootNamespace>
+    <AssemblyName>AlienJust.Support.Collections</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -38,7 +38,6 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -47,8 +46,6 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -60,30 +57,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddressedConcurrentQueueWithPriority.cs" />
-    <Compile Include="AddressedItem.cs" />
-    <Compile Include="ConcurrentQueueWithPriority.cs" />
-    <Compile Include="ConcurrentQueueWithPriorityAndAddressUsageControl.cs" />
-    <Compile Include="ConcurrentQueueWithPriorityAndAddressUsageControlGuided.cs" />
-    <Compile Include="SingleThreadedRelayAddressedMultiQueueWorker.cs" />
-    <Compile Include="WaitableCounter.cs" />
-    <Compile Include="SingleThreadPriorityAddressedAsyncStarter.cs" />
-    <Compile Include="IMultiQueueWorker.cs" />
-    <Compile Include="SingleThreadPriorityAsyncStarter.cs" />
-    <Compile Include="SingleThreadedRelayMultiQueueWorker.cs" />
-    <Compile Include="SingleThreadAsyncStarter.cs" />
-    <Compile Include="SingleThreadedRelayQueueWorker.cs" />
+    <Compile Include="InrowPartitioner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WaitableMultiCounter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AlienJust.Support.Loggers.Contracts\AlienJust.Support.Loggers.Contracts.csproj">
-      <Project>{A5497170-CBC1-49DF-B8EC-27AF40E733C5}</Project>
-      <Name>AlienJust.Support.Loggers.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AlienJust.Support.Loggers\AlienJust.Support.Loggers.csproj">
-      <Project>{5A4FC6A0-917B-4942-BFAC-1640D66337F0}</Project>
-      <Name>AlienJust.Support.Loggers</Name>
+    <ProjectReference Include="..\AlienJust.Support.Collections.Contracts\AlienJust.Support.Collections.Contracts.csproj">
+      <Project>{2606BCEF-F695-4F55-A04B-D42F827621AA}</Project>
+      <Name>AlienJust.Support.Collections.Contracts</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

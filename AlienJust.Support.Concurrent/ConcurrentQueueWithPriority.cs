@@ -6,7 +6,7 @@ using System.Text;
 
 namespace AlienJust.Support.Concurrent
 {
-	class ConcurrentQueueWithPriority<TItem>
+	public sealed class ConcurrentQueueWithPriority<TItem>
 	{
 		private readonly List<ConcurrentQueue<TItem>> _itemsQueues;
 		

@@ -12,10 +12,10 @@ namespace AlienJust.Support.Concurrent
 	/// </summary>
 	/// <typeparam name="TKey">Тип адреса</typeparam>
 	/// <typeparam name="TItem">Тип элемента</typeparam>
-	public sealed class ConcurrentQueueWithPriorityAndAddressUsageControl<TKey, TItem>
+	public sealed class ConcurrentQueueWithPriorityAndAddressUsageControlGuided<TKey, TItem>
 	{
 		private readonly object _syncRoot = new object();
-		private readonly List<List<AddressedItem<TKey, TItem>>> _itemCollections;
+		private readonly List<List<AddressedItemGuided<TKey, TItem>>> _itemCollections;
 		private readonly int _maxParallelUsingItemsCount;
 		private readonly WaitableMultiCounter<TKey> _itemCounters;
 
@@ -24,14 +24,14 @@ namespace AlienJust.Support.Concurrent
 		/// </summary>
 		/// <param name="maxPriority">Максимальный приоритет</param>
 		/// <param name="maxParallelUsingItemsCount">Максимальное количество одновременно разрешенных выборок элементов</param>
-		public ConcurrentQueueWithPriorityAndAddressUsageControl(int maxPriority, int maxParallelUsingItemsCount)
+		public ConcurrentQueueWithPriorityAndAddressUsageControlGuided(int maxPriority, int maxParallelUsingItemsCount)
 		{
 			_maxParallelUsingItemsCount = maxParallelUsingItemsCount;
-			_itemCollections = new List<List<AddressedItem<TKey, TItem>>>();
+			_itemCollections = new List<List<AddressedItemGuided<TKey, TItem>>>();
 			
 			for (int i = 0; i < maxPriority; ++i)
 			{
-				_itemCollections.Add(new List<AddressedItem<TKey, TItem>>());
+				_itemCollections.Add(new List<AddressedItemGuided<TKey, TItem>>());
 			}
 			
 			_itemCounters = new WaitableMultiCounter<TKey>();
@@ -53,12 +53,12 @@ namespace AlienJust.Support.Concurrent
 		/// <param name="key">Адрес элемента (ключ)</param>
 		/// <param name="item">Элемент</param>
 		/// <param name="priority">Приоритет (0 - наивысший приоритет)</param>
-		public void Enqueue(TKey key, TItem item, int priority)
-		{
-			lock (_syncRoot)
-			{
-				_itemCollections[priority].Add(new AddressedItem<TKey, TItem>(key, item));
+		public Guid Enqueue(TKey key, TItem item, int priority) {
+			var guid = Guid.NewGuid();
+			lock (_syncRoot) {
+				_itemCollections[priority].Add(new AddressedItemGuided<TKey, TItem>(key, item, guid));
 			}
+			return guid;
 		}
 
 		/// <summary>
@@ -66,17 +66,13 @@ namespace AlienJust.Support.Concurrent
 		/// </summary>
 		/// <returns>Взятый из очереди элемент</returns>
 		/// <exception cref="Exception">Исключение, итемов не найдено</exception>
-		public TItem Dequeue()
-		{
-			try
-			{
-				lock (_syncRoot)
-				{
+		public TItem Dequeue() {
+			try {
+				lock (_syncRoot) {
 					return DequeueItemsReqursively(0);
 				}
 			}
-			catch (Exception ex)
-			{
+			catch (Exception ex) {
 				throw new Exception("Cannot get item");
 			}
 		}
@@ -109,6 +105,36 @@ namespace AlienJust.Support.Concurrent
 			}
 			//GlobalLogger.Instance.Log("No items in queue=" + currentQueueNumber + " moving to newx queue...");
 			return DequeueItemsReqursively(nextQueueNumber);
+		}
+
+		/// <summary>
+		/// Удаляет элемент из коллекции
+		/// </summary>
+		/// <param name="id">Идентификатор итема</param>
+		/// <returns>Истина, если элемент с таки идентификатором был и был удален :о</returns>
+		public bool RemoveItem(Guid id) {
+			var result = false;
+			lock (_syncRoot) {
+				List<AddressedItemGuided<TKey, TItem>> foundCollection = null;
+				AddressedItemGuided<TKey, TItem> foundItem = null;
+				foreach (var collection in _itemCollections) {
+					foreach (var item in collection) {
+						if (item.Id == id) {
+							foundItem = item;
+							break;
+						}
+					}
+					if (foundItem != null) {
+						foundCollection = collection;
+						break;
+					}
+				}
+				// if collection is not null, then found item is allways not null:
+				if (foundCollection != null) {
+					result = foundCollection.Remove(foundItem);
+				}
+			}
+			return result;
 		}
 	}
 }

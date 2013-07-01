@@ -1,6 +1,8 @@
+using System;
+
 namespace AlienJust.Support.Concurrent
 {
-	class AddressedItem<TKey, TItem>
+	sealed class AddressedItem<TKey, TItem>
 	{
 		public TKey Key { get; private set;}
 		public TItem Item { get; private set; }
@@ -8,6 +10,18 @@ namespace AlienJust.Support.Concurrent
 		{
 			Key = key;
 			Item = item;
+		}
+	}
+
+	sealed class AddressedItemGuided<TKey, TItem>
+	{
+		public TKey Key { get; private set; }
+		public TItem Item { get; private set; }
+		public Guid Id { get; private set; }
+		public AddressedItemGuided(TKey key, TItem item, Guid id) {
+			Key = key;
+			Item = item;
+			Id = id;
 		}
 	}
 }

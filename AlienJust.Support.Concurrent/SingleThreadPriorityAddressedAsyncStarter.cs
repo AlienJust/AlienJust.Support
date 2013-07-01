@@ -12,7 +12,7 @@ namespace AlienJust.Support.Concurrent
 	/// позволяя контролировать максимальное число одновременно выполняемых асинхронных задач
 	/// и максимальное число одновременно выполняемых асинхронных задач для одного адреса
 	/// </summary>
-	public sealed class SingleThreadPriorityAddressedAsyncStarter<TAddressKey>
+	public sealed class SingleThreadPriorityAddressedAsyncStarter<TAddressKey> : IPriorKeyedAsyncStarter<TAddressKey>
 	{
 		private readonly int _maxTotalFlow;
 		
@@ -43,12 +43,13 @@ namespace AlienJust.Support.Concurrent
 		/// </summary>
 		/// <param name="asyncAction">Действие, которое будет выполнено асинхронно</param>
 		/// <param name="priority">Приоритет</param>
-		/// <param name="key"> </param>
-		public void AddToQueueForExecution(Action<Action> asyncAction, int priority, TAddressKey key)
+		/// <param name="key">Ключ</param>
+		/// <returns>Идентификатор задания</returns>
+		public Guid AddToQueueForExecution(Action<Action> asyncAction, int priority, TAddressKey key)
 		{
 			//GlobalLogger.Instance.Log("Adding action to queue=" + priority);
 
-			_asyncActionQueueWorker.AddToExecutionQueue(key, notifyBackAction =>
+			return _asyncActionQueueWorker.AddToExecutionQueue(key, notifyBackAction =>
 			                                                 	{
 			                                                 		//GlobalLogger.Instance.Log("Waiting for decrement, waitCount=" + _flowCounter.GetCount());
 			                                                 		_flowCounter.WaitForDecrementWhileNotPredecate(curCount => curCount < _maxTotalFlow);
@@ -63,5 +64,15 @@ namespace AlienJust.Support.Concurrent
 			                                                 	},
 			                                            priority);
 		}
+
+		public bool RemoveExecution(Guid id) {
+			return _asyncActionQueueWorker.RemoveItem(id);
+		}
+	}
+
+	public interface IPriorKeyedAsyncStarter<in TAddressKey>
+	{
+		Guid AddToQueueForExecution(Action<Action> asyncAction, int priority, TAddressKey key);
+		bool RemoveExecution(Guid id);
 	}
 }

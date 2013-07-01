@@ -64,6 +64,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AlienJust.Support.Collections.Contracts\AlienJust.Support.Collections.Contracts.csproj">
+      <Project>{2606BCEF-F695-4F55-A04B-D42F827621AA}</Project>
+      <Name>AlienJust.Support.Collections.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Collections\AlienJust.Support.Collections.csproj">
+      <Project>{0C848FFB-21E7-4F99-ADC4-B95C2BE8C84F}</Project>
+      <Name>AlienJust.Support.Collections</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AlienJust.Support.Assemblies\AlienJust.Support.Reflection.csproj">
       <Project>{B6E41687-40C6-42A9-A523-3B92E9E952CA}</Project>
       <Name>AlienJust.Support.Reflection</Name>

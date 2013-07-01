@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 
 namespace AlienJust.Support.Concurrent
 {
-	class AddressedConcurrentQueueWithPriority<TKey, TItem>
+	public sealed class AddressedConcurrentQueueWithPriority<TKey, TItem>
 	{
 		private readonly int _maxPriority;
 		private readonly ConcurrentDictionary<TKey, ConcurrentQueueWithPriority<TItem>> _addressedQueues;

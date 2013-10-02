@@ -59,6 +59,9 @@
   <ItemGroup>
     <Compile Include="InrowPartitioner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StructPairList.cs" />
+    <Compile Include="StructSubList.cs" />
+    <Compile Include="StructSubPairList.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AlienJust.Support.Collections.Contracts\AlienJust.Support.Collections.Contracts.csproj">

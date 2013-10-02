@@ -3,7 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace AlienJust.Support.Collections {
-	internal class StructSubPairList<T> : IList<T> where T : struct
+
+	/// <summary>
+	/// Формирует единый список структур данных из части элементов двух списков
+	/// </summary>
+	/// <typeparam name="T">Тип структур данных</typeparam>
+	public class StructSubPairList<T> : IList<T> where T : struct
 	{
 		#region Fields
 		private readonly int _startIndex1;

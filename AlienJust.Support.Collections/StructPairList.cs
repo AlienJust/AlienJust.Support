@@ -3,7 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace AlienJust.Support.Collections {
-	internal class StructPairList<T> : IList<T> where T : struct {
+	/// <summary>
+	/// Формирет единый список из двух структур
+	/// </summary>
+	/// <typeparam name="T">Тип структур данных (value class)</typeparam>
+	public class StructPairList<T> : IList<T> where T : struct {
 		#region Fields
 
 		private readonly int _count;

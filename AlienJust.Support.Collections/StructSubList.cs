@@ -3,7 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace AlienJust.Support.Collections {
-	internal class StructSubList<T> : IList<T> where T : struct {
+
+	/// <summary>
+	/// Формирует подсписок структур из большего списка
+	/// </summary>
+	/// <typeparam name="T">Тип структур данных</typeparam>
+	public class StructSubList<T> : IList<T> where T : struct
+	{
 		#region Fields
 
 		private readonly int _startIndex;

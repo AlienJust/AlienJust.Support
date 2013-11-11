@@ -18,7 +18,7 @@ namespace TestApp
 		
 		static void Main(string[] args)
 		{
-			GlobalLogger.Setup(new ConsoleLogger(2));
+			//GlobalLogger.Setup(new ConsoleLogger(2));
 			//GlobalLogger.Instance.Log("Hello world!");
 			//GlobalLogger.Instance.Log(Path.PathSeparator.ToString(CultureInfo.InvariantCulture));
 			//TestTextFormatter();
@@ -186,7 +186,7 @@ namespace TestApp
 
 	class HelloWorld
 	{
-		static readonly ILogger Logger = new SimpleLogger("123.txt", true, "\\");
+		static readonly ILogger Logger = new RelayLogger(null);
 
 		public void TestLogger()
 		{

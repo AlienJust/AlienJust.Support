@@ -13,12 +13,21 @@ namespace AlienJust.Support.Text
 		private readonly string _seporator;
 		private readonly int _frameIndex;
 		private readonly string _fileNameLimiter;
-
+		private readonly int _framesCountMax;
 
 		public TraceTextFormatter(string seporator, int stackFrameOffset, string fileNameLimiter)
 		{
 			_seporator = seporator;
 			_frameIndex = stackFrameOffset;
+			_framesCountMax = int.MaxValue;
+			_fileNameLimiter = fileNameLimiter;
+		}
+
+		public TraceTextFormatter(string seporator, int stackFrameOffset, int framesCountMax, string fileNameLimiter)
+		{
+			_seporator = seporator;
+			_frameIndex = stackFrameOffset;
+			_framesCountMax = framesCountMax;
 			_fileNameLimiter = fileNameLimiter;
 		}
 
@@ -32,7 +41,7 @@ namespace AlienJust.Support.Text
 
 	
 			var stackTrace = new StackTrace(true);
-			var stackDeep = stackTrace.FrameCount;
+			var stackDeep = stackTrace.FrameCount < _frameIndex + _framesCountMax ? stackTrace.FrameCount : _frameIndex + _framesCountMax;
 
 			var stackStr = string.Empty;
 			for (int i = stackDeep - 1; i >= _frameIndex; --i)

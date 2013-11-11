@@ -41,6 +41,13 @@ namespace AlienJust.Support.Concurrent
 			}
 		}
 
+		public void ClearQueue() {
+			foreach (var itemsQueue in _itemsQueues) {
+				TItem item;
+				while (itemsQueue.TryDequeue(out item)) {
+				}
+			}
+		}
 		
 		private TItem DequeueItemsReqursively(int currentQueueNumber)
 		{

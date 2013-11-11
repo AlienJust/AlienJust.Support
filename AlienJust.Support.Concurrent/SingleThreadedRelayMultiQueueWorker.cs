@@ -11,8 +11,7 @@ namespace AlienJust.Support.Concurrent
 {
 	public sealed class SingleThreadedRelayMultiQueueWorker<TItem> : IMultiQueueWorker<TItem>
 	{
-		private readonly List<ConcurrentQueue<TItem>> _itemsQueues;
-		//private readonly ConcurrentQueue<TItem> _itemsFirst;
+		private readonly ConcurrentQueueWithPriority<TItem> _cpQueue;
 		private readonly Action<TItem> _action;
 		private readonly AutoResetEvent _threadNotify;
 		private readonly Thread _workThread;
@@ -20,11 +19,8 @@ namespace AlienJust.Support.Concurrent
 
 		public SingleThreadedRelayMultiQueueWorker(Action<TItem> action, int queuesCount)
 		{
-			_itemsQueues = new List<ConcurrentQueue<TItem>>();
-			for (int i = 0; i < queuesCount; ++i)
-				_itemsQueues.Add(new ConcurrentQueue<TItem>());
-
-				_action = action;
+			_cpQueue = new ConcurrentQueueWithPriority<TItem>(queuesCount);
+			_action = action;
 
 			_threadNotify = new AutoResetEvent(false);
 			_workThread = new Thread(WorkingThreadStart) { IsBackground = true };
@@ -36,14 +32,17 @@ namespace AlienJust.Support.Concurrent
 		{
 			try
 			{
-				//GlobalLogger.Instance.Log("Adding item to execution queue_number=" + queueNumber);
-				_itemsQueues[queueNumber].Enqueue(item);
+				_cpQueue.Enqueue(item, queueNumber);
 				_threadNotify.Set();
 			}
 			catch (Exception ex)
 			{
 
 			}
+		}
+
+		public void ClearQueue() {
+			_cpQueue.ClearQueue();
 		}
 
 
@@ -55,7 +54,7 @@ namespace AlienJust.Support.Concurrent
 				{
 					try
 					{
-						var item = DequeueItemsReqursively(0);
+						var item = _cpQueue.Dequeue();
 						try
 						{
 							//GlobalLogger.Instance.Log("item received, producing action on it...");
@@ -81,24 +80,6 @@ namespace AlienJust.Support.Concurrent
 			{
 				//Console.WriteLine("Background thread ending...");
 			}
-		}
-
-		private TItem DequeueItemsReqursively(int currentQueueNumber)
-		{
-			//GlobalLogger.Instance.Log("currentQueueNumber=" + currentQueueNumber);
-			int nextQueueNumber = currentQueueNumber + 1;
-			if (currentQueueNumber >= _itemsQueues.Count) throw new Exception("No more queues");
-
-			var items = _itemsQueues[currentQueueNumber];
-			TItem dequeuedItem;
-			if (items.TryDequeue(out dequeuedItem))
-			{
-				//GlobalLogger.Instance.Log("Item found, returning...");
-				return dequeuedItem;
-			}
-			
-			//GlobalLogger.Instance.Log("No items in queue=" + currentQueueNumber + " moving to newx queue...");
-			return DequeueItemsReqursively(nextQueueNumber);
 		}
 	}
 }

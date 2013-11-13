@@ -56,6 +56,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DateTimeFormatter.cs" />
+    <Compile Include="ThreadFormatter.cs" />
+    <Compile Include="ThreadPriorityExtensions.cs" />
     <Compile Include="TraceTextFormatter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

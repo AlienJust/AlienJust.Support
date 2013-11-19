@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using AlienJust.Support.Loggers;
-using AlienJust.Support.Loggers.Contracts;
+using AlienJust.Support.Concurrent.Contracts;
 
 namespace AlienJust.Support.Concurrent {
 	public sealed class SingleThreadedRelayAddressedMultiQueueWorker<TKey, TItem> : IAddressedMultiQueueWorker<TKey, TItem> {

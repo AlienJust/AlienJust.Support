@@ -1,4 +1,6 @@
-﻿namespace AlienJust.Support.Concurrent {
+﻿using System;
+
+namespace AlienJust.Support.Concurrent {
 	/// <summary>
 	/// Хранит значение переменной, доступ к которому осуществляется синхронизованно
 	/// </summary>
@@ -25,6 +27,12 @@
 				lock (_sync) {
 					_value = value;
 				}
+			}
+		}
+
+		public void LockedAction(Action<T> action) {
+			lock (_sync) {
+				action(_value);
 			}
 		}
 	}

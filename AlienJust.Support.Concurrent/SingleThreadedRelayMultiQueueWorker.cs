@@ -1,42 +1,31 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using AlienJust.Support.Loggers;
-using AlienJust.Support.Loggers.Contracts;
+using AlienJust.Support.Concurrent.Contracts;
 
-namespace AlienJust.Support.Concurrent
-{
-	public sealed class SingleThreadedRelayMultiQueueWorker<TItem> : IMultiQueueWorker<TItem>
-	{
+namespace AlienJust.Support.Concurrent {
+	public sealed class SingleThreadedRelayMultiQueueWorker<TItem> : IMultiQueueWorker<TItem> {
 		private readonly ConcurrentQueueWithPriority<TItem> _cpQueue;
 		private readonly Action<TItem> _action;
 		private readonly AutoResetEvent _threadNotify;
 		private readonly Thread _workThread;
 
 
-		public SingleThreadedRelayMultiQueueWorker(Action<TItem> action, int queuesCount)
-		{
+		public SingleThreadedRelayMultiQueueWorker(Action<TItem> action, int queuesCount) {
 			_cpQueue = new ConcurrentQueueWithPriority<TItem>(queuesCount);
 			_action = action;
 
 			_threadNotify = new AutoResetEvent(false);
-			_workThread = new Thread(WorkingThreadStart) { IsBackground = true };
+			_workThread = new Thread(WorkingThreadStart) {IsBackground = true};
 			_workThread.Start();
 		}
 
 
-		public void AddToExecutionQueue(TItem item, int queueNumber)
-		{
-			try
-			{
+		public void AddToExecutionQueue(TItem item, int queueNumber) {
+			try {
 				_cpQueue.Enqueue(item, queueNumber);
 				_threadNotify.Set();
 			}
-			catch (Exception ex)
-			{
+			catch (Exception ex) {
 
 			}
 		}
@@ -46,38 +35,29 @@ namespace AlienJust.Support.Concurrent
 		}
 
 
-		private void WorkingThreadStart()
-		{
-			try
-			{
-				while (true)
-				{
-					try
-					{
+		private void WorkingThreadStart() {
+			try {
+				while (true) {
+					try {
 						var item = _cpQueue.Dequeue();
-						try
-						{
+						try {
 							//GlobalLogger.Instance.Log("item received, producing action on it...");
 							_action(item);
 						}
-						catch
-						{
+						catch {
 							// cannot execute action...
 						}
 					}
-					catch (Exception ex)
-					{
+					catch (Exception ex) {
 						//GlobalLogger.Instance.Log("No more items, waiting for new one...");
 						_threadNotify.WaitOne(); // Итемы кончились, начинаем ждать
 					}
 				}
 			}
-			catch (Exception ex)
-			{
+			catch (Exception ex) {
 				//throw ex;
 			}
-			finally
-			{
+			finally {
 				//Console.WriteLine("Background thread ending...");
 			}
 		}

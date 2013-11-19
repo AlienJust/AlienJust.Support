@@ -56,7 +56,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IAddressedMultiQueueWorker.cs" />
+    <Compile Include="IAsyncWorker.cs" />
+    <Compile Include="IGuidMemory.cs" />
+    <Compile Include="IMultiQueueWorker.cs" />
     <Compile Include="IThreadNotifier.cs" />
+    <Compile Include="IWorkerFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

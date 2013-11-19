@@ -62,14 +62,16 @@
   <ItemGroup>
     <Compile Include="AddressedConcurrentQueueWithPriority.cs" />
     <Compile Include="AddressedItem.cs" />
+    <Compile Include="AsyncMemoriedWorkerFactory.cs" />
+    <Compile Include="ConcurrentGuidMemory.cs" />
     <Compile Include="ConcurrentQueueWithPriority.cs" />
     <Compile Include="ConcurrentQueueWithPriorityAndAddressUsageControl.cs" />
     <Compile Include="ConcurrentQueueWithPriorityAndAddressUsageControlGuided.cs" />
+    <Compile Include="RelayAsyncWorker.cs" />
     <Compile Include="SingleThreadedRelayAddressedMultiQueueWorker.cs" />
     <Compile Include="SyncObjectContainer.cs" />
     <Compile Include="WaitableCounter.cs" />
     <Compile Include="SingleThreadPriorityAddressedAsyncStarter.cs" />
-    <Compile Include="IMultiQueueWorker.cs" />
     <Compile Include="SingleThreadPriorityAsyncStarter.cs" />
     <Compile Include="SingleThreadedRelayMultiQueueWorker.cs" />
     <Compile Include="SingleThreadAsyncStarter.cs" />
@@ -78,6 +80,10 @@
     <Compile Include="WaitableMultiCounter.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AlienJust.Support.Concurrent.Contracts\AlienJust.Support.Concurrent.Contracts.csproj">
+      <Project>{0CA1E7AF-6F4E-4465-9689-B9461E924F12}</Project>
+      <Name>AlienJust.Support.Concurrent.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AlienJust.Support.Loggers.Contracts\AlienJust.Support.Loggers.Contracts.csproj">
       <Project>{A5497170-CBC1-49DF-B8EC-27AF40E733C5}</Project>
       <Name>AlienJust.Support.Loggers.Contracts</Name>

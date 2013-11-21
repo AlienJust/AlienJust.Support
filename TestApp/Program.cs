@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using AlienJust.Support.Concurrent;
+using AlienJust.Support.Concurrent.Contracts;
 using AlienJust.Support.Loggers;
 using AlienJust.Support.Loggers.Contracts;
 using AlienJust.Support.Text;
@@ -29,9 +30,12 @@ namespace TestApp
 			//TestMultiQueueStarter();
 			//TestAddressedMultiQueueWorker();
 			//TestMultiQueueAddrStarter();
-			SingleThreadRelayWorkerStressTest();
-			Thread.Sleep(9000000); // 9000 seconds, it is about 150 minutes
-			//Console.ReadKey(true);
+			
+			//SingleThreadRelayWorkerStressTest();
+			//Thread.Sleep(9000000); // 9000 seconds, it is about 150 minutes
+			
+			TestAsyncWorkers();
+			Console.ReadKey(true);
 		}
 
 		private static void TestTextFormatter()
@@ -181,6 +185,25 @@ namespace TestApp
 			                   		completeCallback.Invoke();
 			                   	}) {IsBackground = true};
 			t.Start();
+		}
+
+		static readonly IWorkerFactory WorkersFactory = new AsyncMemoriedWorkerFactory();
+		static void TestAsyncWorkers() {
+			Console.WriteLine("Current thread id = " + Thread.CurrentThread.ManagedThreadId);
+			
+			var worker = WorkersFactory.GetSimpleWorker(
+				progressHandler => {
+					for (int i = 0; i < 10; ++i) {
+						Console.WriteLine(Thread.CurrentThread.ManagedThreadId + " > long background task...");
+						Thread.Sleep(1000);
+						progressHandler.NotifyProgrssChanged(i + 1 * 10);
+					}
+					//progressHandler.NotifyProgrssChanged(100);
+				},
+				progressPercent => Console.WriteLine(Thread.CurrentThread.ManagedThreadId + " > Progress " + progressPercent),
+				ex => Console.WriteLine(Thread.CurrentThread.ManagedThreadId + " > all task complete")
+				);
+			worker.Run();
 		}
 	}
 

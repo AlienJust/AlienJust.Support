@@ -8,7 +8,7 @@ namespace AlienJust.Support.Concurrent {
 			_progress = progress;
 		}
 		public void NotifyProgrssChanged(int progress) {
-			
+			if (_progress != null) _progress(progress);
 		}
 	}
 }

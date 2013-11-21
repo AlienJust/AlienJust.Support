@@ -68,6 +68,7 @@
     <Compile Include="ConcurrentQueueWithPriorityAndAddressUsageControl.cs" />
     <Compile Include="ConcurrentQueueWithPriorityAndAddressUsageControlGuided.cs" />
     <Compile Include="RelayAsyncWorker.cs" />
+    <Compile Include="RelayAsyncWorkerProgressHandler.cs" />
     <Compile Include="SingleThreadedRelayAddressedMultiQueueWorker.cs" />
     <Compile Include="SyncObjectContainer.cs" />
     <Compile Include="WaitableCounter.cs" />

@@ -6,24 +6,29 @@ namespace AlienJust.Support.Concurrent
 {
 	public sealed class RelayAsyncWorker : IAsyncWorker
 	{
-		private readonly Action _run;
+		private readonly Action<IAsyncWorkerProgressHandler> _run;
 		private readonly Action<int> _progress;
 		private readonly BackgroundWorker _worker;
 		private bool _wasLaunched;
 		private readonly Action<Exception> _complete;
+		private readonly IAsyncWorkerProgressHandler _progressChange;
 
-		public RelayAsyncWorker(Action run, Action<int> progress, Action<Exception> complete)
+		public RelayAsyncWorker(Action<IAsyncWorkerProgressHandler> run, Action<int> progress, Action<Exception> complete)
 		{
 			_wasLaunched = false;
 			_run = run;
 			_progress = progress;
 			_complete = complete;
+			
 
 			_worker = new BackgroundWorker();
-			_worker.DoWork += (sender, args) => _run();
+			_worker.DoWork += (sender, args) => _run(_progressChange);
 			_worker.ProgressChanged += (sender, args) => _progress(args.ProgressPercentage);
 			_worker.RunWorkerCompleted += (sender, args) => _complete(args.Error);
+
+			_progressChange = new RelayAsyncWorkerProgressHandler(p => { if (_worker.IsBusy) _worker.ReportProgress(p); });
 		}
+
 
 		public void Run()
 		{

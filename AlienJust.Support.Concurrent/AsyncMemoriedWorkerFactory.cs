@@ -9,7 +9,8 @@ namespace AlienJust.Support.Concurrent {
 			_memory = new ConcurrentGuidMemory<IAsyncWorker>();
 		}
 
-		public IAsyncWorker GetSimpleWorker(Action run, Action<int> progress, Action<Exception> complete) {
+		public IAsyncWorker GetSimpleWorker(Action<IAsyncWorkerProgressHandler> run, Action<int> progress, Action<Exception> complete)
+		{
 			var guid = Guid.NewGuid();
 			var worker = new RelayAsyncWorker(
 				run,

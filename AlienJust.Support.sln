@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Collectio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Collections.Contracts", "AlienJust.Support.Collections.Contracts\AlienJust.Support.Collections.Contracts.csproj", "{2606BCEF-F695-4F55-A04B-D42F827621AA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Time", "AlienJust.Support.Time\AlienJust.Support.Time.csproj", "{DB69ECEE-3A92-406E-BBEC-93DF41940362}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -165,6 +167,12 @@ Global
 		{2606BCEF-F695-4F55-A04B-D42F827621AA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2606BCEF-F695-4F55-A04B-D42F827621AA}.Release|x86.ActiveCfg = Release|x86
 		{2606BCEF-F695-4F55-A04B-D42F827621AA}.Release|x86.Build.0 = Release|x86
+		{DB69ECEE-3A92-406E-BBEC-93DF41940362}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB69ECEE-3A92-406E-BBEC-93DF41940362}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB69ECEE-3A92-406E-BBEC-93DF41940362}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DB69ECEE-3A92-406E-BBEC-93DF41940362}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB69ECEE-3A92-406E-BBEC-93DF41940362}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB69ECEE-3A92-406E-BBEC-93DF41940362}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

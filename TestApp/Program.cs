@@ -19,9 +19,6 @@ namespace TestApp
 		
 		static void Main(string[] args)
 		{
-			//GlobalLogger.Setup(new ConsoleLogger(2));
-			//GlobalLogger.Instance.Log("Hello world!");
-			//GlobalLogger.Instance.Log(Path.PathSeparator.ToString(CultureInfo.InvariantCulture));
 			//TestTextFormatter();
 			//GlobalLogger.Instance.Log(System.IO.Path.GetFullPath("C:\\\\Games"));
 			//GlobalLogger.Instance.Log(System.IO.Path.GetDirectoryName("C:\\\\Games"));
@@ -29,12 +26,12 @@ namespace TestApp
 			//TestMultiQueueWorker();
 			//TestMultiQueueStarter();
 			//TestAddressedMultiQueueWorker();
-			//TestMultiQueueAddrStarter();
+			TestMultiQueueAddrStarter();
 			
 			//SingleThreadRelayWorkerStressTest();
 			//Thread.Sleep(9000000); // 9000 seconds, it is about 150 minutes
 			
-			TestAsyncWorkers();
+			//TestAsyncWorkers();
 			Console.ReadKey(true);
 		}
 
@@ -48,7 +45,7 @@ namespace TestApp
 		public static void SingleThreadRelayWorkerStressTest() {
 			_worker = new SingleThreadedRelayQueueWorker<Action>(a => a(), ThreadPriority.Normal, true, null);
 			
-			var t1 = new Thread(ThreadStart) {IsBackground = true, Priority = ThreadPriority.BelowNormal};
+			var t1 = new Thread(ThreadStart) { IsBackground = true, Priority = ThreadPriority.BelowNormal};
 			var t2 = new Thread(ThreadStart) { IsBackground = true };
 			var t3 = new Thread(ThreadStart) { IsBackground = true };
 
@@ -100,20 +97,20 @@ namespace TestApp
 
 		public static void TestAddressedMultiQueueWorker()
 		{
-			var starter = new SingleThreadedRelayAddressedMultiQueueWorker<int, int>((i, notifyFree) =>
+			var starter = new SingleThreadedRelayAddressedMultiQueueWorker<int, int>((i, itemsReleaser) =>
 			                                                                         	{
 			                                                                         		Thread.Sleep(1000);
-			                                                                         		GlobalLogger.Instance.Log("Consumed item " + i);
-			                                                                         		notifyFree(i);
+																													Console.WriteLine("Consumed item " + i);
+			                                                                         		itemsReleaser.ReportSomeAddressedItemIsFree(i);
 			                                                                         	},
 			                                                                         2,
-			                                                                         1);
+			                                                                         1, 2);
 			var producerThread1 = new Thread(() =>
 			{
 				for (int i = 0; i < 10; ++i)
 				{
 					Thread.Sleep(200); // each 200 ms nonpriority item added to queue
-					GlobalLogger.Instance.Log("Produced background item: " + i);
+					Console.WriteLine("Produced background item: " + i);
 					starter.AddToExecutionQueue(i, i, 1);
 					starter.AddToExecutionQueue(i, i, 1);
 					starter.AddToExecutionQueue(i, i, 1);
@@ -124,7 +121,7 @@ namespace TestApp
 				for (int i = 1000; i < 1010; ++i)
 				{
 					Thread.Sleep(30); // each 600 ms priority item added to queue
-					GlobalLogger.Instance.Log("Produced pioritized item: " + i);
+					Console.WriteLine("Produced pioritized item: " + i);
 					starter.AddToExecutionQueue(i, i, 0);
 					starter.AddToExecutionQueue(i, i, 0);
 					starter.AddToExecutionQueue(i, i, 0);
@@ -157,33 +154,42 @@ namespace TestApp
 			var random = new Random();
 			const int totalMaxFlow = 5;
 			const int perAddressFlow = 1;
-			const int priorityGraduation = 2;
+			int priorityGraduation = _colors.Length;
 			var starter = new SingleThreadPriorityAddressedAsyncStarter<int>(totalMaxFlow, perAddressFlow, priorityGraduation);
-			for (int i = 0; i < 10; ++i)
+			for (int i = 0; i < _colors.Length; ++i)
 			{
 				for (int j = 0; j < 3; ++j)
 				{
 					Thread.Sleep(random.Next(50, 100));
-					GlobalLogger.Instance.Log("Starting async action... i = " + i);
+					int priority = _colors.Length - i - 1;
+					ConsoleWriteLineColored(DateTime.Now.ToString("HH:mm:ss.fff") + " > Adding async action " + i + "." + j + " to queue, priority=" + priority, _colors[i]);
 					int i1 = i;
-					starter.AddToQueueForExecution(notifyBackAction => AsyncAction(i1, () =>
-					{
-						GlobalLogger.Instance.Log("Callback ok for i = " + i1);
-						notifyBackAction();
-						//starter.NotifyStarterAboutQueuedOperationComplete(i1);
-					}), 1, i1);
+					int j1 = j;
+					starter.AddToQueueForExecution(notifyAboutAsyncOperationComplete => {
+					                               	var t = new Thread(
+					                               		() => {
+					                               			try {
+																			ConsoleWriteLineColored(DateTime.Now.ToString("HH:mm:ss.fff") + " > Async action i=" + i1 + "." + j1 + " in progress", _colors[i1]);
+					                               				Thread.Sleep(5000);
+																			ConsoleWriteLineColored(DateTime.Now.ToString("HH:mm:ss.fff") + " > Async action i=" + i1 + "." + j1 + " completed", _colors[i1]);
+					                               			}
+					                               			finally {
+					                               				notifyAboutAsyncOperationComplete();
+					                               			}
+					                               		}) {IsBackground = true};
+					                               	t.Start();
+					}, priority, i1);
 				}
 			}
 		}
 
-		static void AsyncAction(int actNumber, Action completeCallback)
-		{
-			var t = new Thread(() =>
-			                   	{
-														GlobalLogger.Instance.Log("Async action i=" + actNumber +" in progress");
-														Thread.Sleep(2000 - actNumber * 10);
-			                   		completeCallback.Invoke();
-			                   	}) {IsBackground = true};
+		static void AsyncAction(int actNumber, Action completeCallback) {
+			var t = new Thread(
+				() => {
+					Console.WriteLine("Async action i=" + actNumber + " in progress");
+					Thread.Sleep(2000 - actNumber*10);
+					completeCallback.Invoke();
+				}) {IsBackground = true};
 			t.Start();
 		}
 
@@ -204,6 +210,17 @@ namespace TestApp
 				ex => Console.WriteLine(Thread.CurrentThread.ManagedThreadId + " > all task complete")
 				);
 			worker.Run();
+		}
+
+		private static ConsoleColor[] _colors = new ConsoleColor[] {ConsoleColor.Cyan, ConsoleColor.Yellow, ConsoleColor.Red, ConsoleColor.Green, ConsoleColor.Magenta, ConsoleColor.White};
+		private static readonly object SyncConsole = new object();
+		static void ConsoleWriteLineColored(string text, ConsoleColor color) {
+			lock (SyncConsole) {
+				var wasColor = Console.ForegroundColor;
+				Console.ForegroundColor = color;
+				Console.WriteLine(text);
+				Console.ForegroundColor = wasColor;
+			}
 		}
 	}
 

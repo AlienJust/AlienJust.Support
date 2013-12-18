@@ -17,13 +17,14 @@ namespace AlienJust.Support.Concurrent
 		private readonly object _syncRoot = new object();
 		private readonly List<List<AddressedItem<TKey, TItem>>> _itemCollections;
 		private readonly int _maxParallelUsingItemsCount;
+		
 		private readonly WaitableMultiCounter<TKey> _itemCounters;
 
 		/// <summary>
 		/// Создает новую очередь
 		/// </summary>
 		/// <param name="maxPriority">Максимальный приоритет</param>
-		/// <param name="maxParallelUsingItemsCount">Максимальное количество одновременно разрешенных выборок элементов</param>
+		/// <param name="maxParallelUsingItemsCount">Максимальное количество одновременно разрешенных выборок элементов с одним адресом</param>
 		public ConcurrentQueueWithPriorityAndAddressUsageControl(int maxPriority, int maxParallelUsingItemsCount)
 		{
 			_maxParallelUsingItemsCount = maxParallelUsingItemsCount;
@@ -88,7 +89,6 @@ namespace AlienJust.Support.Concurrent
 		/// <returns></returns>
 		private TItem DequeueItemsReqursively(int currentQueueNumber)
 		{
-			//GlobalLogger.Instance.Log("currentQueueNumber=" + currentQueueNumber);
 			int nextQueueNumber = currentQueueNumber + 1;
 			if (currentQueueNumber >= _itemCollections.Count) throw new Exception("No more queues");
 
@@ -104,10 +104,8 @@ namespace AlienJust.Support.Concurrent
 						_itemCounters.IncrementCount(item.Key);
 						return item.Item;
 					}
-					//GlobalLogger.Instance.Log("item found, but it usages limited, skipping item with addr=" + item.Key.ToString());
 				}
 			}
-			//GlobalLogger.Instance.Log("No items in queue=" + currentQueueNumber + " moving to newx queue...");
 			return DequeueItemsReqursively(nextQueueNumber);
 		}
 	}

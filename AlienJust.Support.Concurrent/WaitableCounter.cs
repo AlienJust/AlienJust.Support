@@ -1,29 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using AlienJust.Support.Loggers.Contracts;
 
-namespace AlienJust.Support.Concurrent
-{
+namespace AlienJust.Support.Concurrent {
 	public sealed class WaitableCounter {
 		private readonly object _sync = new object();
 		private int _count;
-		private readonly AutoResetEvent _incrementSignal = new AutoResetEvent(false);
-		private readonly AutoResetEvent _decrementSignal = new AutoResetEvent(false);
+		private readonly AutoResetEvent _incrementSignal;
+		private readonly AutoResetEvent _decrementSignal;
+		private readonly AutoResetEvent _changeSignal;
 
-		public void IncrementCount()
-		{
-			Interlocked.Increment(ref _count);
-			lock(_sync) _incrementSignal.Set();
-			Console.WriteLine("Count = " + GetCount());
+		public WaitableCounter() {
+			_incrementSignal = new AutoResetEvent(false);
+			_decrementSignal = new AutoResetEvent(false);
+			_changeSignal = new AutoResetEvent(false);
 		}
-		public void DecrementCount()
-		{
+
+		public void IncrementCount() {
+			Interlocked.Increment(ref _count);
+			lock (_sync) {
+				_changeSignal.Set();
+				_incrementSignal.Set();
+			}
+		}
+
+		public void DecrementCount() {
 			Interlocked.Decrement(ref _count);
-			lock(_sync) _decrementSignal.Set();
+			lock (_sync) {
+				_changeSignal.Set();
+				_decrementSignal.Set();
+			}
 		}
 
 		/// <summary>
@@ -32,37 +37,36 @@ namespace AlienJust.Support.Concurrent
 		/// <returns>Истина, если счётчик равен аргументу</returns>
 		public bool CompareCount(int compareTo) {
 			bool compareResult;
-			lock(_sync) compareResult = Thread.VolatileRead(ref _count) == compareTo;
+			lock (_sync) compareResult = Thread.VolatileRead(ref _count) == compareTo;
 			return compareResult;
 		}
 
-		public int GetCount() {
-			int count;
-			lock(_sync) count = Thread.VolatileRead(ref _count);
-			return count;
+		public int Count {
+			get {
+				int count;
+				lock (_sync) count = Thread.VolatileRead(ref _count);
+				return count;
+			}
 		}
 
-		public void WaitForIncrement()
-		{
+		public void WaitForIncrement() {
 			_incrementSignal.WaitOne();
 		}
 
-		public void WaitForDecrement()
-		{
+		public void WaitForDecrement() {
 			_decrementSignal.WaitOne();
 		}
 
-		/// <summary>
-		/// Ожидает снижение счётчика до нуля
-		/// </summary>
-		//public void WaitForDowncount(int waitForValue)
-		//{
-		//while (!CompareCount(waitForValue)) _decrementSignal.WaitOne();
-		//}
-
-		public void WaitForDecrementWhileNotPredecate(Func<int, bool> predecate)
-		{
-			while (!predecate(GetCount())) _decrementSignal.WaitOne();
+		public void WaitForCounterChangeWhileNotPredecate(Func<int, bool> predecate) {
+			while (true) {
+				bool exit;
+				// lock для того чтобы не пропустить ни одного .Set(), они тоже лочатся на _sync
+				lock (_sync) {
+					exit = predecate(Count);
+				}
+				if (exit) break;
+				_changeSignal.WaitOne();
+			}
 		}
 	}
 }

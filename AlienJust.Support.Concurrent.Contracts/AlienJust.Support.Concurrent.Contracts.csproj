@@ -60,7 +60,10 @@
     <Compile Include="IAsyncWorker.cs" />
     <Compile Include="IAsyncWorkerProgressHandler.cs" />
     <Compile Include="IGuidMemory.cs" />
+    <Compile Include="IItemsReleaser.cs" />
     <Compile Include="IMultiQueueWorker.cs" />
+    <Compile Include="IPriorKeyedAsyncStarter.cs" />
+    <Compile Include="IQueueWorker.cs" />
     <Compile Include="IThreadNotifier.cs" />
     <Compile Include="IWorkerFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -4,96 +4,69 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 
-namespace AlienJust.Support.Concurrent
-{
-	public sealed class WaitableMultiCounter<TKey>
-	{
-		private int _count;
-		private readonly AutoResetEvent _incrementSignal = new AutoResetEvent(false);
-		private readonly AutoResetEvent _decrementSignal = new AutoResetEvent(false);
+namespace AlienJust.Support.Concurrent {
+	public sealed class WaitableMultiCounter<TKey> {
+		private readonly ConcurrentDictionary<TKey, WaitableCounter> _counters = new ConcurrentDictionary<TKey, WaitableCounter>();
+		private readonly WaitableCounter _totalCounter = new WaitableCounter();
 
-		private readonly ConcurrentDictionary<TKey, WaitableCounter> _counters = new ConcurrentDictionary<TKey,WaitableCounter>();
 
-		private WaitableCounter GetCounter(TKey key)
-		{
+		private WaitableCounter GetCounter(TKey key) {
 			return _counters.GetOrAdd(key, k => new WaitableCounter());
 		}
 
-		public void IncrementCount(TKey key)
-		{
+		public void IncrementCount(TKey key) {
 			GetCounter(key).IncrementCount();
-			Interlocked.Increment(ref _count);
-			_incrementSignal.Set();
+			_totalCounter.IncrementCount();
 		}
-		public void DecrementCount(TKey key)
-		{
+
+		public void DecrementCount(TKey key) {
 			GetCounter(key).DecrementCount();
-			Interlocked.Decrement(ref _count);
-			_decrementSignal.Set();
+			_totalCounter.DecrementCount();
 		}
 
 		/// <summary>
 		/// Проверяет равенство счётчика с аргументом
 		/// </summary>
 		/// <returns>Истина, если счётчик равен аргументу</returns>
-		public bool CompareCount(int compareTo)
-		{
-			return Thread.VolatileRead(ref _count) == compareTo;
+		public bool CompareCount(int compareTo) {
+			return _totalCounter.CompareCount(compareTo);
 		}
 
-		public int GetTotalCount()
-		{
-			return Thread.VolatileRead(ref _count);
-			//return _count;
-		}
-		public int GetCount(TKey key)
-		{
-			return GetCounter(key).GetCount();
-			//return _count;
+		public int TotalCount {
+			get { return _totalCounter.Count; }
 		}
 
-		public void WaitForAnyIncrement()
-		{
-			_incrementSignal.WaitOne();
+		public int GetCount(TKey key) {
+			return GetCounter(key).Count;
 		}
-		public void WaitForIncrement(TKey key)
-		{
+
+		public void WaitForAnyIncrement() {
+			_totalCounter.WaitForIncrement();
+		}
+
+		public void WaitForIncrement(TKey key) {
 			GetCounter(key).WaitForIncrement();
 		}
 
-		public void WaitForAnyDecrement()
-		{
-			_decrementSignal.WaitOne();
+		public void WaitForAnyDecrement() {
+			_totalCounter.WaitForDecrement();
 		}
-		public void WaitForDecrement(TKey key)
-		{
+
+		public void WaitForDecrement(TKey key) {
 			GetCounter(key).WaitForDecrement();
 		}
 
-
-		/// <summary>
-		/// Ожидает снижение счётчика до нуля
-		/// </summary>
-		//public void WaitForDowncount(int waitForValue)
-		//{
-		//while (!CompareCount(waitForValue)) _decrementSignal.WaitOne();
-		//}
-
-		public void WaitForAnyDecrementWhileNotPredecate(Func<int, bool> predecate)
-		{
-			while (!predecate(GetTotalCount())) WaitForAnyDecrement();
+		public void WaitForAnyCounterChangeWhileNotPredecate(Func<int, bool> predecate) {
+			_totalCounter.WaitForCounterChangeWhileNotPredecate(predecate);
 		}
 
-		public void WaitForDecrementWhileNotPredecate(TKey key, Func<int, bool> predecate)
-		{
-			while (!predecate(GetCount(key))) WaitForDecrement(key);
+		public void WaitForCounterChangeWhileNotPredecate(TKey key, Func<int, bool> predecate) {
+			GetCounter(key).WaitForCounterChangeWhileNotPredecate(predecate);
 		}
 
-		public int GetNotNullCountersCount()
-		{
-			return _counters.Sum(wc => wc.Value.GetCount() > 0 ? 1 : 0);
+		public int GetNotZeroCountersCount() {
+			return _counters.Sum(wc => wc.Value.Count > 0 ? 1 : 0);
 		}
 	}
 }

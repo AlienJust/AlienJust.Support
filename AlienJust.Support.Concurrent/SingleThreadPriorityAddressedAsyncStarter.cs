@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AlienJust.Support.Concurrent.Contracts;
 using AlienJust.Support.Loggers;
 
 namespace AlienJust.Support.Concurrent
@@ -14,65 +15,58 @@ namespace AlienJust.Support.Concurrent
 	/// </summary>
 	public sealed class SingleThreadPriorityAddressedAsyncStarter<TAddressKey> : IPriorKeyedAsyncStarter<TAddressKey>
 	{
-		private readonly int _maxTotalFlow;
-		
-		private readonly SingleThreadedRelayAddressedMultiQueueWorker<TAddressKey, Action<Action<TAddressKey>>> _asyncActionQueueWorker;
-		private readonly WaitableCounter _flowCounter;
+		//private readonly int _maxTotalFlow; // максимальное число одновремменно запущенных задач
+
+		private readonly SingleThreadedRelayAddressedMultiQueueWorker<TAddressKey, Action<IItemsReleaser<TAddressKey>>> _asyncActionQueueWorker;
+		//private readonly WaitableCounter _totalFlowCounter; // счетчик текущего количества запущенных задач
 
 
-		public SingleThreadPriorityAddressedAsyncStarter(int maxTotalFlow, int maxFlowPerAddress, int priorityGradation)
-		{
-			_maxTotalFlow = maxTotalFlow;
-			_flowCounter = new WaitableCounter();
-			_asyncActionQueueWorker = new SingleThreadedRelayAddressedMultiQueueWorker<TAddressKey, Action<Action<TAddressKey>>>(RunActionWthAsyncTailBack, priorityGradation, maxFlowPerAddress);
+		public SingleThreadPriorityAddressedAsyncStarter(int maxTotalFlow, int maxFlowPerAddress, int priorityGradation) {
+			//_maxTotalFlow = maxTotalFlow;
+			//_totalFlowCounter = new WaitableCounter();
+			_asyncActionQueueWorker = new SingleThreadedRelayAddressedMultiQueueWorker<TAddressKey, Action<IItemsReleaser<TAddressKey>>>
+				(
+				RunActionWthAsyncTailBack,
+				priorityGradation,
+				maxFlowPerAddress,
+				maxTotalFlow);
 		}
 
 		/// <summary>
-		/// Запускает действие, завершающееся другим действием, передаваемым в качестве параметра запускаемому действию
+		/// Запускает завершение асинхронной операции, передавая на вход заершения входной освободитель итемов
 		/// </summary>
-		/// <param name="action">Действие, которое нужно запустить</param>
-		/// <param name="callbackTail">Завершающее дейсвтие</param>
-		private void RunActionWthAsyncTailBack(Action<Action<TAddressKey>> action, Action<TAddressKey> callbackTail)
-		{
-			action(callbackTail);
+		/// <param name="asyncOperationBeginAction">Действие, знаменующее завершение асинхронной операции</param>
+		/// <param name="itemsReleaser">Освободитель итемов</param>
+		private void RunActionWthAsyncTailBack(Action<IItemsReleaser<TAddressKey>> asyncOperationBeginAction, IItemsReleaser<TAddressKey> itemsReleaser) {
+			try {
+				asyncOperationBeginAction(itemsReleaser);
+			}
+			catch (Exception) {
+				// TODO: do something with exception :-)
+				// TODO: thats bad, cause items can be not released
+			}
 		}
 
 
 		/// <summary>
-		/// Добавляет действие в одну из очередей на выполнение
+		/// Добавляет асинхронную операцию в очередь на выполнение
 		/// </summary>
-		/// <param name="asyncAction">Действие, которое будет выполнено асинхронно</param>
-		/// <param name="priority">Приоритет</param>
-		/// <param name="key">Ключ</param>
+		/// <param name="asyncAction">Действие, которое будет протекать асинхронно</param>
+		/// <param name="priority">Приоритет очереди</param>
+		/// <param name="key">Ключ-адрес</param>
 		/// <returns>Идентификатор задания</returns>
 		public Guid AddToQueueForExecution(Action<Action> asyncAction, int priority, TAddressKey key)
 		{
-			//GlobalLogger.Instance.Log("Adding action to queue=" + priority);
-
-			return _asyncActionQueueWorker.AddToExecutionQueue(key, notifyBackAction =>
-			                                                 	{
-			                                                 		//GlobalLogger.Instance.Log("Waiting for decrement, waitCount=" + _flowCounter.GetCount());
-			                                                 		_flowCounter.WaitForDecrementWhileNotPredecate(curCount => curCount < _maxTotalFlow);
-			                                                 		//GlobalLogger.Instance.Log("waiting complete, executing...");
-
-			                                                 		_flowCounter.IncrementCount();
-			                                                 		asyncAction(() =>
-			                                                 		            	{
-			                                                 		            		_asyncActionQueueWorker.ReportItemIsFree(key);
-			                                                 		            		_flowCounter.DecrementCount();
-			                                                 		            	});
-			                                                 	},
-			                                            priority);
+			return _asyncActionQueueWorker.AddToExecutionQueue
+				(
+					key,
+					itemsReleaser => asyncAction(() => itemsReleaser.ReportSomeAddressedItemIsFree(key)),
+					priority
+				);
 		}
 
 		public bool RemoveExecution(Guid id) {
 			return _asyncActionQueueWorker.RemoveItem(id);
 		}
-	}
-
-	public interface IPriorKeyedAsyncStarter<in TAddressKey>
-	{
-		Guid AddToQueueForExecution(Action<Action> asyncAction, int priority, TAddressKey key);
-		bool RemoveExecution(Guid id);
 	}
 }

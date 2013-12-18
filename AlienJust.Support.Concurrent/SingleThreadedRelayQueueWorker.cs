@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using AlienJust.Support.Concurrent.Contracts;
 using AlienJust.Support.Loggers.Contracts;
 
 namespace AlienJust.Support.Concurrent
@@ -98,10 +99,5 @@ namespace AlienJust.Support.Concurrent
 			{
 			}
 		}
-	}
-
-	public interface IQueueWorker<in TItem>
-	{
-		void AddToExecutionQueue(TItem item);
 	}
 }

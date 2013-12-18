@@ -3,66 +3,179 @@ using System.Threading;
 using AlienJust.Support.Concurrent.Contracts;
 
 namespace AlienJust.Support.Concurrent {
-	public sealed class SingleThreadedRelayAddressedMultiQueueWorker<TKey, TItem> : IAddressedMultiQueueWorker<TKey, TItem> {
+
+	/// <summary>
+	/// Однопоточный обработчик приоритетно-адресной очереди
+	/// </summary>
+	/// <typeparam name="TKey">Тип адресов очереди</typeparam>
+	/// <typeparam name="TItem">Тип элементов очереди</typeparam>
+	public sealed class SingleThreadedRelayAddressedMultiQueueWorker<TKey, TItem> : IAddressedMultiQueueWorker<TKey, TItem>, IItemsReleaser<TKey> {
+		private readonly object _sync;
 		private readonly ConcurrentQueueWithPriorityAndAddressUsageControlGuided<TKey, TItem> _queue;
-		//private readonly ConcurrentQueue<TItem> _itemsFirst;
-		private readonly Action<TItem, Action<TKey>> _action;
-		private readonly AutoResetEvent _threadNotify;
+
+		private readonly Action<TItem, IItemsReleaser<TKey>> _relayUserAction; // Пользовательское действие, которое будет совершаться над каждым элементом в порядке очереди
+		private readonly AutoResetEvent _threadNotifyAboutQueueItemsCountChanged;
 		private readonly Thread _workThread;
 
+		private bool _isRunning;
+		private bool _mustBeStopped; // Флаг, подающий фоновому потоку сигнал о необходимости завершения (обращение идет через потокобезопасное свойство MustBeStopped)
 
-		public SingleThreadedRelayAddressedMultiQueueWorker(Action<TItem, Action<TKey>> action, int maxPriority, int maxParallelUsingItemsCount) {
-			_queue = new ConcurrentQueueWithPriorityAndAddressUsageControlGuided<TKey, TItem>(maxPriority, maxParallelUsingItemsCount);
-			_action = action;
+		public SingleThreadedRelayAddressedMultiQueueWorker(Action<TItem, IItemsReleaser<TKey>> relayUserAction, int maxPriority, int maxParallelUsingItemsCount, int maxTotalOnetimeItemsUsages)
+		{
+			_sync = new object();
 
-			_threadNotify = new AutoResetEvent(false);
+			_queue = new ConcurrentQueueWithPriorityAndAddressUsageControlGuided<TKey, TItem>(maxPriority, maxParallelUsingItemsCount, maxTotalOnetimeItemsUsages);
+			_relayUserAction = relayUserAction;
+
+			_threadNotifyAboutQueueItemsCountChanged = new AutoResetEvent(false);
+
+			_isRunning = true;
+			_mustBeStopped = false;
 			_workThread = new Thread(WorkingThreadStart) {IsBackground = true};
 			_workThread.Start();
 		}
 
 
 		public Guid AddToExecutionQueue(TKey key, TItem item, int queueNumber) {
-			Guid result = _queue.Enqueue(key, item, queueNumber);
-			_threadNotify.Set();
-			return result;
+			if (IsRunning) {
+				Guid result = _queue.Enqueue(key, item, queueNumber);
+				_threadNotifyAboutQueueItemsCountChanged.Set();
+				return result;
+			}
+			throw new Exception("Background thread was stopped, i will not add item to queue :-)");
 		}
 
-		public void ReportItemIsFree(TKey address) {
+		public void ReportSomeAddressedItemIsFree(TKey address)
+		{
 			_queue.ReportDecrementItemUsages(address);
+			_threadNotifyAboutQueueItemsCountChanged.Set();
 		}
 
 		public bool RemoveItem(Guid id) {
-			return _queue.RemoveItem(id);
+			var result = _queue.RemoveItem(id);
+			_threadNotifyAboutQueueItemsCountChanged.Set();
+			return result;
 		}
 
 
 		private void WorkingThreadStart() {
 			try {
-				while (true) {
+				while (!MustBeStopped)
+				{
 					try {
-						var item = _queue.Dequeue();
+						var item = _queue.Dequeue(); // выбрасывает исключение, если очередь пуста, и поток переходит к ожиданию сигнала
+						var releaser = new ItemReleaserRelayWithExecutionCountControl<TKey>((IItemsReleaser<TKey>) this);
 						try {
-							//GlobalLogger.Instance.Log("item received, producing action on it...");
-							_action(item, ReportItemIsFree);
+							_relayUserAction(item, (IItemsReleaser<TKey>)this); // TODO: Warning! Если в пользовательсоком действии произойдет ошибка, то счетчик элементов застрянет!
 						}
-						catch (Exception ex) {
-							//GlobalLogger.Instance.Log(ex.ToString());
+						catch {
+							// Даже если действие над элементом очереди не получилось, нужно проверить, не осталось ли еще чего нибудь в очереди
+							// НО, я не знаю адреса:
+							// if (!releaser.SomeItemWasReleased)
+								//releaser.ReportSomeAddressedItemIsFree( TODO );
 						}
 					}
-					catch (Exception ex) {
-						//GlobalLogger.Instance.Log("No more items, waiting for new one...");
-						_threadNotify.WaitOne(); // Итемы кончились, начинаем ждать
+					catch {
+						_threadNotifyAboutQueueItemsCountChanged.WaitOne(); // Итемы кончились, начинаем ждать (основное время проводится здесь в ожидании :-))
 					}
 				}
 			}
 			catch (Exception ex) {
-				//throw ex;
+				//throw ex; // nowhere to throw
 			}
 			finally {
-				//Console.WriteLine("Background thread ending...");
+				
 			}
 		}
 
+		public void StopWorker() {
+			if (IsRunning) {
+				MustBeStopped = true;
+				
+				// На случай, если поток ждет итемов (очередь пуста). 
+				// При взведении этого нотификатора поток продолжится и при следуюущей итерации цикла фактически завершится.
+				_threadNotifyAboutQueueItemsCountChanged.Set(); 
 
+				_workThread.Join();
+				IsRunning = false;
+			}
+		}
+
+		public bool IsRunning {
+			get {
+				bool result;
+				lock (_sync) {
+					result = _isRunning;
+				}
+				return result;
+			}
+
+			private set {
+				lock (_sync) {
+					_isRunning = value;
+				}
+			}
+		}
+
+		private bool MustBeStopped {
+			get {
+				bool result;
+				lock (_sync) {
+					result = _mustBeStopped;
+				}
+				return result;
+			}
+
+			set {
+				lock (_sync) {
+					_mustBeStopped = value;
+				}
+			}
+		}
+	}
+
+
+	internal sealed class ItemReleaserRelayWithExecutionCountControl<TKey> : IItemsReleaser<TKey> {
+		private readonly object _sync;
+
+		private readonly IItemsReleaser<TKey> _originalItemsReleaser;
+		private bool _someItemWasReleased;
+		
+
+		public ItemReleaserRelayWithExecutionCountControl(IItemsReleaser<TKey> originalItemsReleaser) {
+			_sync = new object();
+			_originalItemsReleaser = originalItemsReleaser;
+			_someItemWasReleased = false;
+		}
+
+		public void ReportSomeAddressedItemIsFree(TKey address) {
+			if (!SomeItemWasReleased) {
+				_originalItemsReleaser.ReportSomeAddressedItemIsFree(address);
+			}
+			else {
+				throw new Exception("This releaser cannot launch release more than once");
+			}
+		}
+
+		public bool SomeItemWasReleased
+		{
+			get
+			{
+				bool result;
+				lock (_sync)
+				{
+					result = _someItemWasReleased;
+				}
+				return result;
+			}
+
+			private set
+			{
+				lock (_sync)
+				{
+					_someItemWasReleased = value;
+				}
+			}
+		}
 	}
 }

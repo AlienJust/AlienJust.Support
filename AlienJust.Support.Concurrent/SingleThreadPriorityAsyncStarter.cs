@@ -29,19 +29,17 @@ namespace AlienJust.Support.Concurrent
 		/// </summary>
 		/// <param name="asyncAction">Действие, которое будет выполнено асинхронно</param>
 		/// <param name="queueNumber">Номер очереди (номер обратен приоритету), в которую будет добавлено действие</param>
-		public void AddToQueueForExecution(Action asyncAction, int queueNumber)
-		{
-			//GlobalLogger.Instance.Log("Adding action to queue=" + queueNumber);
+		public void AddToQueueForExecution(Action asyncAction, int queueNumber) {
+			_asyncActionQueueWorker.AddToExecutionQueue
+				(
+					() => {
 
-			_asyncActionQueueWorker.AddToExecutionQueue(()=>
-			                                            	{
-																											//GlobalLogger.Instance.Log("Waiting for decrement, waitCount=" + _flowCounter.GetCount());
-																											_flowCounter.WaitForDecrementWhileNotPredecate(curCount => curCount < _maxFlow);
-			                                            		//GlobalLogger.Instance.Log("waiting complete, executing...");
-																											
-																											_flowCounter.IncrementCount();
-			                                            		asyncAction();
-			                                            	}, queueNumber);
+						_flowCounter.WaitForCounterChangeWhileNotPredecate(curCount => curCount < _maxFlow);
+						_flowCounter.IncrementCount();
+						asyncAction();
+					},
+					queueNumber
+				);
 		}
 
 

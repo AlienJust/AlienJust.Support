@@ -3,8 +3,12 @@
 namespace AlienJust.Support.Time {
 	public static class TimeExtensions {
 		public static DateTime RoundToLatestHalfAnHour(this DateTime time) {
-			var minute = time.Minute > 30 ? 30 : 0;
-			return new DateTime(time.Year, time.Month, time.Day, time.Hour, minute, 0);
+			return new DateTime(time.Year, time.Month, time.Day, time.Hour, time.Minute < 30 ? 0 : 30, 0);
+		}
+
+		public static string ToSimpleString(this DateTime time)
+		{
+			return time.ToString("yyyy.MM.dd-HH:mm");
 		}
 	}
 }

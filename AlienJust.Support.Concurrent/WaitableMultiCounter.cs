@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace AlienJust.Support.Concurrent {
 	public sealed class WaitableMultiCounter<TKey> {

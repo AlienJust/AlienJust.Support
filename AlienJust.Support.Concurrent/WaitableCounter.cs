@@ -5,6 +5,7 @@ namespace AlienJust.Support.Concurrent {
 	public sealed class WaitableCounter {
 		private readonly object _sync = new object();
 		private int _count;
+
 		private readonly AutoResetEvent _incrementSignal;
 		private readonly AutoResetEvent _decrementSignal;
 		private readonly AutoResetEvent _changeSignal;
@@ -16,16 +17,16 @@ namespace AlienJust.Support.Concurrent {
 		}
 
 		public void IncrementCount() {
-			Interlocked.Increment(ref _count);
 			lock (_sync) {
+				_count += 1;
 				_changeSignal.Set();
 				_incrementSignal.Set();
 			}
 		}
 
 		public void DecrementCount() {
-			Interlocked.Decrement(ref _count);
 			lock (_sync) {
+				_count -= 1;
 				_changeSignal.Set();
 				_decrementSignal.Set();
 			}
@@ -36,16 +37,16 @@ namespace AlienJust.Support.Concurrent {
 		/// </summary>
 		/// <returns>Истина, если счётчик равен аргументу</returns>
 		public bool CompareCount(int compareTo) {
-			bool compareResult;
-			lock (_sync) compareResult = Thread.VolatileRead(ref _count) == compareTo;
-			return compareResult;
+			lock (_sync) {
+				return _count == compareTo;
+			}
 		}
 
 		public int Count {
 			get {
-				int count;
-				lock (_sync) count = Thread.VolatileRead(ref _count);
-				return count;
+				lock (_sync) {
+					return _count;
+				}
 			}
 		}
 
@@ -65,6 +66,7 @@ namespace AlienJust.Support.Concurrent {
 					exit = predecate(Count);
 				}
 				if (exit) break;
+
 				_changeSignal.WaitOne();
 			}
 		}

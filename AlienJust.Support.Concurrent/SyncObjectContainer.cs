@@ -2,7 +2,7 @@
 
 namespace AlienJust.Support.Concurrent {
 	/// <summary>
-	/// Хранит значение переменной, доступ к которому осуществляется синхронизованно
+	/// Хранит значение переменной, доступ к которому осуществляется синхронизировано
 	/// </summary>
 	/// <typeparam name="T">Тип значения</typeparam>
 	public sealed class SyncObjectContainer<T> {
@@ -17,11 +17,9 @@ namespace AlienJust.Support.Concurrent {
 		public T Value {
 			// NOTE: Thread safe through monitor
 			get {
-				T result;
 				lock (_sync) {
-					result = _value;
+					return _value;
 				}
-				return result;
 			}
 			set {
 				lock (_sync) {

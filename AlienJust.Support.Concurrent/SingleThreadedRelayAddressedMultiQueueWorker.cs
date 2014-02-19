@@ -64,7 +64,7 @@ namespace AlienJust.Support.Concurrent {
 				{
 					try {
 						var item = _queue.Dequeue(); // выбрасывает исключение, если очередь пуста, и поток переходит к ожиданию сигнала
-						var releaser = new ItemReleaserRelayWithExecutionCountControl<TKey>((IItemsReleaser<TKey>) this);
+						//var releaser = new ItemReleaserRelayWithExecutionCountControl<TKey>((IItemsReleaser<TKey>) this);
 						try {
 							_relayUserAction(item, (IItemsReleaser<TKey>)this); // TODO: Warning! Если в пользовательсоком действии произойдет ошибка, то счетчик элементов застрянет!
 						}
@@ -80,11 +80,8 @@ namespace AlienJust.Support.Concurrent {
 					}
 				}
 			}
-			catch (Exception ex) {
-				//throw ex; // nowhere to throw
-			}
-			finally {
-				
+			catch {
+				//swallow all execptions
 			}
 		}
 

@@ -10,6 +10,13 @@ namespace AlienJust.Support.Concurrent {
 		private readonly AutoResetEvent _decrementSignal;
 		private readonly AutoResetEvent _changeSignal;
 
+		public WaitableCounter(int count) {
+			_count = count;
+			_incrementSignal = new AutoResetEvent(false);
+			_decrementSignal = new AutoResetEvent(false);
+			_changeSignal = new AutoResetEvent(false);
+		}
+
 		public WaitableCounter() {
 			_incrementSignal = new AutoResetEvent(false);
 			_decrementSignal = new AutoResetEvent(false);
@@ -61,7 +68,8 @@ namespace AlienJust.Support.Concurrent {
 		public void WaitForCounterChangeWhileNotPredecate(Func<int, bool> predecate) {
 			while (true) {
 				bool exit;
-				// lock для того чтобы не пропустить ни одного .Set(), они тоже лочатся на _sync
+				// сперва проверяем, затем ждем (мгновенная проверка предиката при вызове)
+				// блокировка нужна для того чтобы не пропустить ни одного вызова .Set(), они тоже блокируются на _sync
 				lock (_sync) {
 					exit = predecate(Count);
 				}

@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Collectio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Time", "AlienJust.Support.Time\AlienJust.Support.Time.csproj", "{DB69ECEE-3A92-406E-BBEC-93DF41940362}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Composition.Contracts", "AlienJust.Support.Composition.Contracts\AlienJust.Support.Composition.Contracts.csproj", "{38A157D7-637B-4468-A79F-E9777FFD9949}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -173,6 +175,12 @@ Global
 		{DB69ECEE-3A92-406E-BBEC-93DF41940362}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB69ECEE-3A92-406E-BBEC-93DF41940362}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DB69ECEE-3A92-406E-BBEC-93DF41940362}.Release|x86.ActiveCfg = Release|Any CPU
+		{38A157D7-637B-4468-A79F-E9777FFD9949}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38A157D7-637B-4468-A79F-E9777FFD9949}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38A157D7-637B-4468-A79F-E9777FFD9949}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{38A157D7-637B-4468-A79F-E9777FFD9949}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38A157D7-637B-4468-A79F-E9777FFD9949}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38A157D7-637B-4468-A79F-E9777FFD9949}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

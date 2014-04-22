@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Functiona
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{19D5E722-E932-4E64-92AF-C55E1A601E8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefToAll", "RefToAll\RefToAll.csproj", "{D54F78EF-F631-4A41-857D-C7D665F835E8}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.IO", "AlienJust.Support.IO\AlienJust.Support.IO.csproj", "{FE8471A4-3C28-493D-A4BF-94B5F6F439F2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Concurrent", "AlienJust.Support.Concurrent\AlienJust.Support.Concurrent.csproj", "{69FFC499-27AF-4065-8CE0-C31C430B4C61}"
@@ -99,13 +97,6 @@ Global
 		{19D5E722-E932-4E64-92AF-C55E1A601E8A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{19D5E722-E932-4E64-92AF-C55E1A601E8A}.Release|x86.ActiveCfg = Release|x86
 		{19D5E722-E932-4E64-92AF-C55E1A601E8A}.Release|x86.Build.0 = Release|x86
-		{D54F78EF-F631-4A41-857D-C7D665F835E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D54F78EF-F631-4A41-857D-C7D665F835E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D54F78EF-F631-4A41-857D-C7D665F835E8}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{D54F78EF-F631-4A41-857D-C7D665F835E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D54F78EF-F631-4A41-857D-C7D665F835E8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D54F78EF-F631-4A41-857D-C7D665F835E8}.Release|x86.ActiveCfg = Release|x86
-		{D54F78EF-F631-4A41-857D-C7D665F835E8}.Release|x86.Build.0 = Release|x86
 		{FE8471A4-3C28-493D-A4BF-94B5F6F439F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FE8471A4-3C28-493D-A4BF-94B5F6F439F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE8471A4-3C28-493D-A4BF-94B5F6F439F2}.Debug|x86.ActiveCfg = Debug|Any CPU

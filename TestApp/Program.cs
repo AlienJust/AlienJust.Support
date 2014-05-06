@@ -24,11 +24,19 @@ namespace TestApp {
 			//TestAddressedMultiQueueWorker();
 			//TestMultiQueueAddrStarter();
 
-			SingleThreadRelayWorkerStressTest();
+			//SingleThreadRelayWorkerStressTest();
 			//Thread.Sleep(9000000); // 9000 seconds, it is about 150 minutes
 
 			//TestAsyncWorkers();
+			TestFinallyCodeBlockOnThreadWorker();
 			Console.ReadKey(true);
+		}
+
+		private static void TestFinallyCodeBlockOnThreadWorker() {
+			_worker = new SingleThreadedRelayQueueWorker<Action>(a => a(), ThreadPriority.Normal, true, ApartmentState.Unknown);
+			_worker.AddToExecutionQueue(() => { throw new Exception("oops"); });
+			_worker.AddToExecutionQueue(() => { throw new Exception("oops"); });
+			_worker.AddToExecutionQueue(() => { throw new Exception("oops"); });
 		}
 
 		private static void TestTextFormatter() {
@@ -37,7 +45,7 @@ namespace TestApp {
 		}
 
 		private static SingleThreadedRelayQueueWorker<Action> _worker;
-
+		
 		public static void SingleThreadRelayWorkerStressTest() {
 			_worker = new SingleThreadedRelayQueueWorker<Action>(a => a(), ThreadPriority.Normal, true, null);
 			Console.WriteLine("Worker created");
@@ -202,6 +210,17 @@ namespace TestApp {
 				var wasColor = Console.ForegroundColor;
 				Console.ForegroundColor = color;
 				Console.WriteLine(text);
+				Console.ForegroundColor = wasColor;
+			}
+		}
+
+		private static void Log(string text, ConsoleColor color)
+		{
+			lock (SyncConsole)
+			{
+				var wasColor = Console.ForegroundColor;
+				Console.ForegroundColor = color;
+				Console.WriteLine(Thread.CurrentThread.ManagedThreadId + " > " + text);
 				Console.ForegroundColor = wasColor;
 			}
 		}

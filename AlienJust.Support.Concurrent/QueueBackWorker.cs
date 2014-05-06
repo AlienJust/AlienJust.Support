@@ -1,24 +1,26 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Threading;
+using System.ComponentModel;
 using AlienJust.Support.Concurrent.Contracts;
 
 namespace AlienJust.Support.Concurrent {
-	public sealed class SingleThreadedRelayQueueWorker<TItem> : IQueueWorker<TItem> {
+	public sealed class QueueBackWorker<TItem> : IQueueWorker<TItem>, IThreadNotifier  {
 		private readonly ConcurrentQueue<TItem> _items;
-		private readonly Action<TItem> _action;
-		private readonly Thread _workThread;
+		private readonly Action<TItem> _actionInBackThread;
+		private readonly BackgroundWorker _workThread;
 		private readonly WaitableCounter _counter;
 
-		public SingleThreadedRelayQueueWorker(Action<TItem> action, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState) {
+		public QueueBackWorker(Action<TItem> actionInBackThread)
+		{
 			_items = new ConcurrentQueue<TItem>();
-			_action = action;
+			_actionInBackThread = actionInBackThread;
 
 			_counter = new WaitableCounter(); // свой счетчик с методами ожидания
 
-			_workThread = new Thread(WorkingThreadStart) {IsBackground = markThreadAsBackground, Priority = threadPriority};
-			if (apartmentState.HasValue) _workThread.SetApartmentState(apartmentState.Value);
-			_workThread.Start();
+			_workThread = new BackgroundWorker {WorkerReportsProgress = true};
+			_workThread.DoWork += WorkingThreadStart;
+			_workThread.RunWorkerAsync();
+			_workThread.ProgressChanged += (sender, args) => ((Action) args.UserState).Invoke(); // если вылетает исключение - то оно будет в потоке GUI
 		}
 
 
@@ -31,11 +33,11 @@ namespace AlienJust.Support.Concurrent {
 			_counter.IncrementCount();
 		}
 
-		private void WorkingThreadStart() {
+
+		private void WorkingThreadStart(object sender, EventArgs args) {
 			try {
 				while (true) {
 					// В этом цикле ждем пополнения очереди:
-					//_counter.WaitForIncrement();
 					_counter.WaitForCounterChangeWhileNotPredecate(count => count > 0);
 					while (true) {
 						// в этом цикле опустошаем очередь
@@ -46,7 +48,7 @@ namespace AlienJust.Support.Concurrent {
 						}
 
 						try {
-							_action(dequeuedItem);
+							_actionInBackThread(dequeuedItem);
 						}
 						catch {
 							continue;
@@ -60,6 +62,10 @@ namespace AlienJust.Support.Concurrent {
 			catch {
 				//swallow all exeptions
 			}
+		}
+
+		public void Notify(Action notifyAction) {
+			_workThread.ReportProgress(0, notifyAction);
 		}
 	}
 }

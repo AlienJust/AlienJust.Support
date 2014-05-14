@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AlienJust.Support.Collections {
 	/// <summary>
-	/// Формирет единый список из двух структур
+	/// Формирует единый список из двух структур
 	/// </summary>
 	/// <typeparam name="T">Тип структур данных (value class)</typeparam>
 	public class StructPairList<T> : IList<T> where T : struct {

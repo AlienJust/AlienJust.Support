@@ -10,6 +10,8 @@ namespace AlienJust.Support.Loggers {
 		private readonly ILogger _relayLogger;
 		private readonly ITextFormatter _textFormatter;
 		private readonly Action<string> _logAction;
+		
+
 
 		public RelayLogger(ILogger relayLogger) {
 			_relayLogger = relayLogger;
@@ -27,7 +29,11 @@ namespace AlienJust.Support.Loggers {
 			_logAction(text);
 		}
 
-		
+		public void Log(object obj) {
+			Log(obj.ToString());
+		}
+
+
 		private void LogNothing(string text) {
 		}
 
@@ -37,6 +43,32 @@ namespace AlienJust.Support.Loggers {
 
 		private void LogAdvanced(string text) {
 			_relayLogger.Log(_textFormatter.Format(text));
+		}
+	}
+
+
+	public sealed class RelayMultiLogger : ILogger {
+		private readonly bool _swallowExceptions;
+		private readonly ILogger[] _loggers;
+
+		public RelayMultiLogger(bool swallowExceptions, params ILogger[] loggers) {
+			_loggers = loggers;
+			_swallowExceptions = swallowExceptions;
+		}
+
+		public void Log(string text) {
+			try {
+				foreach (var logger in _loggers) {
+					logger.Log(text);
+				}
+			}
+			catch {
+				if (!_swallowExceptions) throw;
+			}
+		}
+
+		public void Log(object obj) {
+			Log(obj.ToString());
 		}
 	}
 }

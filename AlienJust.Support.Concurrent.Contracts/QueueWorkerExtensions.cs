@@ -4,11 +4,11 @@ using System.Threading;
 namespace AlienJust.Support.Concurrent.Contracts {
 	public static class QueueWorkerExtensions
 	{
-		public static void AddToQueueAndWaitExecution(this IQueueWorker<Action> queueWorker, Action a)
+		public static void AddToQueueAndWaitExecution(this IWorker<Action> worker, Action a)
 		{
 			var signal = new ManualResetEvent(false);
 			Exception exception = null;
-			queueWorker.AddToExecutionQueue(() =>
+			worker.AddWork(() =>
 			                                {
 														  try
 														  {
@@ -26,12 +26,12 @@ namespace AlienJust.Support.Concurrent.Contracts {
 			if (exception != null) throw exception;
 		}
 
-		public static void AddToQueueAndWaitExecution(this IQueueWorker<Action> queueWorker, Action a, TimeSpan timeout) {
+		public static void AddToQueueAndWaitExecution(this IWorker<Action> worker, Action a, TimeSpan timeout) {
 			var sync = new object();
 			var signal = new ManualResetEvent(false);
 			bool wasExecuted = false;
 			Exception exception = null;
-			queueWorker.AddToExecutionQueue(() =>
+			worker.AddWork(() =>
 			                                {
 														  try
 														  {

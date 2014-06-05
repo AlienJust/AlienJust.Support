@@ -33,10 +33,10 @@ namespace TestApp {
 		}
 
 		private static void TestFinallyCodeBlockOnThreadWorker() {
-			_worker = new SingleThreadedRelayQueueWorker<Action>(a => a(), ThreadPriority.Normal, true, ApartmentState.Unknown);
-			_worker.AddToExecutionQueue(() => { throw new Exception("oops"); });
-			_worker.AddToExecutionQueue(() => { throw new Exception("oops"); });
-			_worker.AddToExecutionQueue(() => { throw new Exception("oops"); });
+			_queueWorker = new SingleThreadedRelayQueueWorker<Action>(a => a(), ThreadPriority.Normal, true, ApartmentState.Unknown);
+			_queueWorker.AddWork(() => { throw new Exception("oops"); });
+			_queueWorker.AddWork(() => { throw new Exception("oops"); });
+			_queueWorker.AddWork(() => { throw new Exception("oops"); });
 		}
 
 		private static void TestTextFormatter() {
@@ -44,10 +44,10 @@ namespace TestApp {
 			Console.WriteLine(f.Format("Formatted text"));
 		}
 
-		private static SingleThreadedRelayQueueWorker<Action> _worker;
+		private static SingleThreadedRelayQueueWorker<Action> _queueWorker;
 		
 		public static void SingleThreadRelayWorkerStressTest() {
-			_worker = new SingleThreadedRelayQueueWorker<Action>(a => a(), ThreadPriority.Normal, true, null);
+			_queueWorker = new SingleThreadedRelayQueueWorker<Action>(a => a(), ThreadPriority.Normal, true, null);
 			Console.WriteLine("Worker created");
 			var t1 = new Thread(ThreadStart) {IsBackground = true, Priority = ThreadPriority.BelowNormal};
 			//var t2 = new Thread(ThreadStart) {IsBackground = true, Priority = ThreadPriority.Normal};
@@ -64,7 +64,7 @@ namespace TestApp {
 			Console.WriteLine("Thread " + threadId + " started, priority = " + Thread.CurrentThread.Priority);
 
 			while (true) {
-				_worker.AddToExecutionQueue(() => Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " > Hello from thread " + threadId));
+				_queueWorker.AddWork(() => Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " > Hello from thread " + threadId));
 
 				Thread.Sleep(500 - Thread.CurrentThread.Priority.ToInt()*100);
 			}

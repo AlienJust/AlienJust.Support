@@ -18,18 +18,18 @@ namespace TestWinFormsApp
 		{
 			InitializeComponent();
 		}
-		private IQueueWorker<Action> _queueWorker;
+		private IWorker<Action> _worker;
 		private IThreadNotifier _uiNotifier;
 		private void QueueBackgroundWorkerTest()
 		{
 			Log("QueueBackgroundWorkerTest");
-			var bw = new QueueBackWorker<Action>(action => action());
-			_queueWorker = bw;
+			var bw = new BackgroundQueueWorker<Action>(action => action());
+			_worker = bw;
 			_uiNotifier = bw;
 
 			for (int i = 0; i < 10; ++i) {
 				var i1 = i;
-				_queueWorker.AddToExecutionQueue(() => {
+				_worker.AddWork(() => {
 				                                 	Log("Hello" + i1);
 				                                 	_uiNotifier.Notify(() => Log("World" + i1));
 				                                 });

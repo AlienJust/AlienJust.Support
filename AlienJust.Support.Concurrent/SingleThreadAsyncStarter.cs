@@ -20,7 +20,7 @@ namespace AlienJust.Support.Concurrent {
 		}
 
 		public void AddToQueueForExecution(Action asyncAction) {
-			_asyncActionQueueWorker.AddToExecutionQueue(() => {
+			_asyncActionQueueWorker.AddWork(() => {
 			                                            	_flowCounter.WaitForCounterChangeWhileNotPredecate(curCount => curCount < _maxFlow);
 
 			                                            	_flowCounter.IncrementCount();

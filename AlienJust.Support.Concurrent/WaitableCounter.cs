@@ -78,5 +78,25 @@ namespace AlienJust.Support.Concurrent {
 				_changeSignal.WaitOne();
 			}
 		}
+
+		public void ActOnLockedCounterAndIncrementCount(Action<int> actionOnLockedCount) {
+			lock(_sync) {
+				actionOnLockedCount(_count);
+				_count += 1;
+				_changeSignal.Set();
+				_incrementSignal.Set();
+			}
+		}
+
+		public void ActOnLockedCounterAndDecrementCount(Action<int> actionOnLockedCount)
+		{
+			lock (_sync)
+			{
+				actionOnLockedCount(_count);
+				_count -= 1;
+				_changeSignal.Set();
+				_decrementSignal.Set();
+			}
+		}
 	}
 }

@@ -4,22 +4,26 @@ using System.Threading;
 using AlienJust.Support.Concurrent.Contracts;
 
 namespace AlienJust.Support.Concurrent {
-	public sealed class SingleThreadedRelayQueueWorker<TItem> : IWorker<TItem> {
+	public sealed class WorkerSingleThreadedRelayDrop<TItem> : IWorker<TItem> {
 		private readonly object _sync;
-		private readonly ConcurrentQueue<TItem> _items;
-		private readonly Action<TItem> _action;
 		private readonly Thread _workThread;
-		private readonly WaitableCounter _counter;
+		private readonly ManualResetEvent _signal;
 
+		private readonly Action<TItem> _action;
+		
+
+		private bool _isInProgress;
 		private bool _isRunning;
 		private bool _mustBeStopped; // Флаг, подающий фоновому потоку сигнал о необходимости завершения (обращение идет через потокобезопасное свойство MustBeStopped)
+		private TItem _item;
+		
 
-		public SingleThreadedRelayQueueWorker(Action<TItem> action, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState) {
+		public WorkerSingleThreadedRelayDrop(Action<TItem> action, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState)
+		{
 			_sync = new object();
-			_items = new ConcurrentQueue<TItem>();
 			_action = action;
 
-			_counter = new WaitableCounter(); // свой счетчик с методами ожидания
+			_signal = new ManualResetEvent(false);
 
 			_isRunning = true;
 			_mustBeStopped = false;
@@ -31,41 +35,40 @@ namespace AlienJust.Support.Concurrent {
 
 
 		public void AddWork(TItem workItem) {
-			if (!MustBeStopped) {
-				_items.Enqueue(workItem);
-				_counter.IncrementCount();
+			lock (_sync) {
+				if (!_mustBeStopped && !_isInProgress)
+				{
+					_item = workItem;
+					_isInProgress = true;
+					_signal.Set();
+				}
+				else throw new Exception("Cannot handle items any more, worker has been stopped or stopping now");
 			}
-			else throw new Exception("Cannot handle items any more, worker has been stopped or stopping now");
 		}
 
 		private void WorkingThreadStart() {
 			try {
-				while (!MustBeStopped)
-				{
-					// В этом цикле ждем пополнения очереди:
-					_counter.WaitForCounterChangeWhileNotPredecate(count => count > 0);
-					while (true) {
-						// в этом цикле опустошаем очередь
-						TItem dequeuedItem;
-						bool shouldProceed = _items.TryDequeue(out dequeuedItem);
-						if (!shouldProceed) {
-							break;
-						}
+				while (!MustBeStopped) {
+					_signal.WaitOne();
 
-						try {
-							_action(dequeuedItem);
-						}
-						catch {
-							continue;
-						}
-						finally {
-							_counter.DecrementCount();
+					try {
+						TItem item;
+						lock (_sync) item = _item;
+						_action(item);
+					}
+					catch {
+						continue;
+					}
+					finally {
+						lock (_sync) {
+							_signal.Reset();
+							_isInProgress = false;
 						}
 					}
 				}
 			}
 			catch {
-				//swallow all exeptions
+				//swallow all exceptions
 			}
 		}
 
@@ -73,8 +76,10 @@ namespace AlienJust.Support.Concurrent {
 		{
 			if (IsRunning)
 			{
-				MustBeStopped = true;
-				_counter.IncrementCount(); // счетчик очереди сбивается, но это не важно, потому что после этого метода поток уничтожается
+				lock (_sync) {
+					_mustBeStopped = true;
+					_signal.Set();
+				}
 
 				_workThread.Join();
 				IsRunning = false;

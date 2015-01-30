@@ -70,6 +70,7 @@
     <Compile Include="BackgroundQueueWorker.cs" />
     <Compile Include="ItemReleaserRelayWithExecutionCountControl.cs" />
     <Compile Include="SingleThreadedRelayAddressedMultiQueueWorkerExceptionless.cs" />
+    <Compile Include="SingleThreadedRelayMultiQueueWorkerExceptionless.cs" />
     <Compile Include="SingleThreadPriorityAddressedAsyncStarterExceptionless.cs" />
     <Compile Include="WorkerSingleThreadedRelayDrop.cs" />
     <Compile Include="RelayAsyncWorker.cs" />

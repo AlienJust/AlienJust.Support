@@ -90,14 +90,6 @@
       <Project>{0CA1E7AF-6F4E-4465-9689-B9461E924F12}</Project>
       <Name>AlienJust.Support.Concurrent.Contracts</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AlienJust.Support.Loggers.Contracts\AlienJust.Support.Loggers.Contracts.csproj">
-      <Project>{A5497170-CBC1-49DF-B8EC-27AF40E733C5}</Project>
-      <Name>AlienJust.Support.Loggers.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AlienJust.Support.Loggers\AlienJust.Support.Loggers.csproj">
-      <Project>{5A4FC6A0-917B-4942-BFAC-1640D66337F0}</Project>
-      <Name>AlienJust.Support.Loggers</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

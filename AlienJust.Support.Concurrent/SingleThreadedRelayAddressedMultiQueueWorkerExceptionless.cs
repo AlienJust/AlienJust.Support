@@ -42,7 +42,7 @@ namespace AlienJust.Support.Concurrent {
 				_threadNotifyAboutQueueItemsCountChanged.Set();
 				return result;
 			}
-			//throw new Exception("Background thread was stopped, i will not add item to queue :-)");
+			throw new Exception("Background thread was stopped, i will not add item to queue :-)");
 		}
 
 		public void ReportSomeAddressedItemIsFree(TKey address)

@@ -35,11 +35,16 @@ namespace AlienJust.Support.Concurrent
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Cannot get item");
+				throw new Exception("Cannot get item", ex);
 			}
 		}
 
-		public void ClearQueue() {
+
+	    public bool TryDequeue(out TItem result) {
+	        return TryDequeueItemsReqursively(out result, 0);
+	    }
+
+	    public void ClearQueue() {
 			foreach (var itemsQueue in _itemsQueues) {
 				TItem item;
 				while (itemsQueue.TryDequeue(out item)) {
@@ -64,5 +69,22 @@ namespace AlienJust.Support.Concurrent
 			//GlobalLogger.Instance.Log("No items in queue=" + currentQueueNumber + " moving to newx queue...");
 			return DequeueItemsReqursively(nextQueueNumber);
 		}
+
+        private bool TryDequeueItemsReqursively(out TItem result, int currentQueueNumber)
+        {
+            int nextQueueNumber = currentQueueNumber + 1;
+            if (currentQueueNumber >= _itemsQueues.Count) {
+                result = default(TItem);
+                return false;
+            }
+
+            var items = _itemsQueues[currentQueueNumber];
+            if (items.TryDequeue(out result))
+            {
+                return true;
+            }
+
+            return TryDequeueItemsReqursively(out result, nextQueueNumber);
+        }
 	}
 }

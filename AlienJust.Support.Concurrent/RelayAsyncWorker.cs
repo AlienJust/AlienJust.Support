@@ -25,11 +25,11 @@ namespace AlienJust.Support.Concurrent
 			_worker.DoWork += (sender, args) => _run(_progressChangeHandler);
 			_worker.ProgressChanged += (sender, args) => _progress(args.ProgressPercentage);
 			_worker.RunWorkerCompleted += (sender, args) => _complete(args.Error);
-			
-			_progressChangeHandler = new RelayAsyncWorkerProgressHandler(p => {
-			                                                             	if (_worker.IsBusy) 
-																									_worker.ReportProgress(p);
-			                                                             });
+
+		    _progressChangeHandler = new RelayAsyncWorkerProgressHandler(p => {
+		        if (_worker.IsBusy)
+		            _worker.ReportProgress(p);
+		    });
 		}
 
 

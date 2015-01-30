@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using AlienJust.Support.Loggers;
 
 namespace AlienJust.Support.Concurrent
 {
@@ -108,5 +104,34 @@ namespace AlienJust.Support.Concurrent
 			}
 			return DequeueItemsReqursively(nextQueueNumber);
 		}
+
+	    public bool TryDequeue(out TItem result) {
+	        lock (_syncRoot) {
+	            return TryDequeueItemsReqursively(out result, 0);
+	        }
+	    }
+
+        private bool TryDequeueItemsReqursively(out TItem result, int currentQueueNumber)
+        {
+            int nextQueueNumber = currentQueueNumber + 1;
+            if (currentQueueNumber >= _itemCollections.Count) throw new Exception("No more queues");
+
+            var items = _itemCollections[currentQueueNumber];
+            if (items.Count > 0)
+            {
+                for (int i = 0; i < items.Count; i++)
+                {
+                    var item = items[i];
+                    if (_itemCounters.GetCount(item.Key) < _maxParallelUsingItemsCount) // т.е. пропускаем итем в случае превышения использования итемов с таким ключем
+                    {
+                        items.RemoveAt(i);
+                        _itemCounters.IncrementCount(item.Key);
+                        result = item.Item;
+                        return true;
+                    }
+                }
+            }
+            return TryDequeueItemsReqursively(out result, nextQueueNumber);
+        }
 	}
 }

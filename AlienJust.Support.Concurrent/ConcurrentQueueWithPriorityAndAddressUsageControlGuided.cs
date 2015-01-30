@@ -79,30 +79,59 @@ namespace AlienJust.Support.Concurrent
 				return result;
 			}
 			catch (Exception ex) {
-				throw new Exception("Cannot get item");
+				throw new Exception("Cannot get item", ex);
 			}
 		}
 
+        private TItem DequeueItemsCycle()
+        {
+            if (_itemsInUseCounters.TotalCount >= _maxTotalUsingItemsCount) throw new Exception("Cannot get item because max total limit riched");
 
-		private TItem DequeueItemsCycle() {
-			if (_itemsInUseCounters.TotalCount >= _maxTotalUsingItemsCount) throw new Exception("Cannot get item because max total limit riched");
+            foreach (var items in _itemCollections)
+            {
+                for (int j = 0; j < items.Count; ++j)
+                {
+                    var item = items[j];
+                    if (_itemsInUseCounters.GetCount(item.Key) < _maxParallelUsingItemsCount) // т.е. пропускаем итем в случае превышения использования итемов с таким ключем
+                    {
+                        items.RemoveAt(j);
+                        _itemsInUseCounters.IncrementCount(item.Key);
+                        return item.Item;
+                    }
+                }
+            }
+            throw new Exception("All queues passed, no more queues");
+        }
 
-			foreach (var items in _itemCollections) {
-					for (int j = 0; j < items.Count; ++j) {
-						var item = items[j];
-						if (_itemsInUseCounters.GetCount(item.Key) < _maxParallelUsingItemsCount) // т.е. пропускаем итем в случае превышения использования итемов с таким ключем
-						{
-							items.RemoveAt(j);
-							_itemsInUseCounters.IncrementCount(item.Key);
-							return item.Item;
-						}
-					}
-			}
-			throw new Exception("No more queues");
-		}
+
+	    public bool TryDequeue(out TItem result) {
+	        lock (_syncRoot) {
+	            return TryDequeueItemsCycle(out result);
+	        }
+	    }
 
 
-		/// <summary>
+	    private bool TryDequeueItemsCycle(out TItem result) {
+	        if (_itemsInUseCounters.TotalCount >= _maxTotalUsingItemsCount) throw new Exception("Cannot get item because max total limit riched");
+
+	        foreach (var items in _itemCollections) {
+	            for (int j = 0; j < items.Count; ++j) {
+	                var item = items[j];
+	                if (_itemsInUseCounters.GetCount(item.Key) < _maxParallelUsingItemsCount) // т.е. пропускаем итем в случае превышения использования итемов с таким ключем
+	                {
+	                    items.RemoveAt(j);
+	                    _itemsInUseCounters.IncrementCount(item.Key);
+	                    result = item.Item;
+	                    return true;
+	                }
+	            }
+	        }
+	        result = default(TItem);
+	        return false;
+	    }
+
+
+	    /// <summary>
 		/// Удаляет элемент из коллекции
 		/// </summary>
 		/// <param name="id">Идентификатор итема</param>

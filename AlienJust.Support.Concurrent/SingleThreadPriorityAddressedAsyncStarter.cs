@@ -21,7 +21,7 @@ namespace AlienJust.Support.Concurrent
 			//_totalFlowCounter = new WaitableCounter();
 			_asyncActionQueueWorker = new SingleThreadedRelayAddressedMultiQueueWorker<TAddressKey, Action<IItemsReleaser<TAddressKey>>>
 				(
-				RunActionWthAsyncTailBack,
+				RunActionWithAsyncTailBack,
 				priorityGradation,
 				maxFlowPerAddress,
 				maxTotalFlow);
@@ -32,7 +32,7 @@ namespace AlienJust.Support.Concurrent
 		/// </summary>
 		/// <param name="asyncOperationBeginAction">Действие, знаменующее завершение асинхронной операции</param>
 		/// <param name="itemsReleaser">Освободитель итемов</param>
-		private void RunActionWthAsyncTailBack(Action<IItemsReleaser<TAddressKey>> asyncOperationBeginAction, IItemsReleaser<TAddressKey> itemsReleaser) {
+		private void RunActionWithAsyncTailBack(Action<IItemsReleaser<TAddressKey>> asyncOperationBeginAction, IItemsReleaser<TAddressKey> itemsReleaser) {
 			try {
 				asyncOperationBeginAction(itemsReleaser);
 			}

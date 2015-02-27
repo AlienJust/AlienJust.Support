@@ -108,7 +108,11 @@ namespace AlienJust.Support.Concurrent
 
 
 	    private bool TryDequeueItemsCycle(out TItem result) {
-	        if (_itemsInUseCounters.TotalCount >= _maxTotalUsingItemsCount) throw new Exception("Cannot get item because max total limit riched");
+		    if (_itemsInUseCounters.TotalCount >= _maxTotalUsingItemsCount) {
+			    result = default(TItem);
+				return false;
+		    }
+		    
 
 	        foreach (var items in _itemCollections) {
 	            for (int j = 0; j < items.Count; ++j) {

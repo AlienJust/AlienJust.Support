@@ -4,8 +4,12 @@ using System.Linq;
 
 namespace AlienJust.Support.Concurrent {
 	public sealed class WaitableMultiCounter<TKey> {
+		private readonly object _syncIncDec;
 		private readonly ConcurrentDictionary<TKey, WaitableCounter> _counters = new ConcurrentDictionary<TKey, WaitableCounter>();
 		private readonly WaitableCounter _totalCounter = new WaitableCounter();
+		public WaitableMultiCounter() {
+			_syncIncDec = new object();
+		}
 
 
 		private WaitableCounter GetCounter(TKey key) {
@@ -13,13 +17,17 @@ namespace AlienJust.Support.Concurrent {
 		}
 
 		public void IncrementCount(TKey key) {
-			GetCounter(key).IncrementCount();
-			_totalCounter.IncrementCount();
+			lock (_syncIncDec) {
+				GetCounter(key).IncrementCount();
+				_totalCounter.IncrementCount();
+			}
 		}
 
 		public void DecrementCount(TKey key) {
-			GetCounter(key).DecrementCount();
-			_totalCounter.DecrementCount();
+			lock (_syncIncDec) {
+				GetCounter(key).DecrementCount();
+				_totalCounter.DecrementCount();
+			}
 		}
 
 		/// <summary>

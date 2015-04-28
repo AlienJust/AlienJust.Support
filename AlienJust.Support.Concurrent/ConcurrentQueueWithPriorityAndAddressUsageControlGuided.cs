@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace AlienJust.Support.Concurrent
@@ -26,11 +27,9 @@ namespace AlienJust.Support.Concurrent
 		{
 			_maxParallelUsingItemsCount = maxParallelUsingItemsCount;
 			_maxTotalUsingItemsCount = maxTotalUsingItemsCount;
-
 			_itemCollections = new List<List<AddressedItemGuided<TKey, TItem>>>();
 			
-			for (int i = 0; i < maxPriority; ++i)
-			{
+			for (int i = 0; i < maxPriority; ++i) {
 				_itemCollections.Add(new List<AddressedItemGuided<TKey, TItem>>());
 			}
 			

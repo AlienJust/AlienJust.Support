@@ -1,6 +1,7 @@
 ﻿namespace AlienJust.Support.Identy.Contracts
 {
-	public interface IObjectWithId {
+	public interface IObjectWithIdentifier
+	{
 		IIdentifier Id { get; }
 	}
 }

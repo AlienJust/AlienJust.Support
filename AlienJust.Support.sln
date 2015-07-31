@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Identy", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Identy.Contracts", "AlienJust.Support.Identy.Contracts\AlienJust.Support.Identy.Contracts.csproj", "{B3547428-AAC8-4844-90A6-1BD564814F6E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Serial", "AlienJust.Support.Serial\AlienJust.Support.Serial.csproj", "{DF195104-38CF-4D52-BC92-47591EF1D4AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -297,6 +299,16 @@ Global
 		{B3547428-AAC8-4844-90A6-1BD564814F6E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{B3547428-AAC8-4844-90A6-1BD564814F6E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B3547428-AAC8-4844-90A6-1BD564814F6E}.Release|x86.ActiveCfg = Release|Any CPU
+		{DF195104-38CF-4D52-BC92-47591EF1D4AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF195104-38CF-4D52-BC92-47591EF1D4AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF195104-38CF-4D52-BC92-47591EF1D4AF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DF195104-38CF-4D52-BC92-47591EF1D4AF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DF195104-38CF-4D52-BC92-47591EF1D4AF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DF195104-38CF-4D52-BC92-47591EF1D4AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF195104-38CF-4D52-BC92-47591EF1D4AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF195104-38CF-4D52-BC92-47591EF1D4AF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DF195104-38CF-4D52-BC92-47591EF1D4AF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{DF195104-38CF-4D52-BC92-47591EF1D4AF}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

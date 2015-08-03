@@ -17,6 +17,7 @@ namespace AlienJust.Support.Serial
 		}
 
 		public SerialPortExtender(SerialPort port, Action<string> logAction) {
+			if (logAction == null) throw new NullReferenceException(".ctor parameter logAction cannot be null");
 			_port = port;
 			_selectedLogAction = logAction;
 		}

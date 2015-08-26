@@ -23,8 +23,6 @@ namespace AlienJust.Support.Concurrent.Contracts {
 		/// <param name="id">Уникальный идентификатор элемента</param>
 		/// <returns>Истина, если удаление было произведено</returns>
 		bool RemoveItem(Guid id);
-
-		
 	}
 
 	/// <summary>

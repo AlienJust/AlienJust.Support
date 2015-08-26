@@ -13,7 +13,7 @@ namespace AlienJust.Support.Concurrent
 		private readonly object _syncRoot = new object();
 		private readonly List<List<AddressedItemGuided<TKey, TItem>>> _itemCollections;
 		private readonly int _maxParallelUsingItemsCount;
-		private readonly int _maxTotalUsingItemsCount;
+		private int _maxTotalUsingItemsCount;
 		private readonly WaitableMultiCounter<TKey> _itemsInUseCounters;
 
 		/// <summary>
@@ -33,6 +33,18 @@ namespace AlienJust.Support.Concurrent
 			}
 			
 			_itemsInUseCounters = new WaitableMultiCounter<TKey>();
+		}
+
+		public int MaxTotalUsingItemsCount {
+			get {
+				lock (_syncRoot)
+					return _maxTotalUsingItemsCount;
+			}
+			set {
+				lock (_syncRoot) {
+					_maxTotalUsingItemsCount = value;
+				}
+			}
 		}
 
 		/// <summary>
@@ -79,6 +91,7 @@ namespace AlienJust.Support.Concurrent
 
         private TItem DequeueItemsCycle()
         {
+			// allready locked:
             if (_itemsInUseCounters.TotalCount >= _maxTotalUsingItemsCount) throw new Exception("Cannot get item because max total limit riched");
 
             foreach (var items in _itemCollections)
@@ -158,7 +171,5 @@ namespace AlienJust.Support.Concurrent
 			}
 			return result;
 		}
-
-
 	}
 }

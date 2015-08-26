@@ -129,5 +129,12 @@ namespace AlienJust.Support.Concurrent {
 				}
 			}
 		}
+
+
+		public int MaxTotalOnetimeItemsUsages {
+			// Thread safity is guaranted by queue
+			get { return _queue.MaxTotalUsingItemsCount; }
+			set { _queue.MaxTotalUsingItemsCount = value; }
+		}
 	}
 }

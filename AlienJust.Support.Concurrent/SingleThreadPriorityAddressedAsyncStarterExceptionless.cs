@@ -64,5 +64,12 @@ namespace AlienJust.Support.Concurrent
 		public bool RemoveExecution(Guid id) {
 			return _asyncActionQueueWorker.RemoveItem(id);
 		}
+
+		public int MaxTotalFlow
+		{
+			// Thread safity is guaranted by worker
+			get { return _asyncActionQueueWorker.MaxTotalOnetimeItemsUsages; }
+			set { _asyncActionQueueWorker.MaxTotalOnetimeItemsUsages = value; }
+		}
 	}
 }

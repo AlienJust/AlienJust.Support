@@ -10,7 +10,8 @@ namespace AlienJust.Support.Concurrent {
 	/// <typeparam name="TKey">Тип адресов очереди</typeparam>
 	/// <typeparam name="TItem">Тип элементов очереди</typeparam>
 	public sealed class SingleThreadedRelayAddressedMultiQueueWorkerExceptionless<TKey, TItem> : IAddressedMultiQueueWorker<TKey, TItem>, IItemsReleaser<TKey> {
-		private readonly object _sync;
+		private readonly object _syncRunOrStop;
+		private readonly object _syncChangeMaxTotalOnetimeItemsUsages;
 		private readonly ConcurrentQueueWithPriorityAndAddressUsageControlGuided<TKey, TItem> _queue;
 
 		private readonly Action<TItem, IItemsReleaser<TKey>> _relayUserAction; // Пользовательское действие, которое будет совершаться над каждым элементом в порядке очереди
@@ -22,7 +23,8 @@ namespace AlienJust.Support.Concurrent {
 
         public SingleThreadedRelayAddressedMultiQueueWorkerExceptionless(Action<TItem, IItemsReleaser<TKey>> relayUserAction, int maxPriority, uint maxParallelUsingItemsCount, uint maxTotalOnetimeItemsUsages)
 		{
-			_sync = new object();
+			_syncRunOrStop = new object();
+			_syncChangeMaxTotalOnetimeItemsUsages = new object();
 
 			_queue = new ConcurrentQueueWithPriorityAndAddressUsageControlGuided<TKey, TItem>(maxPriority, maxParallelUsingItemsCount, maxTotalOnetimeItemsUsages);
 			_relayUserAction = relayUserAction;
@@ -101,14 +103,14 @@ namespace AlienJust.Support.Concurrent {
 		public bool IsRunning {
 			get {
 				bool result;
-				lock (_sync) {
+				lock (_syncRunOrStop) {
 					result = _isRunning;
 				}
 				return result;
 			}
 
 			private set {
-				lock (_sync) {
+				lock (_syncRunOrStop) {
 					_isRunning = value;
 				}
 			}
@@ -117,14 +119,14 @@ namespace AlienJust.Support.Concurrent {
 		private bool MustBeStopped {
 			get {
 				bool result;
-				lock (_sync) {
+				lock (_syncRunOrStop) {
 					result = _mustBeStopped;
 				}
 				return result;
 			}
 
 			set {
-				lock (_sync) {
+				lock (_syncRunOrStop) {
 					_mustBeStopped = value;
 				}
 			}
@@ -134,7 +136,13 @@ namespace AlienJust.Support.Concurrent {
 		public uint MaxTotalOnetimeItemsUsages {
 			// Thread safity is guaranted by queue
 			get { return _queue.MaxTotalUsingItemsCount; }
-			set { _queue.MaxTotalUsingItemsCount = value; }
+			set {
+				lock (_syncChangeMaxTotalOnetimeItemsUsages) {
+					bool isDequeueNeeded = value > _queue.MaxTotalUsingItemsCount;
+					_queue.MaxTotalUsingItemsCount = value;
+					if (isDequeueNeeded) _threadNotifyAboutQueueItemsCountChanged.Set();
+				}
+			}
 		}
 	}
 }

@@ -12,8 +12,8 @@ namespace AlienJust.Support.Concurrent
 	{
 		private readonly object _syncRoot = new object();
 		private readonly List<List<AddressedItemGuided<TKey, TItem>>> _itemCollections;
-		private readonly int _maxParallelUsingItemsCount;
-		private int _maxTotalUsingItemsCount;
+		private readonly uint _maxParallelUsingItemsCount;
+		private uint _maxTotalUsingItemsCount;
 		private readonly WaitableMultiCounter<TKey> _itemsInUseCounters;
 
 		/// <summary>
@@ -22,7 +22,7 @@ namespace AlienJust.Support.Concurrent
 		/// <param name="maxPriority">Максимальный приоритет</param>
 		/// <param name="maxParallelUsingItemsCount">Максимальное количество одновременно разрешенных выборок элементов</param>
 		/// <param name="maxTotalUsingItemsCount">Максимальное общее число выборок элементов</param>
-		public ConcurrentQueueWithPriorityAndAddressUsageControlGuided(int maxPriority, int maxParallelUsingItemsCount, int maxTotalUsingItemsCount)
+		public ConcurrentQueueWithPriorityAndAddressUsageControlGuided(int maxPriority, uint maxParallelUsingItemsCount, uint maxTotalUsingItemsCount)
 		{
 			_maxParallelUsingItemsCount = maxParallelUsingItemsCount;
 			_maxTotalUsingItemsCount = maxTotalUsingItemsCount;
@@ -35,7 +35,7 @@ namespace AlienJust.Support.Concurrent
 			_itemsInUseCounters = new WaitableMultiCounter<TKey>();
 		}
 
-		public int MaxTotalUsingItemsCount {
+		public uint MaxTotalUsingItemsCount {
 			get {
 				lock (_syncRoot)
 					return _maxTotalUsingItemsCount;

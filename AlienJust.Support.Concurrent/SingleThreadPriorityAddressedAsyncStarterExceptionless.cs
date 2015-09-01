@@ -16,7 +16,7 @@ namespace AlienJust.Support.Concurrent
 		//private readonly WaitableCounter _totalFlowCounter; // счетчик текущего количества запущенных задач
 
 
-        public SingleThreadPriorityAddressedAsyncStarterExceptionless(int maxTotalFlow, int maxFlowPerAddress, int priorityGradation)
+        public SingleThreadPriorityAddressedAsyncStarterExceptionless(uint maxTotalFlow, uint maxFlowPerAddress, int priorityGradation)
         {
 			//_maxTotalFlow = maxTotalFlow;
 			//_totalFlowCounter = new WaitableCounter();
@@ -65,7 +65,7 @@ namespace AlienJust.Support.Concurrent
 			return _asyncActionQueueWorker.RemoveItem(id);
 		}
 
-		public int MaxTotalFlow
+		public uint MaxTotalFlow
 		{
 			// Thread safity is guaranted by worker
 			get { return _asyncActionQueueWorker.MaxTotalOnetimeItemsUsages; }

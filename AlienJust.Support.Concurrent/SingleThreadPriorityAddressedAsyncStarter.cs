@@ -16,7 +16,7 @@ namespace AlienJust.Support.Concurrent
 		//private readonly WaitableCounter _totalFlowCounter; // счетчик текущего количества запущенных задач
 
 
-		public SingleThreadPriorityAddressedAsyncStarter(int maxTotalFlow, int maxFlowPerAddress, int priorityGradation) {
+		public SingleThreadPriorityAddressedAsyncStarter(uint maxTotalFlow, uint maxFlowPerAddress, int priorityGradation) {
 			//_maxTotalFlow = maxTotalFlow;
 			//_totalFlowCounter = new WaitableCounter();
 			_asyncActionQueueWorker = new SingleThreadedRelayAddressedMultiQueueWorker<TAddressKey, Action<IItemsReleaser<TAddressKey>>>

@@ -20,7 +20,7 @@ namespace AlienJust.Support.Concurrent {
 		private bool _isRunning;
 		private bool _mustBeStopped; // Флаг, подающий фоновому потоку сигнал о необходимости завершения (обращение идет через потокобезопасное свойство MustBeStopped)
 
-		public SingleThreadedRelayAddressedMultiQueueWorker(Action<TItem, IItemsReleaser<TKey>> relayUserAction, int maxPriority, int maxParallelUsingItemsCount, int maxTotalOnetimeItemsUsages)
+		public SingleThreadedRelayAddressedMultiQueueWorker(Action<TItem, IItemsReleaser<TKey>> relayUserAction, int maxPriority, uint maxParallelUsingItemsCount, uint maxTotalOnetimeItemsUsages)
 		{
 			_sync = new object();
 

@@ -9,12 +9,19 @@ using AlienJust.Support.Concurrent;
 using AlienJust.Support.Concurrent.Contracts;
 using AlienJust.Support.Loggers;
 using AlienJust.Support.Loggers.Contracts;
+using AlienJust.Support.Numeric;
 using AlienJust.Support.Text;
 using AlienJust.Support.Text.Contracts;
 
 namespace TestApp {
 	internal class Program {
 		private static void Main(string[] args) {
+
+			var buf = new byte[] {0, 1};
+			
+			Console.WriteLine(buf.ToText() + " > " + MathExtensions.Crc16(buf));
+			Console.WriteLine(buf.ToText() + " > " + MathExtensions.Crc16ByDo(buf));
+			Console.WriteLine(buf.ToText() + " > " + MathExtensions.GetCrc16Maks(buf));
 			//TestTextFormatter();
 			//GlobalLogger.Instance.Log(System.IO.Path.GetFullPath("C:\\\\Games"));
 			//GlobalLogger.Instance.Log(System.IO.Path.GetDirectoryName("C:\\\\Games"));
@@ -28,7 +35,7 @@ namespace TestApp {
 			//Thread.Sleep(9000000); // 9000 seconds, it is about 150 minutes
 
 			//TestAsyncWorkers();
-			TestFinallyCodeBlockOnThreadWorker();
+			//TestFinallyCodeBlockOnThreadWorker();
 			Console.ReadKey(true);
 		}
 

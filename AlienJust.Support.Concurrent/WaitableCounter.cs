@@ -55,6 +55,13 @@ namespace AlienJust.Support.Concurrent {
 					return _count;
 				}
 			}
+			set {
+				lock (_sync) {
+					_count = value;
+					_changeSignal.Set();
+					// TODO: maybe set decrement and increment waiters?
+				}
+			}
 		}
 
 		public void WaitForIncrement() {
@@ -65,13 +72,13 @@ namespace AlienJust.Support.Concurrent {
 			_decrementSignal.WaitOne();
 		}
 
-		public void WaitForCounterChangeWhileNotPredecate(Func<int, bool> predecate) {
+		public void WaitForCounterChangeWhileNotPredecate(Func<int, bool> checkFunc) {
 			while (true) {
 				bool exit;
 				// сперва проверяем, затем ждем (мгновенная проверка предиката при вызове)
 				// блокировка нужна для того чтобы не пропустить ни одного вызова .Set(), они тоже блокируются на _sync
 				lock (_sync) {
-					exit = predecate(Count);
+					exit = checkFunc(Count);
 				}
 				if (exit) break;
 

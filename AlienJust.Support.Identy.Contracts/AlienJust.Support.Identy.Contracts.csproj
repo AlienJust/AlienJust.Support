@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="IObjectWithId.cs" />
     <Compile Include="IIdentifier.cs" />
+    <Compile Include="IStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

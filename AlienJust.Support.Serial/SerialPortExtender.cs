@@ -28,7 +28,8 @@ namespace AlienJust.Support.Serial
 			Log("Очистка уже принятых байтов...");
 			var discardedInBytes = ReadAllBytes();
 			Log("Удалены следующие байты: " + discardedInBytes.ToText());
-			_port.Write(bytes, 0, bytes.Length);
+			_port.Write(bytes, offset, count);
+			Log("В порт отправлены байты буфера: " + bytes.ToText() + " начиная с " + offset + " в количестве " + count);
 		}
 
 		public byte[] ReadBytes(int bytesCount, int timeoutInSeconds) {

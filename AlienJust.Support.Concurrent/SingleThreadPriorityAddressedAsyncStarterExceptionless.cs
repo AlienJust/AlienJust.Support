@@ -1,26 +1,23 @@
 ﻿using System;
 using AlienJust.Support.Concurrent.Contracts;
 
-namespace AlienJust.Support.Concurrent
-{
+namespace AlienJust.Support.Concurrent {
 	/// <summary>
 	/// Запускает асинхронные задачи с разним приоритетом в отдельном потоке, 
 	/// позволяя контролировать максимальное число одновременно выполняемых асинхронных задач
 	/// и максимальное число одновременно выполняемых асинхронных задач для одного адреса
 	/// </summary>
-	public sealed class SingleThreadPriorityAddressedAsyncStarterExceptionless<TAddressKey> : IPriorKeyedAsyncStarter<TAddressKey>
-	{
+	public sealed class SingleThreadPriorityAddressedAsyncStarterExceptionless<TAddressKey> : IPriorKeyedAsyncStarter<TAddressKey> {
 		//private readonly int _maxTotalFlow; // максимальное число одновремменно запущенных задач
 
-        private readonly SingleThreadedRelayAddressedMultiQueueWorkerExceptionless<TAddressKey, Action<IItemsReleaser<TAddressKey>>> _asyncActionQueueWorker;
+		private readonly SingleThreadedRelayAddressedMultiQueueWorkerExceptionless<TAddressKey, Action<IItemsReleaser<TAddressKey>>> _asyncActionQueueWorker;
 		//private readonly WaitableCounter _totalFlowCounter; // счетчик текущего количества запущенных задач
 
 
-        public SingleThreadPriorityAddressedAsyncStarterExceptionless(uint maxTotalFlow, uint maxFlowPerAddress, int priorityGradation)
-        {
+		public SingleThreadPriorityAddressedAsyncStarterExceptionless(uint maxTotalFlow, uint maxFlowPerAddress, int priorityGradation) {
 			//_maxTotalFlow = maxTotalFlow;
 			//_totalFlowCounter = new WaitableCounter();
-            _asyncActionQueueWorker = new SingleThreadedRelayAddressedMultiQueueWorkerExceptionless<TAddressKey, Action<IItemsReleaser<TAddressKey>>>
+			_asyncActionQueueWorker = new SingleThreadedRelayAddressedMultiQueueWorkerExceptionless<TAddressKey, Action<IItemsReleaser<TAddressKey>>>
 				(
 				RunActionWithAsyncTailBack,
 				priorityGradation,
@@ -51,8 +48,7 @@ namespace AlienJust.Support.Concurrent
 		/// <param name="priority">Приоритет очереди</param>
 		/// <param name="key">Ключ-адрес</param>
 		/// <returns>Идентификатор задания</returns>
-		public Guid AddToQueueForExecution(Action<Action> asyncAction, int priority, TAddressKey key)
-		{
+		public Guid AddToQueueForExecution(Action<Action> asyncAction, int priority, TAddressKey key) {
 			return _asyncActionQueueWorker.AddToExecutionQueue
 				(
 					key,
@@ -65,8 +61,7 @@ namespace AlienJust.Support.Concurrent
 			return _asyncActionQueueWorker.RemoveItem(id);
 		}
 
-		public uint MaxTotalFlow
-		{
+		public uint MaxTotalFlow {
 			// Thread safity is guaranted by worker
 			get { return _asyncActionQueueWorker.MaxTotalOnetimeItemsUsages; }
 			set { _asyncActionQueueWorker.MaxTotalOnetimeItemsUsages = value; }

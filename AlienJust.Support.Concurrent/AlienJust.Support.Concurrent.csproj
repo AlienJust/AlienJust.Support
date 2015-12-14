@@ -53,18 +53,11 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddressedConcurrentQueueWithPriority.cs" />
     <Compile Include="AddressedItem.cs" />
-    <Compile Include="AsyncMemoriedWorkerFactory.cs" />
-    <Compile Include="ConcurrentGuidMemory.cs" />
-    <Compile Include="ConcurrentQueueWithPriority.cs" />
+    <Compile Include="SyncronnizedListWithPriority.cs" />
     <Compile Include="ConcurrentQueueWithPriorityAndAddressUsageControl.cs" />
     <Compile Include="ConcurrentQueueWithPriorityAndAddressUsageControlGuided.cs" />
     <Compile Include="BackgroundQueueWorker.cs" />
@@ -88,7 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AlienJust.Support.Concurrent.Contracts\AlienJust.Support.Concurrent.Contracts.csproj">
-      <Project>{0CA1E7AF-6F4E-4465-9689-B9461E924F12}</Project>
+      <Project>{0ca1e7af-6f4e-4465-9689-b9461e924f12}</Project>
       <Name>AlienJust.Support.Concurrent.Contracts</Name>
     </ProjectReference>
   </ItemGroup>

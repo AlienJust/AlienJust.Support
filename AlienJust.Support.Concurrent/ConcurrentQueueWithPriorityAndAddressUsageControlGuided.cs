@@ -12,6 +12,7 @@ namespace AlienJust.Support.Concurrent
 	{
 		private readonly object _syncRoot = new object();
 		private readonly List<List<AddressedItemGuided<TKey, TItem>>> _itemCollections;
+		private readonly int _maxPriority;
 		private readonly uint _maxParallelUsingItemsCount;
 		private uint _maxTotalUsingItemsCount;
 		private readonly WaitableMultiCounter<TKey> _itemsInUseCounters;
@@ -24,11 +25,13 @@ namespace AlienJust.Support.Concurrent
 		/// <param name="maxTotalUsingItemsCount">Максимальное общее число выборок элементов</param>
 		public ConcurrentQueueWithPriorityAndAddressUsageControlGuided(int maxPriority, uint maxParallelUsingItemsCount, uint maxTotalUsingItemsCount)
 		{
+			_maxPriority = maxPriority;
 			_maxParallelUsingItemsCount = maxParallelUsingItemsCount;
 			_maxTotalUsingItemsCount = maxTotalUsingItemsCount;
 			_itemCollections = new List<List<AddressedItemGuided<TKey, TItem>>>();
-			
-			for (int i = 0; i < maxPriority; ++i) {
+
+			for (int i = 0; i < _maxPriority; ++i)
+			{
 				_itemCollections.Add(new List<AddressedItemGuided<TKey, TItem>>());
 			}
 			
@@ -64,6 +67,7 @@ namespace AlienJust.Support.Concurrent
 		/// <param name="item">Элемент</param>
 		/// <param name="priority">Приоритет (0 - наивысший приоритет)</param>
 		public Guid Enqueue(TKey key, TItem item, int priority) {
+			if(_maxPriority < priority) throw new Exception("Too low priority, must be in range non negative and less than " + _maxPriority);
 			var guid = Guid.NewGuid();
 			lock (_syncRoot) {
 				_itemCollections[priority].Add(new AddressedItemGuided<TKey, TItem>(key, item, guid));

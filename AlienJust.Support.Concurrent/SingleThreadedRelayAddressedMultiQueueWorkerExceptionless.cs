@@ -12,6 +12,7 @@ namespace AlienJust.Support.Concurrent {
 	public sealed class SingleThreadedRelayAddressedMultiQueueWorkerExceptionless<TKey, TItem> : IAddressedMultiQueueWorker<TKey, TItem>, IItemsReleaser<TKey> {
 		private readonly object _syncRunOrStop;
 		private readonly object _syncChangeMaxTotalOnetimeItemsUsages;
+
 		private readonly ConcurrentQueueWithPriorityAndAddressUsageControlGuided<TKey, TItem> _queue;
 
 		private readonly Action<TItem, IItemsReleaser<TKey>> _relayUserAction; // Пользовательское действие, которое будет совершаться над каждым элементом в порядке очереди
@@ -32,6 +33,7 @@ namespace AlienJust.Support.Concurrent {
 
 			_isRunning = true;
 			_mustBeStopped = false;
+
 			_workThread = new Thread(WorkingThreadStart) {IsBackground = true};
 			_workThread.Start();
 		}
@@ -46,8 +48,7 @@ namespace AlienJust.Support.Concurrent {
 			throw new Exception("Background thread was stopped, i will not add item to queue :-)");
 		}
 
-		public void ReportSomeAddressedItemIsFree(TKey address)
-		{
+		public void ReportSomeAddressedItemIsFree(TKey address) {
 			_queue.ReportDecrementItemUsages(address);
 			_threadNotifyAboutQueueItemsCountChanged.Set();
 		}
@@ -59,40 +60,37 @@ namespace AlienJust.Support.Concurrent {
 		}
 
 
-	    private void WorkingThreadStart() {
-	        try {
-	            while (!MustBeStopped) {
-	                TItem item;
-	                bool isItemTaken = _queue.TryDequeue(out item); // выбрасывает исключение, если очередь пуста, и поток переходит к ожиданию сигнала
-	                //var releaser = new ItemReleaserRelayWithExecutionCountControl<TKey>((IItemsReleaser<TKey>) this);
-	                if (isItemTaken) {
-	                    try {
-	                        _relayUserAction(item, (IItemsReleaser<TKey>) this); // TODO: Warning! Если в пользовательсоком действии произойдет ошибка, то счетчик элементов застрянет!
-	                    }
-	                    catch {
-	                        // Даже если действие над элементом очереди не получилось, нужно проверить, не осталось ли еще чего нибудь в очереди
-	                        // НО, я не знаю адреса:
-	                        // if (!releaser.SomeItemWasReleased)
-	                        //releaser.ReportSomeAddressedItemIsFree( TODO );
-	                    }
-	                }
-	                else {
-	                    _threadNotifyAboutQueueItemsCountChanged.WaitOne(); // Итемы кончились, начинаем ждать (основное время проводится здесь в ожидании :-))    
-	                }
-	            }
-	        }
-	        catch {
-	            //swallow all execptions
-	        }
-	    }
+		private void WorkingThreadStart() {
+			try {
+				while (!MustBeStopped) {
+					TItem item;
+					bool isItemTaken = _queue.TryDequeue(out item); // выбрасывает исключение, если очередь пуста, и поток переходит к ожиданию сигнала
+					//var releaser = new ItemReleaserRelayWithExecutionCountControl<TKey>((IItemsReleaser<TKey>) this);
+					if (isItemTaken) {
+						try {
+							_relayUserAction(item, (IItemsReleaser<TKey>) this); // TODO: Warning! Если в пользовательсоком действии произойдет ошибка, то счетчик элементов застрянет!
+						}
+						catch {
+							// user action failed
+						}
+					}
+					else {
+						_threadNotifyAboutQueueItemsCountChanged.WaitOne(); // Итемы кончились, начинаем ждать (основное время проводится здесь в ожидании :-))    
+					}
+				}
+			}
+			catch {
+				//swallow all execptions
+			}
+		}
 
-	    public void StopWorker() {
+		public void StopWorker() {
 			if (IsRunning) {
 				MustBeStopped = true;
-				
+
 				// На случай, если поток ждет итемов (очередь пуста). 
 				// При взведении этого нотификатора поток продолжится и при следуюущей итерации цикла фактически завершится.
-				_threadNotifyAboutQueueItemsCountChanged.Set(); 
+				_threadNotifyAboutQueueItemsCountChanged.Set();
 
 				_workThread.Join();
 				IsRunning = false;

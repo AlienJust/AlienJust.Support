@@ -2,23 +2,18 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace AlienJust.Support.Concurrent
-{
-	public sealed class ConcurrentQueueWithPriority<TItem>
-	{
+namespace AlienJust.Support.Concurrent {
+	public sealed class ConcurrentQueueWithPriority<TItem> {
 		private readonly List<ConcurrentQueue<TItem>> _itemsQueues;
-		
-		public ConcurrentQueueWithPriority(int maxPriority)
-		{
+
+		public ConcurrentQueueWithPriority(int maxPriority) {
 			_itemsQueues = new List<ConcurrentQueue<TItem>>();
-			for(int i = 0; i < maxPriority; ++i)
+			for (int i = 0; i < maxPriority; ++i)
 				_itemsQueues.Add(new ConcurrentQueue<TItem>());
-			
 		}
 
 
-		public void Enqueue(TItem item, int priority)
-		{
+		public void Enqueue(TItem item, int priority) {
 			_itemsQueues[priority].Enqueue(item);
 		}
 
@@ -27,41 +22,35 @@ namespace AlienJust.Support.Concurrent
 		/// </summary>
 		/// <returns>Взятый из очереди элемент</returns>
 		/// <exception cref="Exception">Исключение, итемов не найдено</exception>
-		public TItem Dequeue()
-		{
-			try
-			{
+		public TItem Dequeue() {
+			try {
 				return DequeueItemsReqursively(0);
 			}
-			catch (Exception ex)
-			{
+			catch (Exception ex) {
 				throw new Exception("Cannot get item", ex);
 			}
 		}
 
 
-	    public bool TryDequeue(out TItem result) {
-	        return TryDequeueItemsReqursively(out result, 0);
-	    }
+		public bool TryDequeue(out TItem result) {
+			return TryDequeueItemsReqursively(out result, 0);
+		}
 
-	    public void ClearQueue() {
+		public void ClearQueue() {
 			foreach (var itemsQueue in _itemsQueues) {
 				TItem item;
-				while (itemsQueue.TryDequeue(out item)) {
-				}
+				while (itemsQueue.TryDequeue(out item)) {}
 			}
 		}
-		
-		private TItem DequeueItemsReqursively(int currentQueueNumber)
-		{
+
+		private TItem DequeueItemsReqursively(int currentQueueNumber) {
 			//GlobalLogger.Instance.Log("currentQueueNumber=" + currentQueueNumber);
 			int nextQueueNumber = currentQueueNumber + 1;
 			if (currentQueueNumber >= _itemsQueues.Count) throw new Exception("No more queues");
 
 			var items = _itemsQueues[currentQueueNumber];
 			TItem dequeuedItem;
-			if (items.TryDequeue(out dequeuedItem))
-			{
+			if (items.TryDequeue(out dequeuedItem)) {
 				//GlobalLogger.Instance.Log("Item found, returning...");
 				return dequeuedItem;
 			}
@@ -70,21 +59,19 @@ namespace AlienJust.Support.Concurrent
 			return DequeueItemsReqursively(nextQueueNumber);
 		}
 
-        private bool TryDequeueItemsReqursively(out TItem result, int currentQueueNumber)
-        {
-            int nextQueueNumber = currentQueueNumber + 1;
-            if (currentQueueNumber >= _itemsQueues.Count) {
-                result = default(TItem);
-                return false;
-            }
+		private bool TryDequeueItemsReqursively(out TItem result, int currentQueueNumber) {
+			int nextQueueNumber = currentQueueNumber + 1;
+			if (currentQueueNumber >= _itemsQueues.Count) {
+				result = default(TItem);
+				return false;
+			}
 
-            var items = _itemsQueues[currentQueueNumber];
-            if (items.TryDequeue(out result))
-            {
-                return true;
-            }
+			var items = _itemsQueues[currentQueueNumber];
+			if (items.TryDequeue(out result)) {
+				return true;
+			}
 
-            return TryDequeueItemsReqursively(out result, nextQueueNumber);
-        }
+			return TryDequeueItemsReqursively(out result, nextQueueNumber);
+		}
 	}
 }

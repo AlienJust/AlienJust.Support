@@ -1,10 +1,13 @@
+using System;
+
 namespace AlienJust.Support.Concurrent.Contracts {
-	public interface IWorker<in TItem> : IStoppable
+	public interface IWorker<in TItem>
 	{
 		void AddWork(TItem workItem);
 	}
 
-	public interface IStoppable {
-		void StopSynchronously();
+	public interface IStoppableWorker<in TItem> : IWorker<TItem> {
+		void AddLastWork(TItem workItem);
+		void Stop();
 	}
 }

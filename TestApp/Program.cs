@@ -37,7 +37,7 @@ namespace TestApp {
 		}
 
 		private static void TestFinallyCodeBlockOnThreadWorker() {
-			_queueWorker = new SingleThreadedRelayQueueWorker<Action>(a => a(), ThreadPriority.Normal, true, ApartmentState.Unknown);
+			_queueWorker = new SingleThreadedRelayQueueWorker<Action>("ololo", a => a(), ThreadPriority.Normal, true, ApartmentState.Unknown, new RelayActionLogger(Console.WriteLine));
 			_queueWorker.AddWork(() => { throw new Exception("oops"); });
 			_queueWorker.AddWork(() => { throw new Exception("oops"); });
 			_queueWorker.AddWork(() => { throw new Exception("oops"); });
@@ -51,7 +51,7 @@ namespace TestApp {
 		private static SingleThreadedRelayQueueWorker<Action> _queueWorker;
 
 		public static void SingleThreadRelayWorkerStressTest() {
-			_queueWorker = new SingleThreadedRelayQueueWorker<Action>(a => a(), ThreadPriority.Normal, true, null);
+			_queueWorker = new SingleThreadedRelayQueueWorker<Action>("axaxa", a => a(), ThreadPriority.Normal, true, null, new RelayActionLogger(Console.WriteLine));
 			Console.WriteLine("Worker created");
 			var t1 = new Thread(ThreadStart) {IsBackground = true, Priority = ThreadPriority.BelowNormal};
 			//var t2 = new Thread(ThreadStart) {IsBackground = true, Priority = ThreadPriority.Normal};

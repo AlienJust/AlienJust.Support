@@ -10,8 +10,7 @@ namespace AlienJust.Support.Concurrent {
 		private readonly Thread _workThread;
 
 
-        public SingleThreadedRelayMultiQueueWorkerExceptionless(Action<TItem> action, int queuesCount)
-        {
+		public SingleThreadedRelayMultiQueueWorkerExceptionless(Action<TItem> action, int queuesCount) {
 			_cpQueue = new ConcurrentQueueWithPriority<TItem>(queuesCount);
 			_action = action;
 
@@ -26,9 +25,7 @@ namespace AlienJust.Support.Concurrent {
 				_cpQueue.Enqueue(item, queueNumber);
 				_threadNotify.Set();
 			}
-			catch (Exception ex) {
-
-			}
+			catch (Exception ex) {}
 		}
 
 		public void ClearQueue() {
@@ -40,21 +37,20 @@ namespace AlienJust.Support.Concurrent {
 			try {
 				while (true) {
 					try {
-					    TItem item;
-					    if (_cpQueue.TryDequeue(out item)) {
-					        try {
-					            _action(item);
-					        }
-					        catch {
-					            // cannot execute action...
-					        }
-					    }
-					    else {
-                            _threadNotify.WaitOne(); // Итемы кончились, начинаем ждать
-					    }
+						TItem item;
+						if (_cpQueue.TryDequeue(out item)) {
+							try {
+								_action(item);
+							}
+							catch {
+								// cannot execute action...
+							}
+						}
+						else {
+							_threadNotify.WaitOne(); // Итемы кончились, начинаем ждать
+						}
 					}
-					catch (Exception ex) {
-					}
+					catch (Exception ex) {}
 				}
 			}
 			catch (Exception ex) {

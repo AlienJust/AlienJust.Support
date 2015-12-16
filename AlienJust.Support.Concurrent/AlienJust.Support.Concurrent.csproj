@@ -57,7 +57,7 @@
   <ItemGroup>
     <Compile Include="AddressedConcurrentQueueWithPriority.cs" />
     <Compile Include="AddressedItem.cs" />
-    <Compile Include="SyncronnizedListWithPriority.cs" />
+    <Compile Include="ConcurrentQueueWithPriority.cs" />
     <Compile Include="ConcurrentQueueWithPriorityAndAddressUsageControl.cs" />
     <Compile Include="ConcurrentQueueWithPriorityAndAddressUsageControlGuided.cs" />
     <Compile Include="BackgroundQueueWorker.cs" />
@@ -83,6 +83,10 @@
     <ProjectReference Include="..\AlienJust.Support.Concurrent.Contracts\AlienJust.Support.Concurrent.Contracts.csproj">
       <Project>{0ca1e7af-6f4e-4465-9689-b9461e924f12}</Project>
       <Name>AlienJust.Support.Concurrent.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Loggers.Contracts\AlienJust.Support.Loggers.Contracts.csproj">
+      <Project>{a5497170-cbc1-49df-b8ec-27af40e733c5}</Project>
+      <Name>AlienJust.Support.Loggers.Contracts</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

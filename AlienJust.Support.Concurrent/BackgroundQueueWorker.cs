@@ -41,7 +41,7 @@ namespace AlienJust.Support.Concurrent {
 				_items.Enqueue(workItem);
 				_counter.IncrementCount();
 			}
-			else throw new Exception("Cannot handle items any more, worker has been stopped or stopping now");
+			else throw new Exception("Cannot handle items any more, asyncWorker has been stopped or stopping now");
 		}
 
 

@@ -32,7 +32,7 @@ namespace AlienJust.Support.Serial
 			Log("В порт отправлены байты буфера: " + bytes.ToText() + " начиная с " + offset + " в количестве " + count);
 		}
 
-		public byte[] ReadBytes(int bytesCount, int timeoutInSeconds) {
+		public byte[] ReadBytes(int bytesCount, int timeoutInSeconds, bool discardRemainingBytes) {
 			var inBytes = new byte[bytesCount];
 			int totalReadedBytesCount = 0;
 
@@ -55,8 +55,10 @@ namespace AlienJust.Support.Serial
 
 						if (totalReadedBytesCount == inBytes.Length) {
 							Log("Result incoming bytes are = " + inBytes.ToText());
-							Log("Discarding remaining bytes...");
-							Log("Discarded bytes are: " + ReadAllBytes().ToText());
+							if (discardRemainingBytes) {
+								Log("Discarding remaining bytes...");
+								Log("Discarded bytes are: " + ReadAllBytes().ToText());
+							}
 							return inBytes;
 						}
 					}

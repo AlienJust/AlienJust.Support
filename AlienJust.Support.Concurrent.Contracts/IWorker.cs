@@ -1,5 +1,3 @@
-using System;
-
 namespace AlienJust.Support.Concurrent.Contracts {
 	public interface IWorker<in TItem>
 	{

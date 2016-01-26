@@ -65,29 +65,32 @@ namespace AlienJust.Support.Concurrent
 			}
 		}
 
-		public void AddLastWork(TItem workItem)
+		/*public void AddLastWork(TItem workItem)
 		{
 			lock (_syncUserActions)
 			{
-				if (!MustBeStopped) {
-					_items.Enqueue(workItem);
-					_threadNotifyAboutQueueItemsCountChanged.Set();
-					MustBeStopped = true;
+				lock (_syncRunFlags) {
+					if (!_mustBeStopped) {
+						_items.Enqueue(workItem);
+						_mustBeStopped = true;
+						_threadNotifyAboutQueueItemsCountChanged.Set();
+					}
+					else
+					{
+						var ex = new Exception("Cannot handle items any more, worker has been stopped or stopping now");
+						_debugLogger.Log(ex);
+						throw ex;
+					}
 				}
-				else {
-					var ex = new Exception("Cannot handle items any more, worker has been stopped or stopping now");
-					_debugLogger.Log(ex);
-					throw ex;
-				}
+			
 			}
-		}
+		}*/
 
 
 		private void WorkingThreadStart()
 		{
 			IsRunning = true;
 			try {
-				
 				while (true)
 				{
 					if (MustBeStopped) throw new Exception("MustBeStopped is true, this is the end of thread");
@@ -121,7 +124,7 @@ namespace AlienJust.Support.Concurrent
 			IsRunning = false;
 		}
 
-		public void Stop()
+		public void StopAsync()
 		{
 			_debugLogger.Log("Stop called");
 			lock (_syncUserActions) {

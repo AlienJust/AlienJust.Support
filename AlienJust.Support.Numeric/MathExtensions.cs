@@ -57,27 +57,64 @@ namespace AlienJust.Support.Numeric {
 
 		#endregion
 
-		public static Crc16 Crc16(IList<byte> data, int startByte, int length) {
+		public static Crc16 Crc16(IList<byte> data, int startByte, int length)
+		{
+			//Console.WriteLine("startbyte: " + startByte + " length: " + length);
 			byte crcHi = 0xFF;
 			byte crcLo = 0xFF;
-			for (int i = startByte; i < startByte + length; ++i) {
+			for (int i = startByte; i < startByte + length; ++i)
+			{
+				//Console.WriteLine("proceed byte " + i);
 				int index = crcLo ^ data[i];
-				crcLo = (byte) (crcHi ^ ACrcHi[index]);
+				crcLo = (byte)(crcHi ^ ACrcHi[index]);
 				crcHi = ACrcLo[index];
 			}
 			return new Crc16(crcLo, crcHi);
 		}
 
-		public static Crc16 Crc16(IList<byte> data) {
+		public static Crc16 Crc16(IList<byte> data)
+		{
 			byte crcHi = 0xFF;
 			byte crcLo = 0xFF;
-			for (int i = 0; i < data.Count; ++i) {
-				int index = crcLo ^ i;
-				crcLo = (byte) (crcHi ^ ACrcHi[index]);
+			for (int i = 0; i < data.Count; ++i)
+			{
+				int index = crcLo ^ data[i];
+				crcLo = (byte)(crcHi ^ ACrcHi[index]);
 				crcHi = ACrcLo[index];
 			}
 			return new Crc16(crcLo, crcHi);
 		}
+
+
+
+		public static Crc16 Crc16(List<byte> data, int startByte, int length)
+		{
+			//Console.WriteLine("startbyte: " + startByte + " length: " + length);
+			byte crcHi = 0xFF;
+			byte crcLo = 0xFF;
+			for (int i = startByte; i < startByte + length; ++i)
+			{
+				//Console.WriteLine("proceed byte " + i);
+				int index = crcLo ^ data[i];
+				crcLo = (byte)(crcHi ^ ACrcHi[index]);
+				crcHi = ACrcLo[index];
+			}
+			return new Crc16(crcLo, crcHi);
+		}
+
+		public static Crc16 Crc16(List<byte> data)
+		{
+			byte crcHi = 0xFF;
+			byte crcLo = 0xFF;
+			for (int i = 0; i < data.Count; ++i)
+			{
+				int index = crcLo ^ data[i];
+				crcLo = (byte)(crcHi ^ ACrcHi[index]);
+				crcHi = ACrcLo[index];
+			}
+			return new Crc16(crcLo, crcHi);
+		}
+
 
 
 		private static readonly byte[] Oddparity = {0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0};

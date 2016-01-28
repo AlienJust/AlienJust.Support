@@ -4,8 +4,7 @@ using System.Threading;
 using System.IO.Ports;
 using AlienJust.Support.Text;
 
-namespace AlienJust.Support.Serial
-{
+namespace AlienJust.Support.Serial {
 	public sealed class SerialPortExtender {
 		private readonly SerialPort _port;
 		private readonly Action<string> _selectedLogAction;
@@ -32,40 +31,36 @@ namespace AlienJust.Support.Serial
 			Log("В порт отправлены байты буфера: " + bytes.ToText() + " начиная с " + offset + " в количестве " + count);
 		}
 
-		public byte[] ReadBytes(int bytesCount, int timeoutInSeconds, bool discardRemainingBytes) {
+		public byte[] ReadBytes(int bytesCount, TimeSpan timeout, bool discardRemainingBytes) {
 			var inBytes = new byte[bytesCount];
 			int totalReadedBytesCount = 0;
 
-			const int iterationsPerSecondCount = 20;
-			TimeSpan maximumMillsecondsCountToWaitAfterEachIteration = TimeSpan.FromMilliseconds(1000.0/iterationsPerSecondCount);
-			Log("Iteration period = " + maximumMillsecondsCountToWaitAfterEachIteration.TotalMilliseconds.ToString("f2") + " ms");
-			
-			for (int i = 0; i < timeoutInSeconds; ++i) {
-				for (int j = 0; j < iterationsPerSecondCount; ++j) {
-					_readEplasedTimer.Restart();
+			TimeSpan beetweenIterationPause = TimeSpan.FromMilliseconds(25);
+			var totalIterationsCount = (int) (timeout.TotalMilliseconds/beetweenIterationPause.TotalMilliseconds);
 
-					var bytesToRead = _port.BytesToRead;
+			Log("Iteration period = " + beetweenIterationPause.TotalMilliseconds.ToString("f2") + " ms, max iterations count = " + totalIterationsCount);
 
-					if (bytesToRead != 0) {
-						var currentReadedBytesCount = _port.Read(inBytes, totalReadedBytesCount, bytesCount - totalReadedBytesCount);
-						Log("Incoming bytes now are = " + inBytes.ToText());
-						totalReadedBytesCount += currentReadedBytesCount;
-						Log("Total readed bytes count=" + totalReadedBytesCount);
-						Log("Current readed bytes count=" + currentReadedBytesCount);
+			for (int i = 0; i < totalIterationsCount; ++i) {
+				Log("Iteration number = " + i);
+				_readEplasedTimer.Restart();
+				var bytesToRead = _port.BytesToRead;
+				if (bytesToRead != 0) {
+					var currentReadedBytesCount = _port.Read(inBytes, totalReadedBytesCount, bytesCount - totalReadedBytesCount);
+					Log("Incoming bytes now are = " + inBytes.ToText());
+					totalReadedBytesCount += currentReadedBytesCount;
+					Log("Total readed bytes count=" + totalReadedBytesCount + ", current readed bytes count=" + currentReadedBytesCount);
 
-						if (totalReadedBytesCount == inBytes.Length) {
-							Log("Result incoming bytes are = " + inBytes.ToText());
-							if (discardRemainingBytes) {
-								Log("Discarding remaining bytes...");
-								Log("Discarded bytes are: " + ReadAllBytes().ToText());
-							}
-							return inBytes;
+					if (totalReadedBytesCount == inBytes.Length) {
+						Log("Result incoming bytes are = " + inBytes.ToText());
+						if (discardRemainingBytes) {
+							Log("Discarding remaining bytes, discarded bytes are: " + ReadAllBytes().ToText());
 						}
+						return inBytes;
 					}
-					_readEplasedTimer.Stop();
-					var sleepTime = maximumMillsecondsCountToWaitAfterEachIteration - _readEplasedTimer.Elapsed;
-					if (sleepTime.TotalMilliseconds > 0) Thread.Sleep(sleepTime);
 				}
+				_readEplasedTimer.Stop();
+				var sleepTime = beetweenIterationPause - _readEplasedTimer.Elapsed;
+				if (sleepTime.TotalMilliseconds > 0) Thread.Sleep(sleepTime);
 			}
 			Log("Timeout, dropping all incoming bytes...");
 			Log("Discarded bytes are: " + ReadAllBytes().ToText());
@@ -73,9 +68,7 @@ namespace AlienJust.Support.Serial
 			throw new TimeoutException("ReadFromPort timeout");
 		}
 
-
-		public byte[] ReadAllBytes()
-		{
+		public byte[] ReadAllBytes() {
 			var bytesToRead = _port.BytesToRead;
 			var result = new byte[bytesToRead];
 			_port.Read(result, 0, bytesToRead);

@@ -2,10 +2,8 @@
 using System.ComponentModel;
 using AlienJust.Support.Concurrent.Contracts;
 
-namespace AlienJust.Support.Concurrent
-{
-	public sealed class RelayAsyncWorker : IAsyncWorker
-	{
+namespace AlienJust.Support.Concurrent {
+	public sealed class RelayAsyncWorker : IAsyncWorker {
 		private readonly Action<IAsyncWorkerProgressHandler> _run;
 		private readonly Action<int> _progress;
 		private readonly BackgroundWorker _worker;
@@ -13,28 +11,26 @@ namespace AlienJust.Support.Concurrent
 		private readonly Action<Exception> _complete;
 		private readonly IAsyncWorkerProgressHandler _progressChangeHandler;
 
-		public RelayAsyncWorker(Action<IAsyncWorkerProgressHandler> run, Action<int> progress, Action<Exception> complete)
-		{
+		public RelayAsyncWorker(Action<IAsyncWorkerProgressHandler> run, Action<int> progress, Action<Exception> complete) {
 			_wasLaunched = false;
 			_run = run;
 			_progress = progress;
 			_complete = complete;
 
 
-			_worker = new BackgroundWorker {WorkerReportsProgress = true};
+			_worker = new BackgroundWorker { WorkerReportsProgress = true };
 			_worker.DoWork += (sender, args) => _run(_progressChangeHandler);
 			_worker.ProgressChanged += (sender, args) => _progress(args.ProgressPercentage);
 			_worker.RunWorkerCompleted += (sender, args) => _complete(args.Error);
 
-		    _progressChangeHandler = new RelayAsyncWorkerProgressHandler(p => {
-		        if (_worker.IsBusy)
-		            _worker.ReportProgress(p);
-		    });
+			_progressChangeHandler = new RelayAsyncWorkerProgressHandler(p => {
+				if (_worker.IsBusy)
+					_worker.ReportProgress(p);
+			});
 		}
 
 
-		public void Run()
-		{
+		public void Run() {
 			if (_wasLaunched)
 				throw new Exception("Was allready launched, this worker is ontime worker");
 			if (_run == null)

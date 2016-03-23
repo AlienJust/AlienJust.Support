@@ -3,9 +3,4 @@ namespace AlienJust.Support.Concurrent.Contracts {
 	{
 		void AddWork(TItem workItem);
 	}
-
-	public interface IStoppableWorker<in TItem> : IWorker<TItem> {
-		//void AddLastWork(TItem workItem);
-		void StopAsync();
-	}
 }

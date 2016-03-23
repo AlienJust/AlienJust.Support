@@ -63,6 +63,7 @@
     <Compile Include="IItemsReleaser.cs" />
     <Compile Include="IMultiQueueWorker.cs" />
     <Compile Include="IPriorKeyedAsyncStarter.cs" />
+    <Compile Include="IStoppableWorker.cs" />
     <Compile Include="IWorker.cs" />
     <Compile Include="IThreadNotifier.cs" />
     <Compile Include="IWorkerFactory.cs" />

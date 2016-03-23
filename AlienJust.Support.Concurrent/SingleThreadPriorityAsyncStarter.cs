@@ -1,23 +1,34 @@
 ﻿using System;
+using System.Security.Authentication.ExtendedProtection.Configuration;
+using System.Threading;
+using AlienJust.Support.Concurrent.Contracts;
+using AlienJust.Support.Loggers.Contracts;
 
 namespace AlienJust.Support.Concurrent
 {
 	/// <summary>
 	/// Запускает асинхронные задачи с разним приоритетом в отдельном потоке, позволяя контролировать максимальное число одновременно выполняемых асинхронных задач
 	/// </summary>
-	public sealed class SingleThreadPriorityAsyncStarter
+	public sealed class SingleThreadPriorityAsyncStarter : IStoppableWorker
 	{
 		private readonly int _maxFlow;
-		//private readonly int _queuesCount;
+		private readonly bool _isWaitAllTasksCompleteNeededOnStop;
+		private readonly string _name; // TODO: implement interface INamedObject
+		private readonly ILogger _debugLogger;
 		private readonly SingleThreadedRelayMultiQueueWorker<Action> _asyncActionQueueWorker;
 		private readonly WaitableCounter _flowCounter;
 
-		public SingleThreadPriorityAsyncStarter(int maxFlow, int queuesCount)
+		public SingleThreadPriorityAsyncStarter(string name, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState, ILogger debugLogger, int maxFlow, int queuesCount, bool isWaitAllTasksCompleteNeededOnStop)
 		{
+			if (debugLogger == null) throw new ArgumentNullException("debugLogger");
+
+			_name = name;
+			_debugLogger = debugLogger;
 			_maxFlow = maxFlow;
-			//_queuesCount = queuesCount;
+			_isWaitAllTasksCompleteNeededOnStop = isWaitAllTasksCompleteNeededOnStop;
+
 			_flowCounter = new WaitableCounter();
-			_asyncActionQueueWorker = new SingleThreadedRelayMultiQueueWorker<Action>(a => a(), queuesCount);
+			_asyncActionQueueWorker = new SingleThreadedRelayMultiQueueWorker<Action>(_name, a => a(), threadPriority, markThreadAsBackground, apartmentState, debugLogger, queuesCount);
 		}
 		
 		/// <summary>
@@ -25,19 +36,18 @@ namespace AlienJust.Support.Concurrent
 		/// </summary>
 		/// <param name="asyncAction">Действие, которое будет выполнено асинхронно</param>
 		/// <param name="queueNumber">Номер очереди (номер обратен приоритету), в которую будет добавлено действие</param>
-		public void AddToQueueForExecution(Action asyncAction, int queueNumber) {
-			_asyncActionQueueWorker.AddToExecutionQueue
+		public void AddWork(Action asyncAction, int queueNumber) {
+			_asyncActionQueueWorker.AddWork
 				(
 					() => {
-
 						_flowCounter.WaitForCounterChangeWhileNotPredecate(curCount => curCount < _maxFlow);
 						_flowCounter.IncrementCount();
+						_debugLogger.Log("_flowCounter.Count = " + _flowCounter.Count);
 						asyncAction();
 					},
 					queueNumber
 				);
 		}
-
 
 		/// <summary>
 		/// Вызывается клиентом при выполнении асинхронной задачи,
@@ -46,8 +56,20 @@ namespace AlienJust.Support.Concurrent
 		public void NotifyStarterAboutQueuedOperationComplete()
 		{
 			_flowCounter.DecrementCount();
+			_debugLogger.Log("_flowCounter.Count = " + _flowCounter.Count);
+		}
+
+		public void StopAsync() {
+			_asyncActionQueueWorker.StopAsync();
+		}
+
+		public void WaitStopComplete() {
+			_asyncActionQueueWorker.WaitStopComplete();
+			_debugLogger.Log("Background worke has been stopped            ,,,,,,,,,,,,,,");
+			if (_isWaitAllTasksCompleteNeededOnStop) {
+				_flowCounter.WaitForCounterChangeWhileNotPredecate(count => count == 0);
+				_debugLogger.Log("Total tasks count is now 0                   ..............");
+			}
 		}
 	}
-
-	
 }

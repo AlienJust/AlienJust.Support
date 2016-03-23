@@ -13,19 +13,50 @@ using AlienJust.Support.Text.Contracts;
 namespace TestApp {
 	internal class Program {
 		private static void Main(string[] args) {
-
+			GlobalLogger.Setup(new RelayActionLogger(Console.WriteLine));
 			var buf = new byte[] {0, 1};
 
 			Console.WriteLine(buf.ToText() + " > " + MathExtensions.Crc16(buf));
 			Console.WriteLine(buf.ToText() + " > " + MathExtensions.Crc16ByDo(buf));
 			Console.WriteLine(buf.ToText() + " > " + MathExtensions.GetCrc16Maks(buf));
+
+			var worker = new SingleThreadedRelayQueueWorker<Action>("Ololo", a => a(), ThreadPriority.Normal, false, null, new RelayActionLogger(Console.WriteLine));
+			worker.AddWork(() => {
+				Thread.Sleep(100);
+				Console.WriteLine(1);
+			});
+			worker.AddWork(() => {
+				Thread.Sleep(100);
+				Console.WriteLine(2);
+			});
+			worker.AddWork(() => {
+				Thread.Sleep(100);
+				Console.WriteLine(3);
+			});
+			worker.AddWork(() => {
+				Thread.Sleep(100);
+				Console.WriteLine(4);
+			});
+			Thread.Sleep(200);
+			worker.StopAsync();
+			
+			/*worker.AddWork(() => {
+				Thread.Sleep(100);
+				Console.WriteLine(5);
+			});*/
+
+			worker.WaitStopComplete();
+			Console.WriteLine("worker was Stopped");
+
+
 			//TestTextFormatter();
 			//GlobalLogger.Instance.Log(System.IO.Path.GetFullPath("C:\\\\Games"));
 			//GlobalLogger.Instance.Log(System.IO.Path.GetDirectoryName("C:\\\\Games"));
 			//new HelloWorld().TestLogger();
-			//TestMultiQueueWorker();
+			TestSingleThreadedRelayMultiQueueWorker();
+			TestSingleThreadedRelayMultiQueueWorkerExceptionless();
 			//TestMultiQueueStarter();
-			//TestAddressedMultiQueueWorker();
+			//TestSingleThreadedRelayAddressedMultiQueueWorker();
 			//TestMultiQueueAddrStarter();
 
 			//SingleThreadRelayWorkerStressTest();
@@ -74,24 +105,92 @@ namespace TestApp {
 			}
 		}
 
-		public static void TestMultiQueueWorker() {
-			var starter = new SingleThreadedRelayMultiQueueWorker<int>(i => {
-				Thread.Sleep(300);
-				GlobalLogger.Instance.Log("Consumed item " + i);
-			}
-				, 2); // Две очереди
+		public static void TestSingleThreadedRelayMultiQueueWorker() {
+			var worker = new SingleThreadedRelayMultiQueueWorker<int>("SingleThreadedRelayMultiQueueWorker", i => {
+				Thread.Sleep(250);
+				GlobalLogger.Instance.Log(" << Consumed item " + i);
+			}, ThreadPriority.Normal, false, null, new RelayActionLogger(Console.WriteLine), 2); // Две очереди
+			
 			var producerThread1 = new Thread(() => {
 				for (int i = 0; i < 10; ++i) {
 					Thread.Sleep(200); // each 200 ms nonpriority item added to queue
-					GlobalLogger.Instance.Log("Produced background item: " + i);
-					starter.AddToExecutionQueue(i, 1);
+					GlobalLogger.Instance.Log(" > Produced background item: " + i);
+					worker.AddWork(i, 1);
 				}
 			});
 			var producerThread2 = new Thread(() => {
 				for (int i = 1000; i < 1010; ++i) {
 					Thread.Sleep(30);
-					GlobalLogger.Instance.Log("Produced pioritized item: " + i);
-					starter.AddToExecutionQueue(i, 0);
+					GlobalLogger.Instance.Log(" >> Produced prioritized item: " + i);
+					worker.AddWork(i, 0);
+				}
+			});
+
+			producerThread1.Start();
+			Thread.Sleep(600);
+			producerThread2.Start();
+
+			Thread.Sleep(800);
+			worker.StopAsync();
+			worker.WaitStopComplete();
+			Console.WriteLine("SingleThreadedRelayMultiQueueWorker stopped.............");
+		}
+
+		public static void TestSingleThreadedRelayMultiQueueWorkerExceptionless() {
+			var worker = new SingleThreadedRelayMultiQueueWorkerExceptionless<int>("SingleThreadedRelayMultiQueueWorkerExceptionless", i => {
+				Thread.Sleep(250);
+				GlobalLogger.Instance.Log(" << ex Consumed item " + i);
+			}, ThreadPriority.Normal, false, null, new RelayActionLogger(Console.WriteLine), 2); // Две очереди
+
+			var producerThread1 = new Thread(() => {
+				for (int i = 0; i < 10; ++i) {
+					Thread.Sleep(200); // each 200 ms nonpriority item added to queue
+					GlobalLogger.Instance.Log(" > ex Produced background item: " + i);
+					worker.AddWork(i, 1);
+				}
+			});
+			var producerThread2 = new Thread(() => {
+				for (int i = 1000; i < 1010; ++i) {
+					Thread.Sleep(30);
+					GlobalLogger.Instance.Log(" >> ex Produced prioritized item: " + i);
+					worker.AddWork(i, 0);
+				}
+			});
+
+			producerThread1.Start();
+			Thread.Sleep(600);
+			producerThread2.Start();
+
+			Thread.Sleep(800);
+			worker.StopAsync();
+			worker.WaitStopComplete();
+			Console.WriteLine("SingleThreadedRelayMultiQueueWorker stopped.............");
+		}
+
+		public static void TestSingleThreadedRelayAddressedMultiQueueWorker() {
+			var starter = new SingleThreadedRelayAddressedMultiQueueWorker<int, int>("SingleThreadedRelayAddressedMultiQueueWorker", (i, itemsReleaser) => {
+				Thread.Sleep(1000);
+				Console.WriteLine("Consumed item " + i);
+				itemsReleaser.ReportSomeAddressedItemIsFree(i);
+			}, ThreadPriority.Normal, false, null, new RelayActionLogger(Console.WriteLine), 2, 1, 2);
+
+			var producerThread1 = new Thread(() => {
+				for (int i = 0; i < 10; ++i) {
+					Thread.Sleep(200); // each 200 ms nonpriority item added to queue
+					Console.WriteLine("Produced background item: " + i);
+					starter.AddWork(i, i, 1);
+					starter.AddWork(i, i, 1);
+					starter.AddWork(i, i, 1);
+				}
+			});
+			var producerThread2 = new Thread(() => {
+				for (int i = 1000; i < 1010; ++i) {
+					Thread.Sleep(30); // each 600 ms priority item added to queue
+					Console.WriteLine("Produced pioritized item: " + i);
+					starter.AddWork(i, i, 0);
+					starter.AddWork(i, i, 0);
+					starter.AddWork(i, i, 0);
+					starter.AddWork(i, i, 0);
 				}
 			});
 
@@ -100,31 +199,38 @@ namespace TestApp {
 			producerThread2.Start();
 		}
 
-		public static void TestAddressedMultiQueueWorker() {
-			var starter = new SingleThreadedRelayAddressedMultiQueueWorker<int, int>((i, itemsReleaser) => {
-				Thread.Sleep(1000);
-				Console.WriteLine("Consumed item " + i);
-				itemsReleaser.ReportSomeAddressedItemIsFree(i);
-			},
+		public static void TestSingleThreadedRelayAddressedMultiQueueWorkerExceptionless() {
+			var starter = new SingleThreadedRelayAddressedMultiQueueWorkerExceptionless<int, int>(
+				"SingleThreadedRelayAddressedMultiQueueWorkerExceptionless", 
+				(i, itemsReleaser) => {
+					Thread.Sleep(1000);
+					Console.WriteLine("Consumed item " + i);
+					itemsReleaser.ReportSomeAddressedItemIsFree(i);
+				}, 
+				ThreadPriority.Normal, 
+				false, 
+				null, 
+				new RelayActionLogger(Console.WriteLine),
 				2,
-				1, 2);
+				1, 
+				2);
 			var producerThread1 = new Thread(() => {
 				for (int i = 0; i < 10; ++i) {
 					Thread.Sleep(200); // each 200 ms nonpriority item added to queue
 					Console.WriteLine("Produced background item: " + i);
-					starter.AddToExecutionQueue(i, i, 1);
-					starter.AddToExecutionQueue(i, i, 1);
-					starter.AddToExecutionQueue(i, i, 1);
+					starter.AddWork(i, i, 1);
+					starter.AddWork(i, i, 1);
+					starter.AddWork(i, i, 1);
 				}
 			});
 			var producerThread2 = new Thread(() => {
 				for (int i = 1000; i < 1010; ++i) {
 					Thread.Sleep(30); // each 600 ms priority item added to queue
 					Console.WriteLine("Produced pioritized item: " + i);
-					starter.AddToExecutionQueue(i, i, 0);
-					starter.AddToExecutionQueue(i, i, 0);
-					starter.AddToExecutionQueue(i, i, 0);
-					starter.AddToExecutionQueue(i, i, 0);
+					starter.AddWork(i, i, 0);
+					starter.AddWork(i, i, 0);
+					starter.AddWork(i, i, 0);
+					starter.AddWork(i, i, 0);
 				}
 			});
 
@@ -134,11 +240,11 @@ namespace TestApp {
 		}
 
 		public static void TestMultiQueueStarter() {
-			var starter = new SingleThreadPriorityAsyncStarter(2, 2);
+			var starter = new SingleThreadPriorityAsyncStarter("TestMultiQueueStarter", ThreadPriority.Normal, false, null, new RelayActionLogger(Console.WriteLine), 2, 2, true);
 			for (int i = 0; i < 10; ++i) {
 				GlobalLogger.Instance.Log("Starting async action... i = " + i);
 				int i1 = i;
-				starter.AddToQueueForExecution(() => AsyncAction(i1, () => {
+				starter.AddWork(() => AsyncAction(i1, () => {
 					GlobalLogger.Instance.Log("Callback ok for i = " + i1);
 					starter.NotifyStarterAboutQueuedOperationComplete();
 				}), 1);
@@ -150,7 +256,10 @@ namespace TestApp {
 			const int totalMaxFlow = 5;
 			const int perAddressFlow = 1;
 			int priorityGraduation = Colors.Length;
-			var starter = new SingleThreadPriorityAddressedAsyncStarter<int>(totalMaxFlow, perAddressFlow, priorityGraduation);
+			var starter = new SingleThreadPriorityAddressedAsyncStarter<int>("SingleThreadPriorityAddressedAsyncStarter", ThreadPriority.Normal,
+				false,
+				null,
+				new RelayActionLogger(Console.WriteLine), totalMaxFlow, perAddressFlow, priorityGraduation, true);
 			for (int i = 0; i < Colors.Length; ++i) {
 				for (int j = 0; j < 3; ++j) {
 					Thread.Sleep(random.Next(50, 100));
@@ -158,7 +267,7 @@ namespace TestApp {
 					ConsoleWriteLineColored(DateTime.Now.ToString("HH:mm:ss.fff") + " > Adding async action " + i + "." + j + " to queue, priority=" + priority, Colors[i]);
 					int i1 = i;
 					int j1 = j;
-					starter.AddToQueueForExecution(notifyAboutAsyncOperationComplete => {
+					starter.AddWork(notifyAboutAsyncOperationComplete => {
 						var t = new Thread(
 							() => {
 								try {

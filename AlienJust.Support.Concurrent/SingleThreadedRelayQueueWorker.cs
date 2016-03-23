@@ -6,12 +6,12 @@ using AlienJust.Support.Loggers.Contracts;
 
 namespace AlienJust.Support.Concurrent
 {
-	public sealed class SingleThreadedRelayQueueWorker<TItem> : IStoppableWorker<TItem> {
+	public sealed class SingleThreadedRelayQueueWorker<TItem> : IWorker<TItem>, IStoppableWorker {
 		private readonly ILogger _debugLogger;
 		private readonly object _syncUserActions;
 		private readonly object _syncRunFlags;
 		private readonly ConcurrentQueue<TItem> _items;
-		private readonly string _name;
+		private readonly string _name; // TODO: implement interface INamedObject
 		private readonly Action<TItem> _action;
 		private readonly Thread _workThread;
 		//private readonly WaitableCounter _counter;
@@ -65,28 +65,6 @@ namespace AlienJust.Support.Concurrent
 			}
 		}
 
-		/*public void AddLastWork(TItem workItem)
-		{
-			lock (_syncUserActions)
-			{
-				lock (_syncRunFlags) {
-					if (!_mustBeStopped) {
-						_items.Enqueue(workItem);
-						_mustBeStopped = true;
-						_threadNotifyAboutQueueItemsCountChanged.Set();
-					}
-					else
-					{
-						var ex = new Exception("Cannot handle items any more, worker has been stopped or stopping now");
-						_debugLogger.Log(ex);
-						throw ex;
-					}
-				}
-			
-			}
-		}*/
-
-
 		private void WorkingThreadStart()
 		{
 			IsRunning = true;
@@ -128,10 +106,15 @@ namespace AlienJust.Support.Concurrent
 		{
 			_debugLogger.Log("Stop called");
 			lock (_syncUserActions) {
-				MustBeStopped = true;
+				_mustBeStopped = true;
 				_threadNotifyAboutQueueItemsCountChanged.Set();
 			}
 		}
+
+		public void WaitStopComplete() {
+			_workThread.Join();
+		}
+
 
 		public bool IsRunning
 		{

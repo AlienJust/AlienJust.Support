@@ -56,6 +56,22 @@
       <Project>{69ffc499-27af-4065-8ce0-c31c430b4c61}</Project>
       <Name>AlienJust.Support.Concurrent</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Loggers.Contracts\AlienJust.Support.Loggers.Contracts.csproj">
+      <Project>{a5497170-cbc1-49df-b8ec-27af40e733c5}</Project>
+      <Name>AlienJust.Support.Loggers.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Loggers\AlienJust.Support.Loggers.csproj">
+      <Project>{5a4fc6a0-917b-4942-bfac-1640d66337f0}</Project>
+      <Name>AlienJust.Support.Loggers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Text.Contracts\AlienJust.Support.Text.Contracts.csproj">
+      <Project>{6e952cb6-c573-4ae7-b43e-f35e98825e48}</Project>
+      <Name>AlienJust.Support.Text.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Text\AlienJust.Support.Text.csproj">
+      <Project>{ec611654-9830-4aa3-b45a-e8d8cdfdd5b5}</Project>
+      <Name>AlienJust.Support.Text</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

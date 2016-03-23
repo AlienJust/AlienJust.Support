@@ -1,27 +1,36 @@
 ﻿using System;
+using System.Threading;
 using AlienJust.Support.Concurrent.Contracts;
+using AlienJust.Support.Loggers.Contracts;
 
-namespace AlienJust.Support.Concurrent
-{
+namespace AlienJust.Support.Concurrent {
 	/// <summary>
 	/// Запускает асинхронные задачи с разним приоритетом в отдельном потоке, 
 	/// позволяя контролировать максимальное число одновременно выполняемых асинхронных задач
 	/// и максимальное число одновременно выполняемых асинхронных задач для одного адреса
 	/// </summary>
-	public sealed class SingleThreadPriorityAddressedAsyncStarter<TAddressKey> : IPriorKeyedAsyncStarter<TAddressKey>
-	{
-		//private readonly int _maxTotalFlow; // максимальное число одновремменно запущенных задач
+	public sealed class SingleThreadPriorityAddressedAsyncStarter<TAddressKey> : IPriorKeyedAsyncStarter<TAddressKey>, IStoppableWorker {
+		private readonly string _name; // TODO: implement interface INamedObject
+		private readonly ILogger _debugLogger;
+		private readonly bool _isWaitAllTasksCompleteNeededOnStop;
 
+		private readonly WaitableCounter _totalFlowCounter; // счетчик текущего количества запущенных задач
 		private readonly SingleThreadedRelayAddressedMultiQueueWorker<TAddressKey, Action<IItemsReleaser<TAddressKey>>> _asyncActionQueueWorker;
-		//private readonly WaitableCounter _totalFlowCounter; // счетчик текущего количества запущенных задач
 
+		public SingleThreadPriorityAddressedAsyncStarter(
+			string name,
+			ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState, ILogger debugLogger,
+			uint maxTotalFlow, uint maxFlowPerAddress, int priorityGradation, bool isWaitAllTasksCompleteNeededOnStop) {
 
-		public SingleThreadPriorityAddressedAsyncStarter(uint maxTotalFlow, uint maxFlowPerAddress, int priorityGradation) {
-			//_maxTotalFlow = maxTotalFlow;
-			//_totalFlowCounter = new WaitableCounter();
+			if (debugLogger == null) throw new ArgumentNullException("debugLogger");
+			_name = name;
+			_debugLogger = debugLogger;
+			_isWaitAllTasksCompleteNeededOnStop = isWaitAllTasksCompleteNeededOnStop;
+
+			_totalFlowCounter = new WaitableCounter(0);
 			_asyncActionQueueWorker = new SingleThreadedRelayAddressedMultiQueueWorker<TAddressKey, Action<IItemsReleaser<TAddressKey>>>
 				(
-				RunActionWithAsyncTailBack,
+				_name, RunActionWithAsyncTailBack, threadPriority, markThreadAsBackground, apartmentState, debugLogger,
 				priorityGradation,
 				maxFlowPerAddress,
 				maxTotalFlow);
@@ -34,11 +43,12 @@ namespace AlienJust.Support.Concurrent
 		/// <param name="itemsReleaser">Освободитель итемов</param>
 		private void RunActionWithAsyncTailBack(Action<IItemsReleaser<TAddressKey>> asyncOperationBeginAction, IItemsReleaser<TAddressKey> itemsReleaser) {
 			try {
+				_totalFlowCounter.IncrementCount();
+				_debugLogger.Log("_totalFlowCounter.Count = " + _totalFlowCounter.Count);
 				asyncOperationBeginAction(itemsReleaser);
 			}
-			catch (Exception) {
-				// TODO: do something with exception :-)
-				// TODO: thats bad, cause items can be not released
+			catch (Exception ex) {
+				_debugLogger.Log(ex);
 			}
 		}
 
@@ -50,18 +60,41 @@ namespace AlienJust.Support.Concurrent
 		/// <param name="priority">Приоритет очереди</param>
 		/// <param name="key">Ключ-адрес</param>
 		/// <returns>Идентификатор задания</returns>
-		public Guid AddToQueueForExecution(Action<Action> asyncAction, int priority, TAddressKey key)
-		{
-			return _asyncActionQueueWorker.AddToExecutionQueue
+		public Guid AddWork(Action<Action> asyncAction, int priority, TAddressKey key) {
+			var id = _asyncActionQueueWorker.AddWork
 				(
 					key,
-					itemsReleaser => asyncAction(() => itemsReleaser.ReportSomeAddressedItemIsFree(key)),
+					itemsReleaser => asyncAction(() => {
+						itemsReleaser.ReportSomeAddressedItemIsFree(key);
+						_totalFlowCounter.DecrementCount();
+						_debugLogger.Log("_totalFlowCounter.Count = " + _totalFlowCounter.Count);
+					}),
 					priority
 				);
+			return id;
 		}
 
 		public bool RemoveExecution(Guid id) {
 			return _asyncActionQueueWorker.RemoveItem(id);
+		}
+
+		public uint MaxTotalFlow {
+			// Thread safity is guaranted by worker
+			get { return _asyncActionQueueWorker.MaxTotalOnetimeItemsUsages; }
+			set { _asyncActionQueueWorker.MaxTotalOnetimeItemsUsages = value; }
+		}
+
+		public void StopAsync() {
+			_asyncActionQueueWorker.StopAsync();
+		}
+
+		public void WaitStopComplete() {
+			_asyncActionQueueWorker.WaitStopComplete();
+			_debugLogger.Log("Background worke has been stopped");
+			if (_isWaitAllTasksCompleteNeededOnStop) {
+				_totalFlowCounter.WaitForCounterChangeWhileNotPredecate(count => count == 0);
+				_debugLogger.Log("Total tasks count is now 0");
+			}
 		}
 	}
 }

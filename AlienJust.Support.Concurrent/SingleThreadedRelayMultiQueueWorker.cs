@@ -1,64 +1,137 @@
 ﻿using System;
 using System.Threading;
 using AlienJust.Support.Concurrent.Contracts;
+using AlienJust.Support.Loggers.Contracts;
 
 namespace AlienJust.Support.Concurrent {
-	public sealed class SingleThreadedRelayMultiQueueWorker<TItem> : IMultiQueueWorker<TItem> {
-		private readonly ConcurrentQueueWithPriority<TItem> _cpQueue;
+	public sealed class SingleThreadedRelayMultiQueueWorker<TItem> : IMultiQueueWorker<TItem>, IStoppableWorker {
+		private readonly ConcurrentQueueWithPriority<TItem> _items;
 		private readonly Action<TItem> _action;
-		private readonly AutoResetEvent _threadNotify;
+		private readonly AutoResetEvent _threadNotifyAboutQueueItemsCountChanged;
 		private readonly Thread _workThread;
 
+		private readonly ILogger _debugLogger;
+		private readonly string _name; // TODO: implement interface INamedObject
+		private readonly object _syncUserActions;
+		private readonly object _syncRunFlags;
 
-		public SingleThreadedRelayMultiQueueWorker(Action<TItem> action, int queuesCount) {
-			_cpQueue = new ConcurrentQueueWithPriority<TItem>(queuesCount);
+		private bool _isRunning;
+		private bool _mustBeStopped; // Флаг, подающий фоновому потоку сигнал о необходимости завершения (обращение идет через потокобезопасное свойство MustBeStopped)
+
+		public SingleThreadedRelayMultiQueueWorker(string name, Action<TItem> action, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState, ILogger debugLogger, int queuesCount) {
+			if (action == null) throw new ArgumentNullException("action");
+			if (debugLogger == null) throw new ArgumentNullException("debugLogger");
+			_syncRunFlags = new object();
+			_syncUserActions = new object();
+
+			_name = name;
 			_action = action;
+			_debugLogger = debugLogger;
 
-			_threadNotify = new AutoResetEvent(false);
-			_workThread = new Thread(WorkingThreadStart) {IsBackground = true};
+			_threadNotifyAboutQueueItemsCountChanged = new AutoResetEvent(false);
+
+			_items = new ConcurrentQueueWithPriority<TItem>(queuesCount);
+
+			_isRunning = true;
+			_mustBeStopped = false;
+
+			_workThread = new Thread(WorkingThreadStart) { Priority = threadPriority, IsBackground = markThreadAsBackground, Name = name };
+			if (apartmentState.HasValue) _workThread.SetApartmentState(apartmentState.Value);
 			_workThread.Start();
 		}
 
 
-		public void AddToExecutionQueue(TItem item, int queueNumber) {
-			try {
-				_cpQueue.Enqueue(item, queueNumber);
-				_threadNotify.Set();
-			}
-			catch (Exception ex) {
-
+		public void AddWork(TItem workItem, int queueNumber) {
+			lock (_syncUserActions) {
+				lock (_syncRunFlags) {
+					if (!_mustBeStopped) {
+						_items.Enqueue(workItem, queueNumber);
+						_threadNotifyAboutQueueItemsCountChanged.Set();
+					}
+					else {
+						var ex = new Exception("Cannot handle items any more, worker has been stopped or stopping now");
+						_debugLogger.Log(ex);
+						throw ex;
+					}
+				}
 			}
 		}
 
 		public void ClearQueue() {
-			_cpQueue.ClearQueue();
+			_items.ClearQueue();
 		}
 
 
 		private void WorkingThreadStart() {
+			IsRunning = true;
 			try {
 				while (true) {
+					if (MustBeStopped) throw new Exception("MustBeStopped is true, this is the end of thread");
+					_debugLogger.Log("MustBeStopped was false, so continue dequeueing");
 					try {
-						var item = _cpQueue.Dequeue();
+						var item = _items.Dequeue();
 						try {
 							//GlobalLogger.Instance.Log("item received, producing action on it...");
 							_action(item);
 						}
-						catch {
-							// cannot execute action...
+						catch (Exception ex) {
+							_debugLogger.Log(ex);
 						}
 					}
 					catch (Exception ex) {
-						//GlobalLogger.Instance.Log("No more items, waiting for new one...");
-						_threadNotify.WaitOne(); // Итемы кончились, начинаем ждать
+						_debugLogger.Log("All actions from queue were executed, waiting for new ones");
+						_threadNotifyAboutQueueItemsCountChanged.WaitOne(); // Итемы кончились, начинаем ждать
+						_debugLogger.Log(ex);
 					}
 				}
 			}
 			catch (Exception ex) {
-				//throw ex;
+				_debugLogger.Log(ex);
 			}
-			finally {
-				//Console.WriteLine("Background thread ending...");
+			IsRunning = false;
+		}
+
+		public void StopAsync() {
+			_debugLogger.Log("Stop called");
+			lock (_syncUserActions) {
+				_mustBeStopped = true;
+				_threadNotifyAboutQueueItemsCountChanged.Set();
+			}
+		}
+
+		public void WaitStopComplete() {
+			_workThread.Join();
+		}
+
+		public bool IsRunning {
+			get {
+				bool result;
+				lock (_syncRunFlags) {
+					result = _isRunning;
+				}
+				return result;
+			}
+
+			private set {
+				lock (_syncRunFlags) {
+					_isRunning = value;
+				}
+			}
+		}
+
+		private bool MustBeStopped {
+			get {
+				bool result;
+				lock (_syncRunFlags) {
+					result = _mustBeStopped;
+				}
+				return result;
+			}
+
+			set {
+				lock (_syncRunFlags) {
+					_mustBeStopped = value;
+				}
 			}
 		}
 	}

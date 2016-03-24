@@ -10,19 +10,15 @@ namespace AlienJust.Support.Loggers {
 			_swallowExceptions = swallowExceptions;
 		}
 
-		public void Log(string text) {
+		public void Log(object obj) {
 			try {
 				foreach (var logger in _loggers) {
-					logger.Log(text);
+					logger.Log(obj);
 				}
 			}
 			catch {
 				if (!_swallowExceptions) throw;
 			}
-		}
-
-		public void Log(object obj) {
-			Log(obj.ToString());
 		}
 	}
 }

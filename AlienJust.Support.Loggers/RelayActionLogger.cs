@@ -23,14 +23,9 @@ namespace AlienJust.Support.Loggers {
 			_selectedLogAction = _relayLoggerAction == null ? LogNothing : _textFormatter == null ? (Action<string>)LogSimple : LogAdvanced;
 		}
 
-		public void Log(string text)
-		{
-			_selectedLogAction(text);
-		}
-
 		public void Log(object obj)
 		{
-			Log(obj.ToString());
+			_selectedLogAction(obj.ToString());
 		}
 
 

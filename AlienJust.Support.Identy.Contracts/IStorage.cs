@@ -6,6 +6,6 @@ namespace AlienJust.Support.Identy.Contracts {
 		IEnumerable<TDataItem> StoredItems { get; }
 		void Add(TDataItem item);
 		void Remove(TDataItem item);
-		void Update(TDataItem item);
+		void Update(IIdentifier id, TDataItem item);
 	}
 }

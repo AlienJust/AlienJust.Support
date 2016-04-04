@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="IdentifierStringBased.cs" />
     <Compile Include="IdentifierGuidBased.cs" />
+    <Compile Include="IdentifierStringToLowerBased.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

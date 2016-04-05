@@ -43,6 +43,8 @@
     <Compile Include="IdentifierGuidBased.cs" />
     <Compile Include="IdentifierStringToLowerBased.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StorageLazyMemCache.cs" />
+    <Compile Include="StorageLazyMemCacheReadonly.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AlienJust.Support.Identy.Contracts\AlienJust.Support.Identy.Contracts.csproj">

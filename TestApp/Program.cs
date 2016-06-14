@@ -14,56 +14,11 @@ namespace TestApp {
 	internal class Program {
 		private static void Main(string[] args) {
 			GlobalLogger.Setup(new RelayActionLogger(Console.WriteLine));
-			var buf = new byte[] {0, 1};
 
-			Console.WriteLine(buf.ToText() + " > " + MathExtensions.Crc16(buf));
-			Console.WriteLine(buf.ToText() + " > " + MathExtensions.Crc16ByDo(buf));
-			Console.WriteLine(buf.ToText() + " > " + MathExtensions.GetCrc16Maks(buf));
+			var array = new byte[] {20, 33, 0, 0, 0, 0, 0, 0};
+			MathExtensions.FillCrc16AtTheEndOfArrayHighLow(array);
+			GlobalLogger.Instance.Log(array.ToText());
 
-			var worker = new SingleThreadedRelayQueueWorker<Action>("Ololo", a => a(), ThreadPriority.Normal, false, null, new RelayActionLogger(Console.WriteLine));
-			worker.AddWork(() => {
-				Thread.Sleep(100);
-				Console.WriteLine(1);
-			});
-			worker.AddWork(() => {
-				Thread.Sleep(100);
-				Console.WriteLine(2);
-			});
-			worker.AddWork(() => {
-				Thread.Sleep(100);
-				Console.WriteLine(3);
-			});
-			worker.AddWork(() => {
-				Thread.Sleep(100);
-				Console.WriteLine(4);
-			});
-			Thread.Sleep(200);
-			worker.StopAsync();
-			
-			/*worker.AddWork(() => {
-				Thread.Sleep(100);
-				Console.WriteLine(5);
-			});*/
-
-			worker.WaitStopComplete();
-			Console.WriteLine("worker was Stopped");
-
-
-			//TestTextFormatter();
-			//GlobalLogger.Instance.Log(System.IO.Path.GetFullPath("C:\\\\Games"));
-			//GlobalLogger.Instance.Log(System.IO.Path.GetDirectoryName("C:\\\\Games"));
-			//new HelloWorld().TestLogger();
-			TestSingleThreadedRelayMultiQueueWorker();
-			TestSingleThreadedRelayMultiQueueWorkerExceptionless();
-			//TestMultiQueueStarter();
-			//TestSingleThreadedRelayAddressedMultiQueueWorker();
-			//TestMultiQueueAddrStarter();
-
-			//SingleThreadRelayWorkerStressTest();
-			//Thread.Sleep(9000000); // 9000 seconds, it is about 150 minutes
-
-			//TestAsyncWorkers();
-			//TestFinallyCodeBlockOnThreadWorker();
 			Console.ReadKey(true);
 		}
 

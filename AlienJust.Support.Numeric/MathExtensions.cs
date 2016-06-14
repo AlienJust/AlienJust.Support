@@ -102,6 +102,19 @@ namespace AlienJust.Support.Numeric {
 			return new Crc16(crcLo, crcHi);
 		}
 
+		public static Crc16 Crc16(byte[] data, int startByte, int length) {
+			//Console.WriteLine("startbyte: " + startByte + " length: " + length);
+			byte crcHi = 0xFF;
+			byte crcLo = 0xFF;
+			for (int i = startByte; i < startByte + length; ++i) {
+				//Console.WriteLine("proceed byte " + i);
+				int index = crcLo ^ data[i];
+				crcLo = (byte)(crcHi ^ ACrcHi[index]);
+				crcHi = ACrcLo[index];
+			}
+			return new Crc16(crcLo, crcHi);
+		}
+
 		public static Crc16 Crc16(List<byte> data)
 		{
 			byte crcHi = 0xFF;
@@ -180,6 +193,34 @@ namespace AlienJust.Support.Numeric {
 				}
 			}
 			return new Crc16(Convert.ToByte(crc % 0x100), Convert.ToByte((crc) >> 8));
+		}
+
+		public static void FillCrc16AtTheEndOfArrayHighLow(byte[] array) {
+			// len check skipped to increase perfomance
+			// if (array.Length < 3) throw new Exception("Длина массива должна быть не менее трёх байт");
+			byte crcHi = 0xFF;
+			byte crcLo = 0xFF;
+			for (int i = 0; i < array.Length - 2; ++i) {
+				int index = crcLo ^ array[i];
+				crcLo = (byte)(crcHi ^ ACrcHi[index]);
+				crcHi = ACrcLo[index];
+			}
+			array[array.Length - 2] = crcHi;
+			array[array.Length - 1] = crcLo;
+		}
+
+		public static void FillCrc16AtTheEndOfArrayLowHigh(byte[] array) {
+			// len check skipped to increase perfomance
+			// if (array.Length < 3) throw new Exception("Длина массива должна быть не менее трёх байт");
+			byte crcHi = 0xFF;
+			byte crcLo = 0xFF;
+			for (int i = 0; i < array.Length - 2; ++i) {
+				int index = crcLo ^ array[i];
+				crcLo = (byte)(crcHi ^ ACrcHi[index]);
+				crcHi = ACrcLo[index];
+			}
+			array[array.Length - 2] = crcLo;
+			array[array.Length - 1] = crcHi;
 		}
 	}
 }

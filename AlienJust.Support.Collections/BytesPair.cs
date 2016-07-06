@@ -72,5 +72,18 @@ namespace AlienJust.Support.Collections {
 				return BitConverter.ToInt16(tempByteArray, 0);
 			}
 		}
+
+		public override bool Equals(object obj) {
+			return obj is BytesPair && this == (BytesPair)obj;
+		}
+		public override int GetHashCode() {
+			return First.GetHashCode() ^ Second.GetHashCode();
+		}
+		public static bool operator ==(BytesPair x, BytesPair y) {
+			return x.First == y.First && x.Second == y.Second;
+		}
+		public static bool operator !=(BytesPair x, BytesPair y) {
+			return !(x == y);
+		}
 	}
 }

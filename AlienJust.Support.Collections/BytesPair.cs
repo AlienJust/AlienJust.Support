@@ -85,5 +85,29 @@ namespace AlienJust.Support.Collections {
 		public static bool operator !=(BytesPair x, BytesPair y) {
 			return !(x == y);
 		}
+
+		public static BytesPair FromSignedShortHighFirst(short value) {
+			byte hi = (byte)((value & 0xFF00) >> 8);
+			byte lo = (byte) (value & 0xFF);
+			return new BytesPair(hi, lo);
+		}
+
+		public static BytesPair FromSignedShortLowFirst(short value) {
+			byte hi = (byte)((value & 0xFF00) >> 8);
+			byte lo = (byte)(value & 0xFF);
+			return new BytesPair(lo, hi);
+		}
+
+		public static BytesPair FromUnsignedShortHighFirst(ushort value) {
+			byte hi = (byte)((value & 0xFF00) >> 8);
+			byte lo = (byte)(value & 0xFF);
+			return new BytesPair(hi, lo);
+		}
+
+		public static BytesPair FromUnsignedShortLowFirst(ushort value) {
+			byte hi = (byte)((value & 0xFF00) >> 8);
+			byte lo = (byte)(value & 0xFF);
+			return new BytesPair(lo, hi);
+		}
 	}
 }

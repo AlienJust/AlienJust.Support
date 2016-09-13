@@ -32,8 +32,8 @@ namespace AlienJust.Support.Concurrent {
 			ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState, ILogger debugLogger,
 			int maxPriority, uint maxParallelUsingItemsCount, uint maxTotalOnetimeItemsUsages) {
 
-			if (relayUserAction == null) throw new ArgumentNullException("relayUserAction");
-			if (debugLogger == null) throw new ArgumentNullException("debugLogger");
+			if (relayUserAction == null) throw new ArgumentNullException(nameof(relayUserAction));
+			if (debugLogger == null) throw new ArgumentNullException(nameof(debugLogger));
 
 			_syncRunFlags = new object();
 			_syncUserActions = new object();
@@ -72,12 +72,16 @@ namespace AlienJust.Support.Concurrent {
 
 		public void ReportSomeAddressedItemIsFree(TKey address) {
 			_items.ReportDecrementItemUsages(address);
-			_threadNotifyAboutQueueItemsCountChanged.Set();
+			lock (_syncUserActions) {
+				_threadNotifyAboutQueueItemsCountChanged.Set();
+			}
 		}
 
 		public bool RemoveItem(Guid id) {
 			var result = _items.RemoveItem(id);
-			_threadNotifyAboutQueueItemsCountChanged.Set();
+			lock (_syncUserActions) {
+				_threadNotifyAboutQueueItemsCountChanged.Set();
+			}
 			return result;
 		}
 
@@ -86,9 +90,6 @@ namespace AlienJust.Support.Concurrent {
 			IsRunning = true;
 			try {
 				while (true) {
-					if (MustBeStopped) throw new Exception("MustBeStopped is true, this is the end of thread");
-					_debugLogger.Log("MustBeStopped was false, so continue dequeueing");
-
 					TItem item;
 					bool isItemTaken = _items.TryDequeue(out item); // выбрасывает исключение, если очередь пуста, и поток переходит к ожиданию сигнала
 					//var releaser = new ItemReleaserRelayWithExecutionCountControl<TKey>((IItemsReleaser<TKey>) this);
@@ -103,6 +104,10 @@ namespace AlienJust.Support.Concurrent {
 					else {
 						_debugLogger.Log("All actions from queue were executed, waiting for new ones");
 						_threadNotifyAboutQueueItemsCountChanged.WaitOne(); // Итемы кончились, начинаем ждать (основное время проводится здесь в ожидании :-))
+
+						if (MustBeStopped) throw new Exception("MustBeStopped is true, this is the end of thread");
+						_debugLogger.Log("MustBeStopped was false, so continue dequeueing");
+
 						_debugLogger.Log("New action was enqueued, or stop is required!");
 					}
 				}

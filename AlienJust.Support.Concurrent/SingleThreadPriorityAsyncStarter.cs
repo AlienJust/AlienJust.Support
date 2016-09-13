@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Security.Authentication.ExtendedProtection.Configuration;
 using System.Threading;
 using AlienJust.Support.Concurrent.Contracts;
@@ -14,13 +15,13 @@ namespace AlienJust.Support.Concurrent
 		private readonly int _maxFlow;
 		private readonly bool _isWaitAllTasksCompleteNeededOnStop;
 		private readonly string _name; // TODO: implement interface INamedObject
-		private readonly ILogger _debugLogger;
+		private readonly ILoggerWithStackTrace _debugLogger;
 		private readonly SingleThreadedRelayMultiQueueWorker<Action> _asyncActionQueueWorker;
 		private readonly WaitableCounter _flowCounter;
 
-		public SingleThreadPriorityAsyncStarter(string name, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState, ILogger debugLogger, int maxFlow, int queuesCount, bool isWaitAllTasksCompleteNeededOnStop)
+		public SingleThreadPriorityAsyncStarter(string name, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState, ILoggerWithStackTrace debugLogger, int maxFlow, int queuesCount, bool isWaitAllTasksCompleteNeededOnStop)
 		{
-			if (debugLogger == null) throw new ArgumentNullException("debugLogger");
+			if (debugLogger == null) throw new ArgumentNullException(nameof(debugLogger));
 
 			_name = name;
 			_debugLogger = debugLogger;
@@ -42,7 +43,7 @@ namespace AlienJust.Support.Concurrent
 					() => {
 						_flowCounter.WaitForCounterChangeWhileNotPredecate(curCount => curCount < _maxFlow);
 						_flowCounter.IncrementCount();
-						_debugLogger.Log("_flowCounter.Count = " + _flowCounter.Count);
+						_debugLogger.Log("_flowCounter.Count = " + _flowCounter.Count, new StackTrace());
 						asyncAction();
 					},
 					queueNumber
@@ -56,7 +57,7 @@ namespace AlienJust.Support.Concurrent
 		public void NotifyStarterAboutQueuedOperationComplete()
 		{
 			_flowCounter.DecrementCount();
-			_debugLogger.Log("_flowCounter.Count = " + _flowCounter.Count);
+			_debugLogger.Log("_flowCounter.Count = " + _flowCounter.Count, new StackTrace());
 		}
 
 		public void StopAsync() {
@@ -65,10 +66,10 @@ namespace AlienJust.Support.Concurrent
 
 		public void WaitStopComplete() {
 			_asyncActionQueueWorker.WaitStopComplete();
-			_debugLogger.Log("Background worke has been stopped            ,,,,,,,,,,,,,,");
+			_debugLogger.Log("Background worke has been stopped            ,,,,,,,,,,,,,,", new StackTrace());
 			if (_isWaitAllTasksCompleteNeededOnStop) {
 				_flowCounter.WaitForCounterChangeWhileNotPredecate(count => count == 0);
-				_debugLogger.Log("Total tasks count is now 0                   ..............");
+				_debugLogger.Log("Total tasks count is now 0                   ..............", new StackTrace());
 			}
 		}
 	}

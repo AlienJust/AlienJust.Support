@@ -22,7 +22,7 @@ namespace AlienJust.Support.Concurrent {
 			ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState, ILogger debugLogger,
 			uint maxTotalFlow, uint maxFlowPerAddress, int priorityGradation, bool isWaitAllTasksCompleteNeededOnStop) {
 
-			if (debugLogger == null) throw new ArgumentNullException("debugLogger");
+			if (debugLogger == null) throw new ArgumentNullException(nameof(debugLogger));
 			_name = name;
 			_debugLogger = debugLogger;
 			_isWaitAllTasksCompleteNeededOnStop = isWaitAllTasksCompleteNeededOnStop;

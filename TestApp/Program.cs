@@ -23,7 +23,7 @@ namespace TestApp {
 		}
 
 		private static void TestFinallyCodeBlockOnThreadWorker() {
-			_queueWorker = new SingleThreadedRelayQueueWorker<Action>("ololo", a => a(), ThreadPriority.Normal, true, ApartmentState.Unknown, new RelayActionLogger(Console.WriteLine));
+			_queueWorker = new SingleThreadedRelayQueueWorker<Action>("ololo", a => a(), ThreadPriority.Normal, true, ApartmentState.Unknown, new RelayLoggerWithStackTrace(new RelayActionLogger(Console.WriteLine), new StackTraceFormatterWithNullSuport(" > ", null)));
 			_queueWorker.AddWork(() => { throw new Exception("oops"); });
 			_queueWorker.AddWork(() => { throw new Exception("oops"); });
 			_queueWorker.AddWork(() => { throw new Exception("oops"); });
@@ -37,7 +37,7 @@ namespace TestApp {
 		private static SingleThreadedRelayQueueWorker<Action> _queueWorker;
 
 		public static void SingleThreadRelayWorkerStressTest() {
-			_queueWorker = new SingleThreadedRelayQueueWorker<Action>("axaxa", a => a(), ThreadPriority.Normal, true, null, new RelayActionLogger(Console.WriteLine));
+			_queueWorker = new SingleThreadedRelayQueueWorker<Action>("axaxa", a => a(), ThreadPriority.Normal, true, null, new RelayLoggerWithStackTrace(new RelayActionLogger(Console.WriteLine), new StackTraceFormatterWithNullSuport(" > ", null)));
 			Console.WriteLine("Worker created");
 			var t1 = new Thread(ThreadStart) {IsBackground = true, Priority = ThreadPriority.BelowNormal};
 			//var t2 = new Thread(ThreadStart) {IsBackground = true, Priority = ThreadPriority.Normal};
@@ -64,7 +64,7 @@ namespace TestApp {
 			var worker = new SingleThreadedRelayMultiQueueWorker<int>("SingleThreadedRelayMultiQueueWorker", i => {
 				Thread.Sleep(250);
 				GlobalLogger.Instance.Log(" << Consumed item " + i);
-			}, ThreadPriority.Normal, false, null, new RelayActionLogger(Console.WriteLine), 2); // Две очереди
+			}, ThreadPriority.Normal, false, null, new RelayLoggerWithStackTrace(new RelayActionLogger(Console.WriteLine), new StackTraceFormatterWithNullSuport(" > ", null)), 2); // Две очереди
 			
 			var producerThread1 = new Thread(() => {
 				for (int i = 0; i < 10; ++i) {
@@ -95,7 +95,7 @@ namespace TestApp {
 			var worker = new SingleThreadedRelayMultiQueueWorkerExceptionless<int>("SingleThreadedRelayMultiQueueWorkerExceptionless", i => {
 				Thread.Sleep(250);
 				GlobalLogger.Instance.Log(" << ex Consumed item " + i);
-			}, ThreadPriority.Normal, false, null, new RelayActionLogger(Console.WriteLine), 2); // Две очереди
+			}, ThreadPriority.Normal, false, null, new RelayLoggerWithStackTrace(new RelayActionLogger(Console.WriteLine), new StackTraceFormatterWithNullSuport(" > ", null)), 2); // Две очереди
 
 			var producerThread1 = new Thread(() => {
 				for (int i = 0; i < 10; ++i) {
@@ -195,7 +195,7 @@ namespace TestApp {
 		}
 
 		public static void TestMultiQueueStarter() {
-			var starter = new SingleThreadPriorityAsyncStarter("TestMultiQueueStarter", ThreadPriority.Normal, false, null, new RelayActionLogger(Console.WriteLine), 2, 2, true);
+			var starter = new SingleThreadPriorityAsyncStarter("TestMultiQueueStarter", ThreadPriority.Normal, false, null, new RelayLoggerWithStackTrace(new RelayActionLogger(Console.WriteLine), new StackTraceFormatterWithNullSuport(" > ", null)), 2, 2, true);
 			for (int i = 0; i < 10; ++i) {
 				GlobalLogger.Instance.Log("Starting async action... i = " + i);
 				int i1 = i;

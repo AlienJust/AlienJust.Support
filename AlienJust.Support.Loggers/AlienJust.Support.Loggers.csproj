@@ -59,7 +59,9 @@
     <Compile Include="RelayLogger.cs" />
     <Compile Include="RelayLoggerWithStackTrace.cs" />
     <Compile Include="RelayMultiLogger.cs" />
+    <Compile Include="RelayMultiLoggerWithStackTraceSimple.cs" />
     <Compile Include="StackTraceFormatterSimple.cs" />
+    <Compile Include="StackTraceFormatterWithNullSuport.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AlienJust.Support.Loggers.Contracts\AlienJust.Support.Loggers.Contracts.csproj">

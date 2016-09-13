@@ -59,7 +59,7 @@ namespace Tests.Concurrents
 			Console.WriteLine("Press any key to start");
 			Console.ReadKey();
 			var counter = new WaitableCounter();
-			var starter = new SingleThreadPriorityAsyncStarter("SingleThreadPriorityAsyncStarter", ThreadPriority.Normal, false, null, new RelayActionLogger(Console.WriteLine), 5, 5, true);
+			var starter = new SingleThreadPriorityAsyncStarter("SingleThreadPriorityAsyncStarter", ThreadPriority.Normal, false, null, new RelayLoggerWithStackTrace(new RelayActionLogger(Console.WriteLine), new StackTraceFormatterWithNullSuport(" > ", null)), 5, 5, true);
 			Console.WriteLine("Async starter was created, press any key to begin test");
 			Console.ReadKey();
 

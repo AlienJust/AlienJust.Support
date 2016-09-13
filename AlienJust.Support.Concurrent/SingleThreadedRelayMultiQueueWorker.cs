@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using AlienJust.Support.Concurrent.Contracts;
 using AlienJust.Support.Loggers.Contracts;
@@ -10,7 +11,7 @@ namespace AlienJust.Support.Concurrent {
 		private readonly AutoResetEvent _threadNotifyAboutQueueItemsCountChanged;
 		private readonly Thread _workThread;
 
-		private readonly ILogger _debugLogger;
+		private readonly ILoggerWithStackTrace _debugLogger;
 		private readonly string _name; // TODO: implement interface INamedObject
 		private readonly object _syncUserActions;
 		private readonly object _syncRunFlags;
@@ -18,9 +19,10 @@ namespace AlienJust.Support.Concurrent {
 		private bool _isRunning;
 		private bool _mustBeStopped; // Флаг, подающий фоновому потоку сигнал о необходимости завершения (обращение идет через потокобезопасное свойство MustBeStopped)
 
-		public SingleThreadedRelayMultiQueueWorker(string name, Action<TItem> action, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState, ILogger debugLogger, int queuesCount) {
-			if (action == null) throw new ArgumentNullException("action");
-			if (debugLogger == null) throw new ArgumentNullException("debugLogger");
+		public SingleThreadedRelayMultiQueueWorker(string name, Action<TItem> action, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState, ILoggerWithStackTrace debugLogger, int queuesCount) {
+			if (action == null) throw new ArgumentNullException(nameof(action));
+			if (debugLogger == null) throw new ArgumentNullException(nameof(debugLogger));
+
 			_syncRunFlags = new object();
 			_syncUserActions = new object();
 
@@ -50,7 +52,7 @@ namespace AlienJust.Support.Concurrent {
 					}
 					else {
 						var ex = new Exception("Cannot handle items any more, worker has been stopped or stopping now");
-						_debugLogger.Log(ex);
+						_debugLogger.Log(ex, new StackTrace());
 						throw ex;
 					}
 				}
@@ -66,8 +68,6 @@ namespace AlienJust.Support.Concurrent {
 			IsRunning = true;
 			try {
 				while (true) {
-					if (MustBeStopped) throw new Exception("MustBeStopped is true, this is the end of thread");
-					_debugLogger.Log("MustBeStopped was false, so continue dequeueing");
 					try {
 						var item = _items.Dequeue();
 						try {
@@ -75,24 +75,28 @@ namespace AlienJust.Support.Concurrent {
 							_action(item);
 						}
 						catch (Exception ex) {
-							_debugLogger.Log(ex);
+							_debugLogger.Log(ex, new StackTrace());
 						}
 					}
 					catch (Exception ex) {
-						_debugLogger.Log("All actions from queue were executed, waiting for new ones");
+						_debugLogger.Log("All actions from queue were executed, waiting for new ones", new StackTrace());
 						_threadNotifyAboutQueueItemsCountChanged.WaitOne(); // Итемы кончились, начинаем ждать
-						_debugLogger.Log(ex);
+
+						if (MustBeStopped) throw new Exception("MustBeStopped is true, this is the end of thread");
+						_debugLogger.Log("MustBeStopped was false, so continue dequeueing", new StackTrace());
+
+						_debugLogger.Log(ex, new StackTrace());
 					}
 				}
 			}
 			catch (Exception ex) {
-				_debugLogger.Log(ex);
+				_debugLogger.Log(ex, new StackTrace());
 			}
 			IsRunning = false;
 		}
 
 		public void StopAsync() {
-			_debugLogger.Log("Stop called");
+			_debugLogger.Log("Stop called", new StackTrace());
 			lock (_syncUserActions) {
 				_mustBeStopped = true;
 				_threadNotifyAboutQueueItemsCountChanged.Set();

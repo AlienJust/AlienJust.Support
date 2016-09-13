@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading;
 using AlienJust.Support.Concurrent.Contracts;
 using AlienJust.Support.Loggers.Contracts;
@@ -7,7 +8,7 @@ using AlienJust.Support.Loggers.Contracts;
 namespace AlienJust.Support.Concurrent
 {
 	public sealed class SingleThreadedRelayQueueWorker<TItem> : IWorker<TItem>, IStoppableWorker {
-		private readonly ILogger _debugLogger;
+		private readonly ILoggerWithStackTrace _debugLogger;
 		private readonly object _syncUserActions;
 		private readonly object _syncRunFlags;
 		private readonly ConcurrentQueue<TItem> _items;
@@ -21,10 +22,10 @@ namespace AlienJust.Support.Concurrent
 
 		private readonly AutoResetEvent _threadNotifyAboutQueueItemsCountChanged;
 
-		public SingleThreadedRelayQueueWorker(string name, Action<TItem> action, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState, ILogger debugLogger)
+		public SingleThreadedRelayQueueWorker(string name, Action<TItem> action, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState, ILoggerWithStackTrace debugLogger)
 		{
-			if (action == null) throw new ArgumentNullException("action");
-			if (debugLogger == null) throw new ArgumentNullException("debugLogger");
+			if (action == null) throw new ArgumentNullException(nameof(action));
+			if (debugLogger == null) throw new ArgumentNullException(nameof(debugLogger));
 
 			_syncRunFlags = new object();
 			_syncUserActions = new object();
@@ -58,7 +59,7 @@ namespace AlienJust.Support.Concurrent
 					else
 					{
 						var ex = new Exception("Cannot handle items any more, worker has been stopped or stopping now");
-						_debugLogger.Log(ex);
+						_debugLogger.Log(ex, new StackTrace());
 						throw ex;
 					}
 				}
@@ -71,8 +72,6 @@ namespace AlienJust.Support.Concurrent
 			try {
 				while (true)
 				{
-					if (MustBeStopped) throw new Exception("MustBeStopped is true, this is the end of thread");
-					_debugLogger.Log("MustBeStopped was false, so continue dequeueing");
 					// в этом цикле опустошаем очередь
 					TItem dequeuedItem;
 					bool shouldProceed = _items.TryDequeue(out dequeuedItem);
@@ -80,31 +79,37 @@ namespace AlienJust.Support.Concurrent
 					{
 						try
 						{
+							_debugLogger.Log("Before user action", new StackTrace(Thread.CurrentThread, true));
 							_action(dequeuedItem);
+							_debugLogger.Log("After user action", new StackTrace(Thread.CurrentThread, true));
 						}
 						catch (Exception ex)
 						{
-							_debugLogger.Log(ex);
+							_debugLogger.Log(ex, new StackTrace(Thread.CurrentThread, true));
 						}
 					}
 					else
 					{
-						_debugLogger.Log("All actions from queue were executed, waiting for new ones");
+						_debugLogger.Log("All actions from queue were executed, waiting for new ones", new StackTrace(Thread.CurrentThread, true));
 						_threadNotifyAboutQueueItemsCountChanged.WaitOne();
-						_debugLogger.Log("New action was enqueued, or stop is required!");
+
+						if (MustBeStopped) throw new Exception("MustBeStopped is true, this is the end of thread");
+						_debugLogger.Log("MustBeStopped was false, so continue dequeueing", new StackTrace(Thread.CurrentThread, true));
+
+						_debugLogger.Log("New action was enqueued, or stop is required!", new StackTrace(Thread.CurrentThread, true));
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				_debugLogger.Log(ex);
+				_debugLogger.Log(ex, new StackTrace(Thread.CurrentThread, true));
 			}
 			IsRunning = false;
 		}
 
 		public void StopAsync()
 		{
-			_debugLogger.Log("Stop called");
+			_debugLogger.Log("Stop called", new StackTrace(Thread.CurrentThread, true));
 			lock (_syncUserActions) {
 				_mustBeStopped = true;
 				_threadNotifyAboutQueueItemsCountChanged.Set();
@@ -112,7 +117,12 @@ namespace AlienJust.Support.Concurrent
 		}
 
 		public void WaitStopComplete() {
-			_workThread.Join();
+			_debugLogger.Log("Waiting for thread exit begans...", new StackTrace(Thread.CurrentThread, true));
+			while (!_workThread.Join(100)) {
+				_debugLogger.Log("Waiting for thread exit...", new StackTrace(Thread.CurrentThread, true));
+				_threadNotifyAboutQueueItemsCountChanged.Set();
+			}
+			_debugLogger.Log("Waiting for thread exit complete", new StackTrace(Thread.CurrentThread, true));
 		}
 
 

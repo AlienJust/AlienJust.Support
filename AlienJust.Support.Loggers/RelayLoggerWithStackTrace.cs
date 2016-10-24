@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using AlienJust.Support.Loggers.Contracts;
-using AlienJust.Support.Text.Contracts;
 
 namespace AlienJust.Support.Loggers {
 	public class RelayLoggerWithStackTrace : ILoggerWithStackTrace {

@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="ILogger.cs" />
     <Compile Include="ILoggerWithStackTrace.cs" />
+    <Compile Include="IMultiLoggerWithStackTrace.cs" />
     <Compile Include="IStackTraceTextFormatter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

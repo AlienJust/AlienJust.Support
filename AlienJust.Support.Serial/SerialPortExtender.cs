@@ -5,7 +5,7 @@ using System.IO.Ports;
 using AlienJust.Support.Text;
 
 namespace AlienJust.Support.Serial {
-	public sealed class SerialPortExtender {
+	public sealed class SerialPortExtender : ISerialPortExtender {
 		private readonly SerialPort _port;
 		private readonly Action<string> _selectedLogAction;
 		private readonly Stopwatch _readEplasedTimer = new Stopwatch();
@@ -31,12 +31,12 @@ namespace AlienJust.Support.Serial {
 			Log("В порт отправлены байты буфера: " + bytes.ToText() + " начиная с " + offset + " в количестве " + count);
 		}
 
-		public byte[] ReadBytes(int bytesCount, TimeSpan timeout, bool discardRemainingBytes) {
+		public byte[] ReadBytes(int bytesCount, TimeSpan timeout, bool discardRemainingBytesAfterSuccessRead) {
 			var inBytes = new byte[bytesCount];
 			int totalReadedBytesCount = 0;
 
 			TimeSpan beetweenIterationPause = TimeSpan.FromMilliseconds(25);
-			var totalIterationsCount = (int) (timeout.TotalMilliseconds/beetweenIterationPause.TotalMilliseconds);
+			var totalIterationsCount = (int)(timeout.TotalMilliseconds / beetweenIterationPause.TotalMilliseconds);
 
 			Log("Iteration period = " + beetweenIterationPause.TotalMilliseconds.ToString("f2") + " ms, max iterations count = " + totalIterationsCount);
 
@@ -52,7 +52,7 @@ namespace AlienJust.Support.Serial {
 
 					if (totalReadedBytesCount == inBytes.Length) {
 						Log("Result incoming bytes are = " + inBytes.ToText());
-						if (discardRemainingBytes) {
+						if (discardRemainingBytesAfterSuccessRead) {
 							Log("Discarding remaining bytes, discarded bytes are: " + ReadAllBytes().ToText());
 						}
 						return inBytes;

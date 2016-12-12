@@ -10,7 +10,7 @@ namespace AlienJust.Support.ModelViewViewModel
 
 		public void RaisePropertyChanged(string propertyName)
 		{
-			if (PropertyChanged != null) PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
 		public void RaisePropertyChanged<T>(Expression<Func<T>> property) {

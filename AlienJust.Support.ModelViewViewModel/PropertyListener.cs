@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Linq.Expressions;
 
 namespace AlienJust.Support.ModelViewViewModel
 {
@@ -7,9 +9,9 @@ namespace AlienJust.Support.ModelViewViewModel
 	/// </summary>
 	public class PropertyListener
 	{
-		public INotifyPropertyChanged ViewModel { get; private set; }
-		public RelayCommand Command { get; private set; }
-		public string PropertyName { get; private set; }
+		public INotifyPropertyChanged ViewModel { get; }
+		public RelayCommand Command { get; }
+		public string PropertyName { get; }
 		public PropertyListener(RelayCommand cmd, INotifyPropertyChanged vm, string propertyName)
 		{
 			ViewModel = vm;

@@ -1,10 +1,14 @@
 using System;
+using System.Diagnostics;
 using System.IO.Ports;
+using System.Threading;
+using AlienJust.Support.Text;
 
 namespace AlienJust.Support.Serial
 {
 	public sealed class SerialPortExtenderNoLog : ISerialPortExtender {
 		private readonly SerialPort _port;
+		private readonly Stopwatch _readEplasedTimer = new Stopwatch();
 
 		public SerialPortExtenderNoLog(SerialPort port) {
 			_port = port;
@@ -18,20 +22,31 @@ namespace AlienJust.Support.Serial
 
 		public byte[] ReadBytes(int bytesCount, TimeSpan timeout, bool discardRemainingBytesAfterSuccessRead) {
 			var inBytes = new byte[bytesCount];
-			_port.ReadTimeout = (int)timeout.TotalMilliseconds;
-			try {
-				_port.Read(inBytes, 0, bytesCount);
-				if (discardRemainingBytesAfterSuccessRead) {
-					_port.DiscardInBuffer();
-					ReadAllBytes();
+			int totalReadedBytesCount = 0;
+
+			TimeSpan beetweenIterationPause = TimeSpan.FromMilliseconds(25);
+			var totalIterationsCount = (int)(timeout.TotalMilliseconds / beetweenIterationPause.TotalMilliseconds);
+
+			for (int i = 0; i < totalIterationsCount; ++i) {
+				_readEplasedTimer.Restart();
+				var bytesToRead = _port.BytesToRead;
+				if (bytesToRead != 0) {
+					var currentReadedBytesCount = _port.Read(inBytes, totalReadedBytesCount, bytesCount - totalReadedBytesCount);
+					totalReadedBytesCount += currentReadedBytesCount;
+					if (totalReadedBytesCount == inBytes.Length) {
+						if (discardRemainingBytesAfterSuccessRead)
+						{
+							ReadAllBytes();
+						}
+						return inBytes;
+					}
 				}
-				return inBytes;
+				_readEplasedTimer.Stop();
+				var sleepTime = beetweenIterationPause - _readEplasedTimer.Elapsed;
+				if (sleepTime.TotalMilliseconds > 0) Thread.Sleep(sleepTime);
 			}
-			catch (TimeoutException) {
-				_port.DiscardInBuffer(); // TODO: any reason to do it? It must be empty on error or what?
-				ReadAllBytes();
-				throw;
-			}
+			ReadAllBytes();
+			throw new TimeoutException("ReadFromPort timeout");
 		}
 
 		public byte[] ReadAllBytes() {

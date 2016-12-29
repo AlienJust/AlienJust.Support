@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace AlienJust.Support.Collections {
 	/// <summary>
@@ -108,6 +109,20 @@ namespace AlienJust.Support.Collections {
 			byte hi = (byte)((value & 0xFF00) >> 8);
 			byte lo = (byte)(value & 0xFF);
 			return new BytesPair(lo, hi);
+		}
+
+		public override string ToString()
+		{
+			return First.ToString("X2") + Second.ToString("X2");
+		}
+
+		public static BytesPair Parse(string value)
+		{
+			if (value == null) throw new NullReferenceException("Input string must be not null");
+			if (value.Length != 4) throw new Exception("Supported length of the string is 4");
+			var first = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
+			var second = byte.Parse(value.Substring(2, 2), NumberStyles.HexNumber);
+			return new BytesPair(first, second);
 		}
 	}
 }

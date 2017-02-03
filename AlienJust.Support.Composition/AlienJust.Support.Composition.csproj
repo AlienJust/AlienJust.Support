@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompositionPartBase.cs" />
+    <Compile Include="CompositionPartWithInformationRelay.cs" />
     <Compile Include="UnknownLikeLocked.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

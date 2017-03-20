@@ -57,7 +57,7 @@ namespace AlienJust.Support.Numeric {
 
 		#endregion
 
-		public static Crc16 Crc16(IList<byte> data, int startByte, int length)
+		public static Crc16 GetCrc16FromIlist(IList<byte> data, int startByte, int length)
 		{
 			//Console.WriteLine("startbyte: " + startByte + " length: " + length);
 			byte crcHi = 0xFF;
@@ -71,8 +71,7 @@ namespace AlienJust.Support.Numeric {
 			}
 			return new Crc16(crcLo, crcHi);
 		}
-
-		public static Crc16 Crc16(IList<byte> data)
+		public static Crc16 GetCrc16FromIlist(IList<byte> data)
 		{
 			byte crcHi = 0xFF;
 			byte crcLo = 0xFF;
@@ -87,7 +86,30 @@ namespace AlienJust.Support.Numeric {
 
 
 
-		public static Crc16 Crc16(List<byte> data, int startByte, int length)
+		public static Crc16 GetCrc16FromArray(byte[] data) {
+			byte crcHi = 0xFF;
+			byte crcLo = 0xFF;
+			for (int i = 0; i < data.Length; ++i) {
+				int index = crcLo ^ data[i];
+				crcLo = (byte)(crcHi ^ ACrcHi[index]);
+				crcHi = ACrcLo[index];
+			}
+			return new Crc16(crcLo, crcHi);
+		}
+		public static Crc16 GetCrc16FromArray(byte[] data, int startByte, int length) {
+			//Console.WriteLine("startbyte: " + startByte + " length: " + length);
+			byte crcHi = 0xFF;
+			byte crcLo = 0xFF;
+			for (int i = startByte; i < startByte + length; ++i) {
+				//Console.WriteLine("proceed byte " + i);
+				int index = crcLo ^ data[i];
+				crcLo = (byte)(crcHi ^ ACrcHi[index]);
+				crcHi = ACrcLo[index];
+			}
+			return new Crc16(crcLo, crcHi);
+		}
+
+		public static Crc16 GetCrc16FromList(List<byte> data, int startByte, int length)
 		{
 			//Console.WriteLine("startbyte: " + startByte + " length: " + length);
 			byte crcHi = 0xFF;
@@ -101,21 +123,7 @@ namespace AlienJust.Support.Numeric {
 			}
 			return new Crc16(crcLo, crcHi);
 		}
-
-		public static Crc16 Crc16(byte[] data, int startByte, int length) {
-			//Console.WriteLine("startbyte: " + startByte + " length: " + length);
-			byte crcHi = 0xFF;
-			byte crcLo = 0xFF;
-			for (int i = startByte; i < startByte + length; ++i) {
-				//Console.WriteLine("proceed byte " + i);
-				int index = crcLo ^ data[i];
-				crcLo = (byte)(crcHi ^ ACrcHi[index]);
-				crcHi = ACrcLo[index];
-			}
-			return new Crc16(crcLo, crcHi);
-		}
-
-		public static Crc16 Crc16(List<byte> data)
+		public static Crc16 GetCrc16FromList(List<byte> data)
 		{
 			byte crcHi = 0xFF;
 			byte crcLo = 0xFF;
@@ -158,7 +166,6 @@ namespace AlienJust.Support.Numeric {
 			}
 			return new Crc16((byte) (crc & 0x0FF), (byte) ((crc & 0xFF00) >> 8));
 		}
-
 		public static Crc16 Crc16ByDo(IList<byte> data)
 		{
 			ushort crc = 0xFFFF;
@@ -167,15 +174,12 @@ namespace AlienJust.Support.Numeric {
 			}
 			return new Crc16((byte)(crc & 0x00FF), (byte)((crc & 0xFF00) >> 8));
 		}
-
-
-
+		
 
 
 		public static Crc16 GetCrc16Maks(IList<byte> buffer)
 		{
 			ushort crc = 0xFFFF;
-
 			for (int pos = 0; pos < buffer.Count; ++pos)
 			{
 				crc ^= buffer[pos];
@@ -192,7 +196,7 @@ namespace AlienJust.Support.Numeric {
 					else crc >>= 1;
 				}
 			}
-			return new Crc16(Convert.ToByte(crc % 0x100), Convert.ToByte((crc) >> 8));
+			return new Crc16(Convert.ToByte(crc % 0x100), Convert.ToByte(crc >> 8));
 		}
 
 		public static void FillCrc16AtTheEndOfArrayHighLow(byte[] array) {

@@ -6,7 +6,7 @@ namespace AlienJust.Support.Numeric
 	{
 		public static bool IsAbout(this double var, int value, double radius)
 		{
-			return (Math.Abs(var - value) < radius);
+			return Math.Abs(var - value) < radius;
 		}
 	}
 }

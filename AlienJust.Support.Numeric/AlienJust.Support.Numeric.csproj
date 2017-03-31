@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bits\BitsExtensions.cs" />
     <Compile Include="Crc16.cs" />
     <Compile Include="DoubleExtensions.cs" />
     <Compile Include="MathExtensions.cs" />

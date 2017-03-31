@@ -5,10 +5,10 @@ namespace AlienJust.Support.ModelViewViewModel
 {
 	public class ViewModelProperty<TT> where TT : struct
 	{
-		public string Name { get; private set; }
+		public string Name { get; }
 		private readonly Action<string> _propChangeAction;
 
-		public Dictionary<string, Action<string>> DependedProperties { get; private set; }
+		public Dictionary<string, Action<string>> DependedProperties { get; }
 
 		private TT _value;
 		public TT Value
@@ -19,7 +19,7 @@ namespace AlienJust.Support.ModelViewViewModel
 				if (_value.Equals(value))
 				{
 					_value = value;
-					if (_propChangeAction != null) _propChangeAction(this.Name);
+					_propChangeAction?.Invoke(Name);
 					NotifyAllDepended();
 				}
 			}
@@ -37,10 +37,8 @@ namespace AlienJust.Support.ModelViewViewModel
 
 		public void NotifyAllDepended()
 		{
-			foreach (var dependedProp in DependedProperties)
-			{
-				if (dependedProp.Value != null)
-					dependedProp.Value(dependedProp.Key);
+			foreach (var dependedProp in DependedProperties) {
+				dependedProp.Value?.Invoke(dependedProp.Key);
 			}
 		}
 	}

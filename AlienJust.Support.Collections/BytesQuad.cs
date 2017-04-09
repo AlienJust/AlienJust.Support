@@ -33,7 +33,7 @@ namespace AlienJust.Support.Collections {
 			Fourth = fourth;
 		}
 
-		public static BytesQuad FromSignedShortHighFirst(int value) {
+		public static BytesQuad FromSignedIntHighFirst(int value) {
 			byte uhi = (byte)((value & 0xFF000000) >> 24);
 			byte ulo = (byte)((value & 0xFF0000) >> 16);
 			byte hi = (byte)((value & 0xFF00) >> 8);
@@ -41,7 +41,7 @@ namespace AlienJust.Support.Collections {
 			return new BytesQuad(uhi, ulo, hi, lo);
 		}
 
-		public static BytesQuad FromSignedShortLowFirst(int value) {
+		public static BytesQuad FromSignedIntLowFirst(int value) {
 			byte uhi = (byte)((value & 0xFF000000) >> 24);
 			byte ulo = (byte)((value & 0xFF0000) >> 16);
 			byte hi = (byte)((value & 0xFF00) >> 8);
@@ -49,7 +49,7 @@ namespace AlienJust.Support.Collections {
 			return new BytesQuad(lo, hi, ulo, uhi);
 		}
 
-		public static BytesQuad FromUnsignedShortHighFirst(uint value) {
+		public static BytesQuad FromUnsignedIntHighFirst(uint value) {
 			byte uhi = (byte)((value & 0xFF000000) >> 24);
 			byte ulo = (byte)((value & 0xFF0000) >> 16);
 			byte hi = (byte)((value & 0xFF00) >> 8);
@@ -57,7 +57,7 @@ namespace AlienJust.Support.Collections {
 			return new BytesQuad(uhi, ulo, hi, lo);
 		}
 
-		public static BytesQuad FromUnsignedShortLowFirst(uint value) {
+		public static BytesQuad FromUnsignedIntLowFirst(uint value) {
 			byte uhi = (byte)((value & 0xFF000000) >> 24);
 			byte ulo = (byte)((value & 0xFF0000) >> 16);
 			byte hi = (byte)((value & 0xFF00) >> 8);

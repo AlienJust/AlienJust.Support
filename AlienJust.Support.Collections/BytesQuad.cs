@@ -137,11 +137,43 @@ namespace AlienJust.Support.Collections {
 		/// <summary>
 		/// Возвращает BCD значение структуры  считая первый байт старшим
 		/// </summary>
-		public int HighFirstBcd => First.ToBcdInteger() * 10000000 + Second.ToBcdInteger() * 100000 + Third * 1000 + Fourth;
+		public int HighFirstBcd => First.ToBcdInteger() * 10000000 + Second.ToBcdInteger() * 100000 + Third.ToBcdInteger() * 1000 + Fourth.ToBcdInteger();
 
 		/// <summary>
 		/// Возвращает BCD значение структуры  считая первый байт младшим
 		/// </summary>
-		public int LowFirstBcd => Fourth.ToBcdInteger() * 10000000 + Third.ToBcdInteger() * 100000 + Second * 1000 + First;
+		public int LowFirstBcd => Fourth.ToBcdInteger() * 10000000 + Third.ToBcdInteger() * 100000 + Second.ToBcdInteger() * 1000 + First.ToBcdInteger();
+
+		/// <summary>
+		/// Создаёт структуру из BCD числа считая первый байт старшим
+		/// </summary>
+		/// <param name="bcdValueHf">BCD значение</param>
+		/// <returns>Новая структура</returns>
+		public static BytesQuad FromBcdHighFirst(int bcdValueHf) {
+			if (bcdValueHf < 0 || bcdValueHf > 99999999) throw new ArgumentException();
+			int bcd = 0;
+			for (int digit = 0; digit < 8; ++digit) {
+				int nibble = bcdValueHf % 10;
+				bcd |= nibble << (digit * 4);
+				bcdValueHf /= 10;
+			}
+			return new BytesQuad((byte)((bcd >> 24) & 0xff), (byte)((bcd >> 16) & 0xff), (byte)((bcd >> 8) & 0xff), (byte)(bcd & 0xff));
+		}
+
+		/// <summary>
+		/// Создаёт структуру из BCD числа считая первый байт младшим
+		/// </summary>
+		/// <param name="bcdValueLf">BCD значение</param>
+		/// <returns>Новая структура</returns>
+		public static BytesQuad FromBcdLowFirst(int bcdValueLf) {
+			if (bcdValueLf < 0 || bcdValueLf > 99999999) throw new ArgumentException();
+			int bcd = 0;
+			for (int digit = 0; digit < 8; ++digit) {
+				int nibble = bcdValueLf % 10;
+				bcd |= nibble << (digit * 4);
+				bcdValueLf /= 10;
+			}
+			return new BytesQuad((byte)(bcd & 0xff), (byte)((bcd >> 8) & 0xff), (byte)((bcd >> 16) & 0xff), (byte)((bcd >> 24) & 0xff));
+		}
 	}
 }

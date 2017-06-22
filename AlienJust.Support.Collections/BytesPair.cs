@@ -124,5 +124,18 @@ namespace AlienJust.Support.Collections {
 			var second = byte.Parse(value.Substring(2, 2), NumberStyles.HexNumber);
 			return new BytesPair(first, second);
 		}
+
+		public int HighFirstBcd => First.ToBcdInteger() * 1000 + Second.ToBcdInteger();
+		public int LowFirstBcd => Second.ToBcdInteger() * 1000 + First.ToBcdInteger();
+	}
+
+	public static class ByteExtensions
+	{
+		public static int ToBcdInteger(this byte currentByte)
+		{
+			int high = currentByte >> 4;
+			int low = currentByte & 0xF;
+			return 10 * high + low;
+		}
 	}
 }

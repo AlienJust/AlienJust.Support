@@ -133,5 +133,15 @@ namespace AlienJust.Support.Collections {
 		public static bool operator !=(BytesQuad x, BytesQuad y) {
 			return !(x == y);
 		}
+
+		/// <summary>
+		/// ¬озвращает BCD значение структуры  счита€ первый байт старшим
+		/// </summary>
+		public int HighFirstBcd => First.ToBcdInteger() * 10000000 + Second.ToBcdInteger() * 100000 + Third * 1000 + Fourth;
+
+		/// <summary>
+		/// ¬озвращает BCD значение структуры  счита€ первый байт младшим
+		/// </summary>
+		public int LowFirstBcd => Fourth.ToBcdInteger() * 10000000 + Third.ToBcdInteger() * 100000 + Second * 1000 + First;
 	}
 }

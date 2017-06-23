@@ -157,8 +157,8 @@ namespace AlienJust.Support.Collections {
 			return new BytesPair(first, second);
 		}
 
-		public int HighFirstBcd => First.ToBcdInteger() * 1000 + Second.ToBcdInteger();
-		public int LowFirstBcd => Second.ToBcdInteger() * 1000 + First.ToBcdInteger();
+		public int HighFirstBcd => First.ToBcdInteger() * 100 + Second.ToBcdInteger();
+		public int LowFirstBcd => Second.ToBcdInteger() * 100 + First.ToBcdInteger();
 	}
 
 	public static class ByteExtensions

@@ -137,12 +137,12 @@ namespace AlienJust.Support.Collections {
 		/// <summary>
 		/// Возвращает BCD значение структуры  считая первый байт старшим
 		/// </summary>
-		public int HighFirstBcd => First.ToBcdInteger() * 10000000 + Second.ToBcdInteger() * 100000 + Third.ToBcdInteger() * 1000 + Fourth.ToBcdInteger();
+		public int HighFirstBcd => First.ToBcdInteger() * 1000000 + Second.ToBcdInteger() * 10000 + Third.ToBcdInteger() * 100 + Fourth.ToBcdInteger();
 
 		/// <summary>
 		/// Возвращает BCD значение структуры  считая первый байт младшим
 		/// </summary>
-		public int LowFirstBcd => Fourth.ToBcdInteger() * 10000000 + Third.ToBcdInteger() * 100000 + Second.ToBcdInteger() * 1000 + First.ToBcdInteger();
+		public int LowFirstBcd => Fourth.ToBcdInteger() * 1000000 + Third.ToBcdInteger() * 10000 + Second.ToBcdInteger() * 100 + First.ToBcdInteger();
 
 		/// <summary>
 		/// Создаёт структуру из BCD числа считая первый байт старшим

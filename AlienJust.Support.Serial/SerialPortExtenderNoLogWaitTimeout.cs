@@ -4,11 +4,15 @@ using System.IO.Ports;
 using System.Threading;
 
 namespace AlienJust.Support.Serial {
-	public sealed class SerialPortExtenderNoLog : ISerialPortExtender {
+	/// <summary>
+	/// Waits for timeout even if data allready readed
+	/// </summary>
+	public sealed class SerialPortExtenderNoLogWaitTimeout : ISerialPortExtender {
 		private readonly SerialPort _port;
 		private readonly Stopwatch _readEplasedTimer = new Stopwatch();
+		private const int ReadTimeoutMs = 25;
 
-		public SerialPortExtenderNoLog(SerialPort port) {
+		public SerialPortExtenderNoLogWaitTimeout(SerialPort port) {
 			_port = port;
 		}
 
@@ -35,6 +39,7 @@ namespace AlienJust.Support.Serial {
 						if (discardRemainingBytesAfterSuccessRead) {
 							ReadAllBytes();
 						}
+						Thread.Sleep((totalIterationsCount - i) * ReadTimeoutMs);
 						return inBytes;
 					}
 				}

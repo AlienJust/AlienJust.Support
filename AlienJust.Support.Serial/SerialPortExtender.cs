@@ -8,17 +8,23 @@ namespace AlienJust.Support.Serial {
 	public sealed class SerialPortExtender : ISerialPortExtender {
 		private readonly SerialPort _port;
 		private readonly Action<string> _selectedLogAction;
+		private readonly Action<string> _errorLogAction;
 		private readonly Stopwatch _readEplasedTimer = new Stopwatch();
+
+		private static void EmptyLog(string s)
+		{
+		}
 
 		public SerialPortExtender(SerialPort port) {
 			_port = port;
-			_selectedLogAction = s => { };
+			_selectedLogAction = EmptyLog;
+			_errorLogAction = EmptyLog;
 		}
 
-		public SerialPortExtender(SerialPort port, Action<string> logAction) {
-			if (logAction == null) throw new NullReferenceException(".ctor parameter logAction cannot be null");
+		public SerialPortExtender(SerialPort port, Action<string> logAction, Action<string> errorLogAction) {
 			_port = port;
-			_selectedLogAction = logAction;
+			_selectedLogAction = logAction ?? throw new NullReferenceException(".ctor parameter logAction cannot be null");
+			_errorLogAction = errorLogAction ?? throw new NullReferenceException(".ctor parameter errorLogAction cannot be null");
 		}
 
 		public void WriteBytes(byte[] bytes, int offset, int count) {
@@ -62,9 +68,9 @@ namespace AlienJust.Support.Serial {
 				var sleepTime = beetweenIterationPause - _readEplasedTimer.Elapsed;
 				if (sleepTime.TotalMilliseconds > 0) Thread.Sleep(sleepTime);
 			}
-			Log("Timeout, dropping all incoming bytes...");
-			Log("Discarded bytes are: " + ReadAllBytes().ToText());
-			Log("Rising timeout exception now");
+			LogError("Timeout, dropping all incoming bytes...");
+			LogError("Discarded bytes are: " + ReadAllBytes().ToText());
+			LogError("Rising timeout exception now");
 			throw new TimeoutException("ReadFromPort timeout");
 		}
 
@@ -77,6 +83,10 @@ namespace AlienJust.Support.Serial {
 
 		private void Log(object obj) {
 			_selectedLogAction(obj.ToString());
+		}
+
+		private void LogError(object obj) {
+			_errorLogAction(obj.ToString());
 		}
 	}
 }

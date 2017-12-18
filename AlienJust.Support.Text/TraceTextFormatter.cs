@@ -51,7 +51,7 @@ namespace AlienJust.Support.Text
 			var fileStr = GetShortenFileName(lastFrame.GetFileName(), _fileNameLimiter) + ":" + lastFrame.GetFileLineNumber();
 			string outStr = timeStr + _seporator +
 			                fileStr + _seporator +
-			                stackStr + // _seporator + // allready ended with _seporator
+			                stackStr + // _seporator + // already ended with _seporator
 			                threadStr + _seporator +
 			                text;
 

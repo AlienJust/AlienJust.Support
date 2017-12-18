@@ -14,7 +14,7 @@ namespace AlienJust.Support.Collections
 		public InrowPartitioner(IEnumerable<T> sequence, int partitionSize)
 		{
 			if (sequence == null) throw new NullReferenceException("Sequence must be not null");
-			if (partitionSize <= 0) throw new ArgumentOutOfRangeException("partitionSize", "Partiton size must be 1 or more");
+			if (partitionSize <= 0) throw new ArgumentOutOfRangeException(nameof(partitionSize), "Partition size must be 1 or more");
 			_setupSequence = sequence.ToList();
 			_partitonSize = partitionSize;
 			_nextPartitionIndex = 0;

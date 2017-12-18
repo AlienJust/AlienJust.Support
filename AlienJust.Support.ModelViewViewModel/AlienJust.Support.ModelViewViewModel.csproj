@@ -70,7 +70,7 @@
     <Compile Include="ViewModelProperty.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AlienJust.Support.Assemblies\AlienJust.Support.Reflection.csproj">
+    <ProjectReference Include="..\AlienJust.Support.Reflection\AlienJust.Support.Reflection.csproj">
       <Project>{B6E41687-40C6-42A9-A523-3B92E9E952CA}</Project>
       <Name>AlienJust.Support.Reflection</Name>
     </ProjectReference>

@@ -185,7 +185,7 @@ namespace AlienJust.Support.Numeric {
 		}
 
 		public static void FillCrc16AtTheEndOfArrayHighLow(byte[] array) {
-			// len check skipped to increase perfomance
+			// len check skipped to increase performance
 			// if (array.Length < 3) throw new Exception("Длина массива должна быть не менее трёх байт");
 			byte crcHi = 0xFF;
 			byte crcLo = 0xFF;
@@ -199,7 +199,7 @@ namespace AlienJust.Support.Numeric {
 		}
 
 		public static void FillCrc16AtTheEndOfArrayLowHigh(byte[] array) {
-			// len check skipped to increase perfomance
+			// len check skipped to increase performance
 			// if (array.Length < 3) throw new Exception("Длина массива должна быть не менее трёх байт");
 			byte crcHi = 0xFF;
 			byte crcLo = 0xFF;

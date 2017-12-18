@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Loggers.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Loggers", "AlienJust.Support.Loggers\AlienJust.Support.Loggers.csproj", "{5A4FC6A0-917B-4942-BFAC-1640D66337F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Reflection", "AlienJust.Support.Assemblies\AlienJust.Support.Reflection.csproj", "{B6E41687-40C6-42A9-A523-3B92E9E952CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Reflection", "AlienJust.Support.Reflection\AlienJust.Support.Reflection.csproj", "{B6E41687-40C6-42A9-A523-3B92E9E952CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienJust.Support.Numeric", "AlienJust.Support.Numeric\AlienJust.Support.Numeric.csproj", "{6184F030-6D29-4BAE-9B48-A85BF00BCA08}"
 EndProject

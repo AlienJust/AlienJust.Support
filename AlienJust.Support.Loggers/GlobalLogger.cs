@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using AlienJust.Support.Loggers.Contracts;
+﻿using AlienJust.Support.Loggers.Contracts;
 
 namespace AlienJust.Support.Loggers
 {
@@ -12,6 +9,6 @@ namespace AlienJust.Support.Loggers
 		{
 			_logger = logger;
 		}
-		public static ILogger Instance { get { return _logger; } }
+		public static ILogger Instance => _logger;
 	}
 }

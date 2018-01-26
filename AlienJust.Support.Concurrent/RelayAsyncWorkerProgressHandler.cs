@@ -7,8 +7,9 @@ namespace AlienJust.Support.Concurrent {
 		public RelayAsyncWorkerProgressHandler(Action<int> progress) {
 			_progress = progress;
 		}
-		public void NotifyProgrssChanged(int progress) {
-			if (_progress != null) _progress(progress);
+		public void NotifyProgrssChanged(int progress)
+		{
+			_progress?.Invoke(progress);
 		}
 	}
 }

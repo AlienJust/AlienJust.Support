@@ -32,16 +32,12 @@ namespace AlienJust.Support.Concurrent {
 			Action<TItem, IItemsReleaser<TKey>> relayUserAction,
 			ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState, ILogger debugLogger,
 			int maxPriority, uint maxParallelUsingItemsCount, uint maxTotalOnetimeItemsUsages) {
-
-			if (relayUserAction == null) throw new ArgumentNullException(nameof(relayUserAction));
-			if (debugLogger == null) throw new ArgumentNullException(nameof(debugLogger));
-
 			_syncRunFlags = new object();
 			_syncUserActions = new object();
 
 			_name = name;
-			_relayUserAction = relayUserAction;
-			_debugLogger = debugLogger;
+			_relayUserAction = relayUserAction ?? throw new ArgumentNullException(nameof(relayUserAction));
+			_debugLogger = debugLogger ?? throw new ArgumentNullException(nameof(debugLogger));
 
 			_threadNotifyAboutQueueItemsCountChanged = new AutoResetEvent(false);
 			_items = new ConcurrentQueueWithPriorityAndAddressUsageControlGuided<TKey, TItem>(maxPriority, maxParallelUsingItemsCount, maxTotalOnetimeItemsUsages);
@@ -167,8 +163,8 @@ namespace AlienJust.Support.Concurrent {
 		}
 
 		public uint MaxTotalOnetimeItemsUsages {
-			// Thread safity is guaranted by queue
-			get { return _items.MaxTotalUsingItemsCount; }
+			// Thread safety is guaranteed by queue
+			get => _items.MaxTotalUsingItemsCount;
 			set {
 				lock (_syncUserActions) {
 					bool isDequeueNeeded = value > _items.MaxTotalUsingItemsCount;

@@ -79,9 +79,9 @@ namespace AlienJust.Support.Concurrent {
 		}
 
 		public uint MaxTotalFlow {
-			// Thread safity is guaranted by worker
-			get { return _asyncActionQueueWorker.MaxTotalOnetimeItemsUsages; }
-			set { _asyncActionQueueWorker.MaxTotalOnetimeItemsUsages = value; }
+			// Thread safety is guaranteed by worker
+			get => _asyncActionQueueWorker.MaxTotalOnetimeItemsUsages;
+			set => _asyncActionQueueWorker.MaxTotalOnetimeItemsUsages = value;
 		}
 
 		public void StopAsync() {
@@ -90,7 +90,7 @@ namespace AlienJust.Support.Concurrent {
 
 		public void WaitStopComplete() {
 			_asyncActionQueueWorker.WaitStopComplete();
-			_debugLogger.Log("Background worke has been stopped");
+			_debugLogger.Log("Background worker has been stopped");
 			if (_isWaitAllTasksCompleteNeededOnStop) {
 				_totalFlowCounter.WaitForCounterChangeWhileNotPredecate(count => count == 0);
 				_debugLogger.Log("Total tasks count is now 0");

@@ -158,14 +158,6 @@ namespace AlienJust.Support.Concurrent
 				}
 				return result;
 			}
-
-			set
-			{
-				lock (_syncRunFlags)
-				{
-					_mustBeStopped = value;
-				}
-			}
 		}
 	}
 }

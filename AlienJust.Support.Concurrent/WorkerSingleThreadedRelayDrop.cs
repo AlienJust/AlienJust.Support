@@ -9,16 +9,15 @@ namespace AlienJust.Support.Concurrent {
 		private readonly ManualResetEvent _signal;
 
 		private readonly Action<TItem> _action;
-		
+
 
 		private bool _isInProgress;
 		private bool _isRunning;
 		private bool _mustBeStopped; // Флаг, подающий фоновому потоку сигнал о необходимости завершения (обращение идет через потокобезопасное свойство MustBeStopped)
 		private TItem _item;
-		
 
-		public WorkerSingleThreadedRelayDrop(Action<TItem> action, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState)
-		{
+
+		public WorkerSingleThreadedRelayDrop(Action<TItem> action, ThreadPriority threadPriority, bool markThreadAsBackground, ApartmentState? apartmentState) {
 			_sync = new object();
 			_action = action;
 
@@ -27,7 +26,7 @@ namespace AlienJust.Support.Concurrent {
 			_isRunning = true;
 			_mustBeStopped = false;
 
-			_workThread = new Thread(WorkingThreadStart) {IsBackground = markThreadAsBackground, Priority = threadPriority};
+			_workThread = new Thread(WorkingThreadStart) { IsBackground = markThreadAsBackground, Priority = threadPriority };
 			if (apartmentState.HasValue) _workThread.SetApartmentState(apartmentState.Value);
 			_workThread.Start();
 		}
@@ -35,8 +34,7 @@ namespace AlienJust.Support.Concurrent {
 
 		public void AddWork(TItem workItem) {
 			lock (_sync) {
-				if (!_mustBeStopped && !_isInProgress)
-				{
+				if (!_mustBeStopped && !_isInProgress) {
 					_item = workItem;
 					_isInProgress = true;
 					_signal.Set();
@@ -71,10 +69,8 @@ namespace AlienJust.Support.Concurrent {
 			}
 		}
 
-		public void StopSynchronously()
-		{
-			if (IsRunning)
-			{
+		public void StopSynchronously() {
+			if (IsRunning) {
 				lock (_sync) {
 					_mustBeStopped = true;
 					_signal.Set();
@@ -85,45 +81,29 @@ namespace AlienJust.Support.Concurrent {
 			}
 		}
 
-		public bool IsRunning
-		{
-			get
-			{
+		public bool IsRunning {
+			get {
 				bool result;
-				lock (_sync)
-				{
+				lock (_sync) {
 					result = _isRunning;
 				}
 				return result;
 			}
 
-			private set
-			{
-				lock (_sync)
-				{
+			private set {
+				lock (_sync) {
 					_isRunning = value;
 				}
 			}
 		}
 
-		private bool MustBeStopped
-		{
-			get
-			{
+		private bool MustBeStopped {
+			get {
 				bool result;
-				lock (_sync)
-				{
+				lock (_sync) {
 					result = _mustBeStopped;
 				}
 				return result;
-			}
-
-			set
-			{
-				lock (_sync)
-				{
-					_mustBeStopped = value;
-				}
 			}
 		}
 	}

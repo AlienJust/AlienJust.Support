@@ -66,7 +66,7 @@ namespace AlienJust.Support.Concurrent
 
 		public void WaitStopComplete() {
 			_asyncActionQueueWorker.WaitStopComplete();
-			_debugLogger.Log("Background worke has been stopped            ,,,,,,,,,,,,,,", new StackTrace());
+			_debugLogger.Log("Background worker has been stopped            ,,,,,,,,,,,,,,", new StackTrace());
 			if (_isWaitAllTasksCompleteNeededOnStop) {
 				_flowCounter.WaitForCounterChangeWhileNotPredecate(count => count == 0);
 				_debugLogger.Log("Total tasks count is now 0                   ..............", new StackTrace());

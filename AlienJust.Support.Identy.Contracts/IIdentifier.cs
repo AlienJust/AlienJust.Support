@@ -1,6 +1,6 @@
 ﻿namespace AlienJust.Support.Identy.Contracts {
 	/// <summary>
-	/// Idenstifier, allows to identy something (now only  by string comparision)
+	/// Identifier, allows to identify something (now only  by string comparison)
 	/// </summary>
 	public interface IIdentifier
 	{

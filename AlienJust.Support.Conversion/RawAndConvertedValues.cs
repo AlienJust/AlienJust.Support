@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using AlienJust.Support.Conversion.Contracts;
+﻿using AlienJust.Support.Conversion.Contracts;
 
 namespace AlienJust.Support.Conversion
 {

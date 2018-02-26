@@ -1,5 +1,4 @@
-﻿namespace AlienJust.Support.Conversion.Contracts
-{
+﻿namespace AlienJust.Support.Conversion.Contracts {
 	/// <summary>
 	/// Converts single source objects to result one
 	/// </summary>

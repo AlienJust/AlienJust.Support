@@ -1,14 +1,11 @@
 ﻿using AlienJust.Support.Conversion.Contracts;
 
-namespace AlienJust.Support.Conversion
-{
-	public sealed class RawAndConvertedValuesSimple<TRaw, TConverted> : IRawAndConvertedValues<TRaw, TConverted>
-	{
+namespace AlienJust.Support.Conversion {
+	public sealed class RawAndConvertedValuesSimple<TRaw, TConverted> : IRawAndConvertedValues<TRaw, TConverted> {
 		public TRaw RawValue { get; }
 		public TConverted ConvertedValue { get; }
 
-		public RawAndConvertedValuesSimple(TRaw rawValue, TConverted convertedValue)
-		{
+		public RawAndConvertedValuesSimple(TRaw rawValue, TConverted convertedValue) {
 			RawValue = rawValue;
 			ConvertedValue = convertedValue;
 		}

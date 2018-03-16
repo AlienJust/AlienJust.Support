@@ -1,4 +1,5 @@
-﻿using AlienJust.Support.Conversion.Contracts;
+﻿using System;
+using AlienJust.Support.Conversion.Contracts;
 
 namespace AlienJust.Support.Conversion {
 	public sealed class RawAndConvertedValuesSimple<TRaw, TConverted> : IRawAndConvertedValues<TRaw, TConverted> {
@@ -11,7 +12,12 @@ namespace AlienJust.Support.Conversion {
 		}
 
 		public override string ToString() {
-			return RawValue + " - " + ConvertedValue;
+			try {
+				return RawValue + " - " + ConvertedValue;
+			}
+			catch (Exception e) {
+				return e.ToString();
+			}
 		}
 	}
 }

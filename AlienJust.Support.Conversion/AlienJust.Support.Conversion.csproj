@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuilderOneToOneFunc.cs" />
+    <Compile Include="BuilderOneToOneNullableString.cs" />
     <Compile Include="RawAndConvertedValues.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RawAndConvertedValuesWithStringPresentation.cs" />

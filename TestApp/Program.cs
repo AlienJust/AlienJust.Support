@@ -2,11 +2,10 @@
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using AlienJust.Support.Collections;
 using AlienJust.Support.Concurrent;
-using AlienJust.Support.Concurrent.Contracts;
 using AlienJust.Support.Loggers;
 using AlienJust.Support.Loggers.Contracts;
-using AlienJust.Support.Numeric;
 using AlienJust.Support.Text;
 using AlienJust.Support.Text.Contracts;
 
@@ -15,9 +14,19 @@ namespace TestApp {
 		private static void Main(string[] args) {
 			GlobalLogger.Setup(new RelayActionLogger(Console.WriteLine));
 
-			var array = new byte[] {20, 33, 0, 0, 0, 0, 0, 0};
-			MathExtensions.FillCrc16AtTheEndOfArrayHighLow(array);
-			GlobalLogger.Instance.Log(array.ToText());
+			long value = 7777_7777_7777_7777;
+			Console.WriteLine(value.ToString("X16"));
+			
+			BytesOcta octa = BytesOcta.ToBcdLowFirst(value); // GENERATE HEX VALUE 0x7777 7777  7777 7777
+
+			Console.WriteLine(octa);
+
+			Console.WriteLine(octa.LowFirstBcd); // CONVERT HEX TO DEC
+			//Console.WriteLine(octa.LowFirstBcd.ToString("X16"));
+			//Console.WriteLine(octa.LowFirstSignedValue.ToString("X16"));
+			//var array = new byte[] {20, 33, 0, 0, 0, 0, 0, 0};
+			//MathExtensions.FillCrc16AtTheEndOfArrayHighLow(array);
+			//GlobalLogger.Instance.Log(array.ToText());
 
 			Console.ReadKey(true);
 		}

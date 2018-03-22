@@ -67,6 +67,22 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AlienJust.Support.Collections.Contracts\AlienJust.Support.Collections.Contracts.csproj">
+      <Project>{2606bcef-f695-4f55-a04b-d42f827621aa}</Project>
+      <Name>AlienJust.Support.Collections.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Collections\AlienJust.Support.Collections.csproj">
+      <Project>{0c848ffb-21e7-4f99-adc4-b95c2be8c84f}</Project>
+      <Name>AlienJust.Support.Collections</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Composition.Contracts\AlienJust.Support.Composition.Contracts.csproj">
+      <Project>{38a157d7-637b-4468-a79f-e9777ffd9949}</Project>
+      <Name>AlienJust.Support.Composition.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AlienJust.Support.Composition\AlienJust.Support.Composition.csproj">
+      <Project>{a8a5c471-d72f-4cb5-8a43-4bbf81a5d30e}</Project>
+      <Name>AlienJust.Support.Composition</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AlienJust.Support.Reflection\AlienJust.Support.Reflection.csproj">
       <Project>{B6E41687-40C6-42A9-A523-3B92E9E952CA}</Project>
       <Name>AlienJust.Support.Reflection</Name>

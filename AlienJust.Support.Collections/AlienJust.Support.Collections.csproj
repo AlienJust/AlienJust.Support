@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ByteExtensions.cs" />
     <Compile Include="BytesPair.cs" />
     <Compile Include="BytesOcta.cs" />
     <Compile Include="BytesQuad.cs" />

@@ -116,7 +116,7 @@ namespace AlienJust.Support.Collections {
 		/// </summary>
 		/// <param name="bcdValueHf">BCD значение</param>
 		/// <returns>Новая структура</returns>
-		public static BytesPair FromBcdHighFirst(int bcdValueHf) {
+		public static BytesPair ToBcdHighFirst(int bcdValueHf) {
 			if (bcdValueHf < 0 || bcdValueHf > 9999) throw new ArgumentException();
 			int bcd = 0;
 			for (int digit = 0; digit < 4; ++digit) {
@@ -132,7 +132,7 @@ namespace AlienJust.Support.Collections {
 		/// </summary>
 		/// <param name="bcdValueLf">BCD значение</param>
 		/// <returns>Новая структура</returns>
-		public static BytesPair FromBcdLowFirst(int bcdValueLf) {
+		public static BytesPair ToBcdLowFirst(int bcdValueLf) {
 			if (bcdValueLf < 0 || bcdValueLf > 9999) throw new ArgumentException();
 			int bcd = 0;
 			for (int digit = 0; digit < 4; ++digit) {
@@ -159,15 +159,5 @@ namespace AlienJust.Support.Collections {
 
 		public int HighFirstBcd => First.ToBcdInteger() * 100 + Second.ToBcdInteger();
 		public int LowFirstBcd => Second.ToBcdInteger() * 100 + First.ToBcdInteger();
-	}
-
-	public static class ByteExtensions
-	{
-		public static int ToBcdInteger(this byte currentByte)
-		{
-			int high = currentByte >> 4;
-			int low = currentByte & 0xF;
-			return 10 * high + low;
-		}
 	}
 }

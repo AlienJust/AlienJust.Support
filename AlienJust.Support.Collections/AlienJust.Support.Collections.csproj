@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BytesPair.cs" />
+    <Compile Include="BytesOcta.cs" />
     <Compile Include="BytesQuad.cs" />
     <Compile Include="IlistExtensions.cs" />
     <Compile Include="InrowPartitioner.cs" />

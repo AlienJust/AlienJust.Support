@@ -137,19 +137,19 @@ namespace AlienJust.Support.Collections {
 		/// <summary>
 		/// Возвращает BCD значение структуры  считая первый байт старшим
 		/// </summary>
-		public int HighFirstBcd => First.ToBcdInteger() * 1000000 + Second.ToBcdInteger() * 10000 + Third.ToBcdInteger() * 100 + Fourth.ToBcdInteger();
+		public int HighFirstBcd => First.AsBcd() * 1000000 + Second.AsBcd() * 10000 + Third.AsBcd() * 100 + Fourth.AsBcd();
 
 		/// <summary>
 		/// Возвращает BCD значение структуры  считая первый байт младшим
 		/// </summary>
-		public int LowFirstBcd => Fourth.ToBcdInteger() * 1000000 + Third.ToBcdInteger() * 10000 + Second.ToBcdInteger() * 100 + First.ToBcdInteger();
+		public int LowFirstBcd => Fourth.AsBcd() * 1000000 + Third.AsBcd() * 10000 + Second.AsBcd() * 100 + First.AsBcd();
 
 		/// <summary>
 		/// Создаёт структуру из BCD числа считая первый байт старшим
 		/// </summary>
 		/// <param name="bcdValueHf">BCD значение</param>
 		/// <returns>Новая структура</returns>
-		public static BytesQuad ToBcdHighFirst(int bcdValueHf) {
+		public static BytesQuad FromBcdHighFirst(int bcdValueHf) {
 			if (bcdValueHf < 0 || bcdValueHf > 99999999) throw new ArgumentException();
 			int bcd = 0;
 			for (int digit = 0; digit < 8; ++digit) {
@@ -165,7 +165,7 @@ namespace AlienJust.Support.Collections {
 		/// </summary>
 		/// <param name="bcdValueLf">BCD значение</param>
 		/// <returns>Новая структура</returns>
-		public static BytesQuad ToBcdLowFirst(int bcdValueLf) {
+		public static BytesQuad FromBcdLowFirst(int bcdValueLf) {
 			if (bcdValueLf < 0 || bcdValueLf > 99999999) throw new ArgumentException();
 			int bcd = 0;
 			for (int digit = 0; digit < 8; ++digit) {

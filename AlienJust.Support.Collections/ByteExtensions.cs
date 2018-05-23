@@ -2,10 +2,10 @@
 {
 	public static class ByteExtensions
 	{
-		public static int ToBcdInteger(this byte currentByte)
+		public static int AsBcd(this byte bcdValueByte)
 		{
-			int high = currentByte >> 4;
-			int low = currentByte & 0xF;
+			int high = bcdValueByte >> 4;
+			int low = bcdValueByte & 0xF;
 			return 10 * high + low;
 		}
 	}

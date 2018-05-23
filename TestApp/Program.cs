@@ -17,7 +17,7 @@ namespace TestApp {
 			long value = 7777_7777_7777_7777;
 			Console.WriteLine(value.ToString("X16"));
 			
-			BytesOcta octa = BytesOcta.ToBcdLowFirst(value); // GENERATE HEX VALUE 0x7777 7777  7777 7777
+			BytesOcta octa = BytesOcta.FromBcdLowFirst(value); // GENERATE HEX VALUE 0x7777 7777  7777 7777
 
 			Console.WriteLine(octa);
 
